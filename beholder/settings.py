@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+from keys.beholder import beholder
+
+beholder = beholder()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,12 +23,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '+*^eiyhz3!m2d5#1rxdgl1+sr2@%3+ae)7!^+9xh4t%_)oloz8'
+SECRET_KEY = beholder.key['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['138.68.251.93','127.0.0.1','irwinbros.net']
+ALLOWED_HOSTS = ['127.0.0.1', ]
 
 # Application definition
 
@@ -78,9 +81,9 @@ WSGI_APPLICATION = 'beholder.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'beholder',
-        'USER': 'dusty',
-        'PASSWORD': 'M@nd!1003',
+        'NAME': beholder.dbkey['NAME'],
+        'USER': beholder.dbkey['USER'],
+        'PASSWORD': beholder.dbkey['PASSWORD'],
         'HOST': 'localhost',
         'PORT': '',
     }
