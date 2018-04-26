@@ -7,7 +7,10 @@ import re
 import xmltodict
 import json
 
-"Beholder API for amazon products."
+
+"""
+Beholder API for amazon products.
+"""
 
 
 class amazonAPI:
