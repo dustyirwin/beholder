@@ -89,8 +89,8 @@ class ebayAPI:
             _data['ASINInfo'] = {}
             _data['priced'] = False
             _data['purchased'] = False
-            _data['created'] = datetime.datetime.now()
-            _data['lastModified'] = datetime.datetime.now()
+            _data['created'] = datetime.datetime.now().__str__()
+            _data['lastModified'] = datetime.datetime.now().__str__()
 
             ebayItem = ebayModel(
                 name=_data['Title'],
