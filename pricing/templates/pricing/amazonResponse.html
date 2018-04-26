@@ -1,0 +1,119 @@
+{% if request.GET.itemId %}
+<center><h4><a href="{{ ebayItem.ebay_data.ViewItemURLForNaturalSearch }}"><strong>{{ ebayItem.name }}</strong></a></h4></center>
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingOne">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <center><< eBay Item Details >></center>
+        </a>
+      </h4>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+      <div class="panel-body" align="center">
+          {% for itemURL in ebayItem.data.PictureURL %}
+            <a href="{{ itemURL }}" target="_blank"><img style="padding-bottom:4px" src="{{ itemURL }}" height="150" width="auto"></a>
+          {% endfor %}
+          {% if item.data.ConditionDescription %}
+            <p><strong>Condition:</strong> {{ ebayItem.data.ConditionDescription }}</p>
+          {% endif %}
+          <p><strong>Description:</strong> {{ ebayItem.data.Description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{% for item in items %}
+  {% if item.data.financial.current %}
+    <div class="bg-success text-white">
+      <ul class="list-inline">
+        <li>
+          <h4 style="padding-left:10px"><strong><a href="{{ item.DetailPageURL }}" target="_blank">{{ item.data.ItemAttributes.Title }}</a></strong></h4>
+        </li>
+    {% else %}
+      <div>
+        <ul class="list-inline">
+          <li>
+            <h4 style="padding-left:10px"><strong><a href="{{ item.DetailPageURL }}" target="_blank">{{ item.data.ItemAttributes.Title }}</a></strong></h4>
+          </li>
+    {% endif %}
+    {% if request.GET.itemId %}
+      <li>
+        <div style="padding-bottom:5px">
+          <form method="get" action="{% url 'pricing:priceItem' %}">
+            <button type="submit" class="btn btn-success">Select</button>
+            <input type="hidden" name="ASIN" value="{{ item.ASIN }}" class="form-control">
+            <input type="hidden" name="itemId" value="{{ request.GET.itemId }}" class="form-control">
+            <input type="hidden" name="amazonCatId" value="{{ request.GET.amazonCatId }}" class="form-control">
+            <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+            <input type="hidden" name="keywords" value="{{ request.GET.keywords }}">
+          </form>
+        </div>
+      </li>
+    {% else %}
+      <li>
+        <div style="padding-bottom:5px">
+          <form method="get" action="">
+            <button type="submit" class="btn btn-primary">Scrape</button>
+            <input type="hidden" name="ASIN" value="{{ item.ASIN }}">
+            <input type="hidden" name="amazonCatId" value="{{ request.GET.amazonCatId }}" class="form-control">
+            <input type="hidden" name="keywords" value=" {{ request.GET.keywords }}">
+          </form>
+        </div>
+      </li>
+      <li>
+        <div style="padding-bottom:5px">
+          <form method="get" action="sourceItem">
+            <button type="submit" class="btn btn-primary">Source</button>
+            <input type="hidden" name="ASIN" value="{{ item.ASIN }}">
+            <input type="hidden" name="amazonCatId" value="{{ request.GET.amazonCatId }}" class="form-control">
+            <input type="hidden" name="ebayCatId" value="139971">
+            <input type="hidden" name="UPC" value="{{ item.ItemAttributes.UPC }}">
+            <input type="hidden" name="keywords" value="{{ request.GET.keywords }}">
+            <input type="hidden" name="page" value="1">
+          </form>
+        </div>
+      </li>
+    {% endif %}
+    </ul>
+    <ul class="list-inline" style="padding-left:10px;">
+      <li><p>Rank: <strong>{{ item.data.SalesRank }}</strong></p></li>
+      <li><p>UsedOffers: <strong>{{ item.data.OfferSummary.TotalUsed }}</strong></p></li>
+      <li><p>LowUsed: <strong>{{ item.data.OfferSummary.LowestUsedPrice.FormattedPrice }}</strong></p></li>
+      {% if item.financial.current.primePrices %}
+      <li><p>LowUsedPrime: <strong>${{ item.financial.current.primePrices.lowPrime }}</strong></p></li>
+      <li><p>AvgUsedPrime: <strong>${{ item.financial.current.primePrices.avgPrime }}</strong></p></li>
+      {% endif %}
+       <li><p>NewOffers: <strong>{{ item.data.OfferSummary.TotalNew }}</strong></p></li>
+      <li><p>LowNew: <strong>{{ item.data.OfferSummary.LowestNewPrice.FormattedPrice }}</strong></p></li>
+      {% if item.financial.current.primePrices %}
+      <li><p>TTP: <strong>{{ item.financial.current.TTP }} mins</strong></p></li>
+      <li><p>Net: $<strong>{{ item.financial.current.net }}</strong></p></li>
+      <li><p>LastUpdate: <strong>{{ item.financial.current.datetimeStamp }}</strong>
+      {% endif %}
+    </ul>
+  </div>
+    <ul class="list-inline">
+      <li>
+        <img src="{{ item.data.LargeImage.URL }}" height="200" width="auto" align="left" style="padding-left:10px;padding-right:10px">
+        <p style="padding-left:10px"><strong>Product Description: </strong>{{ item.data.EditorialReviews.EditorialReview.Content|safe|linebreaks }}</p>
+      </li>
+    </ul>
+    <div style="padding:5px" class="panel-group" id="accordion0" role="tablist" aria-multiselectable="true">
+    <div class="panel panel-default">
+      <div class="panel-heading" role="tab" id="heading{{ forloop.counter }}">
+        <h5 class="panel-title">
+          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+            <center><<  Additional Images  >></center></a>
+        </h5>
+      </div>
+      <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{ forloop.counter }}">
+        <div class="panel-body">
+          {% for img in item.data.ImageSets.ImageSet %}
+            <a href="{{ img.LargeImage.URL }}"><img src="{{ img.TinyImage.URL }}"></a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+{% endfor %}

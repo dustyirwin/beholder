@@ -1,0 +1,20 @@
+{% extends "login/header.html" %}
+{% block content %}
+  <p>THIS IS THE DROP-SHIP SOURCING HOMEPAGE</p>
+  {% for item in object_list %}
+    <div>
+      <h5>{{ item.created|date:"Y-m-d" }}</h5>
+      <h4><a href="{% url 'inventory:Details' itemId=item.itemId %}">{{ item.name }}</a></h4>
+      <ul class="list-inline">
+        <li><p>MaxBid@40: <strong>${{ item.financial.current.maxBid40 }}</strong></p></li>
+        <li><p>maxBid@150LR: <strong>${{ item.financial.current.maxBid150LR }}</strong></p></li>
+        <li><p>TotalNet: <strong>${{ item.financial.current.totalNet }}</strong></p></li>
+      </ul>
+    </div>
+  {% endfor %}
+  
+
+
+
+
+{% endblock %}

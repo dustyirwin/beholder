@@ -1,0 +1,8 @@
+Django==2.0
+psycopg2==2.7.3.2
+ebaysdk==2.1.5
+bottlenose==1.1.7
+xmltodict==0.11.0
+beautifulsoup4==4.6.0
+isodate==0.6.0
+mws==0.7.4

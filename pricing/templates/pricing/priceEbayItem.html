@@ -1,0 +1,193 @@
+{% extends 'pricing/ebay.html' %}
+
+{% block content %}
+  <div class="container-fluid" style="background-color:Gainsboro;" align="center">
+    <h4><strong><a href="{{ ebayItem.data.ViewItemURLForNaturalSearch }}" target="_blank">{{ ebayItem.name }}</a></strong></h4>
+    <ul class="list-inline">
+      <li><p>CurrentPrice: <strong>${{ ebayItem.data.ConvertedCurrentPrice.value }}</strong></p></li>
+      <li><p>eBayShip: <strong>${{ ebayItem.data.ShippingCostSummary.ShippingServiceCost.value }}</strong></p></li>
+      <li><p>Condition: <strong>{{ ebayItem.data.ConditionDisplayName }}</strong></p></li>
+      <li><p>Bids: <strong>{{ ebayItem.data.BidCount }}</strong></p><li>
+      <li><p>TimeLeft: <strong>{{ ebayItem.data.TimeLeftStr }}</strong></p></li>
+      <li><h5>Sales: <strong>${{ ebayItem.financial.current.totalSales }}</strong></h5></li>
+      <li><h5>FBAFees: <strong>${{ ebayItem.financial.current.totalFBAFees }}</strong></h5></li>
+      <li><h5>SellFees: <strong>${{ ebayItem.financial.current.totalSellFees }}</strong></h5></li>
+      <li><h5>FBAShip: <strong>${{ ebayItem.financial.current.totalFBAShipping }}</strong></h5></li>
+      <li><h5>NetValue: <strong>${{ ebayItem.financial.current.totalNet }}</strong></h5>
+      <li><h5>TTP: <strong>{{ ebayItem.financial.current.totalTTP }}</strong> mins</h5></li>
+    </ul>
+    <ul class="list-inline">
+      <li><h4>Profit@40%: <strong>${{ ebayItem.financial.current.profit40 }}</strong></h4></li>
+      <li><h4>MaxBid@40%: <strong>${{ ebayItem.financial.current.maxBid40 }}</strong></h4></li>
+      <li><h4>LaborRate@40%: <strong>${{ ebayItem.financial.current.laborRate40 }}/hr</strong></h4></li>
+      <li><h4>MaxBid@100LR <strong>${{ ebayItem.financial.current.maxBid100LR }}</strong></h4></li>
+    </ul>
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingOne">
+          <h4 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              <center><< eBay Item Details >></center>
+            </a>
+          </h4>
+        </div>
+        <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+          <div class="panel-body">
+            {% for itemURL in ebayItem.data.PictureURL %}
+              <a href="{{ itemURL }}"><img src="{{ itemURL }}" height="150" width="auto"></a>
+            {% endfor %}
+            <div class="row" align="left">
+              <div class="col-xs-8" align="center">
+                {% if item.data.ConditionDescription %}
+                   <p><strong>Condition:</strong> {{ ebayItem.data.ConditionDescription }}</p>
+                {% endif %}
+                <p style="padding-top:20px"><strong>Description:</strong> {{ ebayItem.data.Description }}</p>
+              </div>
+              <div class="col-xs-4" align="center">
+                <form action="" method="get"><button style="visibility:hidden;" type="submit"></button>
+                  <ul class="list-inline">
+                    <li><p style="padding-top:10px;padding-bottom:0px">Current Price: <strong>$</strong><input type="text" style="width:60px" name="currentPrice" value="{{ ebayItem.data.ConvertedCurrentPrice.value }}" class="form-control"></p></li>
+                    <li><p>Shipping: <strong>$</strong><input type="text" style="width:60px" name="ebayShipping" value="{{ ebayItem.data.ShippingCostSummary.ShippingServiceCost.value }}" class="form-control"></p></li>
+                    <li>
+                      <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+                      <input type="hidden" name="amazonCatId" value="{{ request.GET.amazonCatId }}">
+                      <input type="hidden" name="itemId" value="{{ request.GET.itemId }}">
+                    </li>
+                  </ul>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row" align="left">
+      <div class="col-xs-8">
+        <form action="find" method="get">
+          <ul class="list-inline" style="padding-left:10px">
+            <li><input type="text" name="keywords" value="{{ request.GET.keywords }}" style="width:200px" class="form-control" placeholder="Search amazon in..."></li>
+            <li><input type="text" name="amazonCatId" value="VideoGames" style="width:110px" class="form-control" placeholder="in category..."></li>
+            <li><button type="submit" class="btn btn-default">Go</button></li>
+          </ul>
+          <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+          <input type="hidden" name="itemId" value="{{ request.GET.itemId }}">
+        </form>
+      </div>
+      <div class="col-xs-4" align="right">
+        <ul class="list-inline">
+          <li>
+            <form action="" method="get">
+              <center><label>ItemId:</label>
+              <input type="text" name="itemId" value="{{ request.GET.itemId }}" style="width:120px" class="form-control" placeholder="eBay ItemId..."></center>
+              <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+            </form>
+          </li>
+          <li>
+              <a href="https://www.myibidder.com/main" target="_blank" type="button" class="btn btn-success">Snipe!</a>
+          </li>
+          <li>
+            <form action="{% url 'pricing:ebay' %}" method="get">
+              <button type="submit" class="btn btn-primary">Exit</button>
+              <input type="hidden" name="itemId" value="{{ request.GET.itemId }}">
+              <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+              <input type="hidden" name="finished" value="finished">
+            </form>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<div>
+  {% for amazonItem in amazonItems %}
+    <div class="col-xs-2" align="center" style="padding-top:10px">
+      <img src="{{ amazonItem.data.SmallImage.URL }}" height="100" width="100">
+    </div>
+    <div class="col-xs-10" align="left">
+      <form action="{% url 'pricing:priceItem' %}" method="get">
+        <ul class="list-inline">
+          <li>
+           <div class="btn-group" data-toggle="buttons">
+               {% if amazonItem.type == "game" %}
+                <label class="btn btn-primary active">
+                  <input type="radio" name="itemType" value="game" checked>GM
+                {% else %}
+                <label class="btn btn-primary">
+                  <input type="radio" name="itemType" value="game">GM
+                {% endif %}
+                </label>
+                {% if amazonItem.type == "console" %}
+                  <label class="btn btn-primary active">
+                    <input type="radio" name="itemType" value="console" checked>CN
+                {% else %}
+                  <label class="btn btn-primary">
+                    <input type="radio" name="itemType" value="console">CN
+                {% endif %}
+              </label>
+              {% if amazonItem.type == "accessory" %}
+                <label class="btn btn-primary active">
+                  <input type="radio" name="itemType" value="accessory" checked>AC
+              {% else %}
+                <label class="btn btn-primary">
+                  <input type="radio" name="itemType" value="accessory">AC
+              {% endif %}
+                </label>
+            </div>
+          </li>
+          <li>
+            <h4><strong><a href="{{ amazonItem.data.DetailPageURL }}" target="_blank">{{ amazonItem.name }}</a></strong></h4>
+          </li>
+        </ul>
+        <ul class="list-inline">
+          <li>
+            <label>Qty</label>
+            <input type="text" style="width:35px" name="qty" value="{{ amazonItem.financial.current.qty }}" class="form-control" placeholder="qty" aria-describedby="sizing-addon3">
+          </li>
+          <li>
+            <label>ListPrice</label>
+            <input type="text" style="width:70px" name="listPrice" value="{{ amazonItem.financial.current.listPrice }}" class="form-control" placeholder="$$$" aria-describedby="sizing-addon3">
+          </li>
+          <li>
+              <label>TTP</label>
+              <input type="text" style="width:42px" name="TTP" value="{{ amazonItem.financial.current.TTP }}" class="form-control" placeholder="min" aria-describedby="sizing-addon3">
+          </li>
+          <li>
+              <label>Wt</label>
+              <input type="text" style="width:53px" name="Weight" value="{{ amazonItem.financial.current.Weight }}" class="form-control" placeholder="lbs" aria-describedby="sizing-addon3">
+          </li>
+          <li>
+            <label>Sell</label>
+            <p>${{ amazonItem.financial.current.sellFee }}</p>
+          </li>
+          <li>
+              <label>FBA</label>
+              <p>${{ amazonItem.financial.current.FBAFee }}</p>
+          </li>
+          <li>
+            <label>Ship</label>
+            <p>${{ amazonItem.financial.current.FBAShip }}</p>
+          </li>
+          <li>
+            <label>LPrm</label>
+            <p>${{ amazonItem.financial.current.primePrices.lowPrime }}</p>
+          </li>
+          <li>
+            <label>Net</label>
+            <p>${{ amazonItem.financial.current.net }}</p>
+          </li>
+          <li>
+            <button type="submit" style="visibility:hidden;" class="btn btn-default"></button>
+          </li>
+        </ul>
+        <input type="hidden" name="ASIN" value="{{ amazonItem.ASIN }}">
+        <input type="hidden" name="amazonCatId" value="{{ request.GET.amazonCatId }}">
+        <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+        <input type="hidden" name="itemId" value="{{ request.GET.itemId }}">
+      </form>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+
+<!--CSRF TOKEN enctype="multipart/form-data -->

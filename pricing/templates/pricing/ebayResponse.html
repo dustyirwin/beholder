@@ -1,0 +1,58 @@
+{% for item in searchResult.item %}
+  {% if item.financial.current %}
+    <div class="bg-success text-white">
+  {% else %}
+    <div>
+  {% endif %}
+    <h4 style="padding-left:10px"><a href="{{ item.data.ViewItemURLForNaturalSearch }}" target="_blank">
+      <strong>{{ item.data.Title }}</strong></a>
+    </h4>
+      <ul class="list-inline" style="padding-left:10px">
+        <li><p>Condition: <strong>{{ item.data.ConditionDisplayName }}</strong></p></li>
+        <li><p>Bids: <strong>{{ item.data.BidCount }}</strong></p></li>
+        <li><p>Time Left: <strong>{{ item.data.TimeLeftStr }}</strong></p></li>
+        <li><p>Shipping: <strong>${{ item.data.ShippingCostSummary.ShippingServiceCost.value }}</strong></p></li>
+        <li><p>Current Price: <strong>${{ item.data.ConvertedCurrentPrice.value }}</strong></p></li>
+      {% if item.financial.current %}
+        <li>Total Net: <strong>${{ item.financial.current.totalNet }}</strong></li>
+        <li>MaxBid@40%: <strong>${{ item.financial.current.maxBid40 }}</strong></li>
+        <li>MaxBid@150LR: <strong>${{ item.financial.current.maxBid150LR }}</strong></li>
+      {% endif %}
+      </ul>
+
+
+
+    <div style="padding-left:10px">
+      {% for itemURL in item.data.PictureURL %}
+        <a href="{{ itemURL }}"><img src="{{ itemURL }}" height="150" width="auto"></a>
+      {% endfor %}
+    </div>
+    <div style="padding:10px" class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading{{ forloop.counter }}">
+          <h5 class="panel-title">
+          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+            <center><<  Listing Details  >></center>
+          </a>
+          </h5>
+        </div>
+        <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{ forloop.counter }}">
+          <div class="panel-body">
+            {% if item.data.ConditionDescription %}
+              <p>Condition: <strong>{{ item.data.ConditionDescription }}</strong></p>
+            {% endif %}
+            <p><strong>Description</strong>: {{ item.data.Description }}</p>
+            <form action="{% url 'pricing:priceEbayItem' %}" method="get">
+              <button class="btn btn-primary" type="submit" >Price Lot!</button>
+              <input type="hidden" name="itemId" value="{{ item.data.ItemID }}">
+              <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+              <input type="hidden" name="amazonCatId" value="VideoGames">
+              <input type="hidden" name="keywords" value="{{ request.GET.keywords }}">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+{% include 'pricing/pagination.html' %}
