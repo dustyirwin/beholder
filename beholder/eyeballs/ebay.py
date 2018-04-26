@@ -1,22 +1,23 @@
-import isodate, datetime
-from django.shortcuts import Http404
-#from django.utils import timezone
+import isodate
+import datetime
 from ebaysdk.finding import Connection as findingConnection
 from ebaysdk.shopping import Connection as shoppingConnection
 from .amazon import amazonAPI
+from keys.ebay import ebay
 
 
 class ebayAPI:
     def __init__(self):
+        self.ebay = ebay()
         self.itemFilters = [{
             'name': 'Condition',
             'value': ['1000', '1500', '1750', '2000', '3000', '4000', '5000', '6000']
             }]
         self.findingConnection = findingConnection(
-            appid='IrwinBro-Beholder-PRD-a57671867-195eb7d3',
+            appid=self.ebay.key['appid'],
             config_file=None,)
         self.shoppingConnection = shoppingConnection(
-            appid='IrwinBro-Beholder-PRD-a57671867-195eb7d3',
+            appid=self.ebay.key['appid'],
             config_file=None,)
 
     def getUPC(self, ebayModel): # Todo! function under construction!
@@ -34,7 +35,7 @@ class ebayAPI:
                 'sortOrder': 'EndTimeSoonest',
                 'outputSelector': ['GalleryURL', 'ConditionHistogram'],
                 'itemFilter': self.itemFilters,
-                'paginationInput':{
+                'paginationInput': {
                     'entriesPerPage': 25,
                     'pageNumber': request.GET.get('page')}
                 }).dict()
@@ -46,14 +47,14 @@ class ebayAPI:
         for i in range(int(ebayItems['paginationOutput']['totalPages'])):
             ebayItems['paginationOutput']['pageRange'].append(str(i+1))
 
-        #print(str('FindingResult.paginationOutput.totalPages: ' + str(ebayItems['paginationOutput']['totalPages'])))
-        #print(str('FindingResultItem: '+str(ebayItems['searchResult']['item'][0])))
+        # print(str('FindingResult.paginationOutput.totalPages: ' + str(ebayItems['paginationOutput']['totalPages'])))
+        # print(str('FindingResultItem: '+str(ebayItems['searchResult']['item'][0])))
 
         for i, item in enumerate(ebayItems['searchResult']['item']): #gathering description and shipping costs
             if ebayModel.objects.filter(itemId=item['itemId']).exists():
                 _item = ebayModel.objects.get(itemId=item['itemId'])
                 ebayItems['searchResult']['item'][i] = _item
-                print('eBayItem found in db!')
+                # print('eBayItem found in db!')
             else:
                 _item = self.shoppingConnection.execute(
                     'GetSingleItem',
@@ -97,11 +98,7 @@ class ebayAPI:
                 data=_data,
             ).save()
 
-            print(
-                'New item '
-                + str(ebayModel.objects.get(itemId=request.GET.get('itemId')).name)
-                + ' added to the database.'
-                )
+            # print('New item '+ str(ebayModel.objects.get(itemId=request.GET.get('itemId')).name)+ ' added to the database.')
             ebayItem = ebayModel.objects.get(itemId=request.GET.get('itemId'))
 
         if 'currentPrice' in request.GET:

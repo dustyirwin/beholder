@@ -81,16 +81,16 @@
       <li><p>Rank: <strong>{{ item.data.SalesRank }}</strong></p></li>
       <li><p>UsedOffers: <strong>{{ item.data.OfferSummary.TotalUsed }}</strong></p></li>
       <li><p>LowUsed: <strong>{{ item.data.OfferSummary.LowestUsedPrice.FormattedPrice }}</strong></p></li>
-      {% if item.financial.current.primePrices %}
-      <li><p>LowUsedPrime: <strong>${{ item.financial.current.primePrices.lowPrime }}</strong></p></li>
-      <li><p>AvgUsedPrime: <strong>${{ item.financial.current.primePrices.avgPrime }}</strong></p></li>
+      {% if item.data.financial.current.primePrices %}
+      <li><p>LowUsedPrime: <strong>${{ item.data.financial.current.primePrices.lowPrime }}</strong></p></li>
+      <li><p>AvgUsedPrime: <strong>${{ item.data.financial.current.primePrices.avgPrime }}</strong></p></li>
       {% endif %}
        <li><p>NewOffers: <strong>{{ item.data.OfferSummary.TotalNew }}</strong></p></li>
       <li><p>LowNew: <strong>{{ item.data.OfferSummary.LowestNewPrice.FormattedPrice }}</strong></p></li>
-      {% if item.financial.current.primePrices %}
-      <li><p>TTP: <strong>{{ item.financial.current.TTP }} mins</strong></p></li>
-      <li><p>Net: $<strong>{{ item.financial.current.net }}</strong></p></li>
-      <li><p>LastUpdate: <strong>{{ item.financial.current.datetimeStamp }}</strong>
+      {% if item.data.financial.current.primePrices %}
+      <li><p>TTP: <strong>{{ item.data.financial.current.TTP }} mins</strong></p></li>
+      <li><p>Net: $<strong>{{ item.data.financial.current.net }}</strong></p></li>
+      <li><p>LastUpdate: <strong>{{ item.data.financial.current.datetimeStamp }}</strong>
       {% endif %}
     </ul>
   </div>
