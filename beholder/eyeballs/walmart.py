@@ -1,4 +1,5 @@
-from requests import request
+"Class methods for Walmart Stores API"
+
 
 class walmartAPI:
     def __init__(self):
@@ -10,6 +11,10 @@ class walmartAPI:
         print(str(resp))
         return resp
 
-    def searchWalmart(self, request):
+    def search(self, request):
         query_URL = ''
         return {}
+
+    def price(self, request, WalmartDB):
+        print("Do cool stuff yo!")
+        
