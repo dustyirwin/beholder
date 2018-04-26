@@ -13,8 +13,7 @@ class walmartAPI:
 
     def search(self, request):
         query_URL = ''
-        return {}
+        return query_URL
 
     def price(self, request, WalmartDB):
         print("Do cool stuff yo!")
-        

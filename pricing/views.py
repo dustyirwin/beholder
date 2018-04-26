@@ -1,7 +1,4 @@
-from django.shortcuts import render, get_object_or_404, get_list_or_404, Http404
-#from django.views.generic import DetailView, ListView
-#from django.core.paginator import Paginator
-#from datetime import datetime
+from django.shortcuts import render
 from .models import Amazon, Ebay, Alibaba, Walmart
 from beholder.eyeballs import amazon as az
 from beholder.eyeballs import ebay as eb
@@ -15,6 +12,7 @@ def amazon(request):
 def searchAmazon(request):
     amazon = az.amazonAPI()
     amazonItems = amazon.search(request, Amazon)
+
     # if pricing an eBay item, insert ebayItem into context
     if request.GET.get('itemId'):
         ebayItem = Ebay.objects.get(itemId=request.GET.get('itemId'))
@@ -24,8 +22,10 @@ def searchAmazon(request):
     else:
         return render(request, 'pricing/amazon.html', {'items': amazonItems})
 
+
 def ebay(request):
     return render(request, 'pricing/ebay.html')
+
 
 def searchEbay(request):
     ebay = eb.ebayAPI()
@@ -33,10 +33,12 @@ def searchEbay(request):
 
     return render(request, 'pricing/ebay.html', ebayItems)
 
+
 def priceEbayItem(request):
     ebay = eb.ebayAPI()
     context = ebay.price(request, Ebay, Amazon)
     return render(request, 'pricing/priceEbayItem.html', context)
+
 
 def sourceItem(request):
     ebay = eb.ebayAPI()
