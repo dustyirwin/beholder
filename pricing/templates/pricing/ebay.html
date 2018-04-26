@@ -20,7 +20,7 @@
         </ul>
         <form action="{% url 'pricing:searchEbay' %}" method="get" class="navbar-form navbar-left">
             <div class="form-group">
-              <input style="width:160px" type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control" placeholder="Search for items in...">
+              <input style="width:160px" type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control" placeholder="Search for items...">
               <input style="width:110px" type="text" name="ebayCatId" value="{{ request.GET.ebayCatId }}" class="form-control" placeholder="in category...">
               <input type="hidden" name="page" value="1">
             </div>
