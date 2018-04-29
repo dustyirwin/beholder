@@ -1,6 +1,6 @@
 from django.shortcuts import Http404
 from bs4 import BeautifulSoup
-from keys.mws import mws
+from beholder.keys.keys import amazon
 import datetime
 import bottlenose
 import requests
@@ -16,7 +16,7 @@ Beholder API for amazon products.
 
 class amazonAPI:
     def __init__(self):
-        self.mws = mws()
+        self.mws = amazon()
         self.amazon = bottlenose.Amazon(
             self.mws.key['AWS_ACCESS_KEY'],
             self.mws.key['AWS_SECRET_ACCESS_KEY'],

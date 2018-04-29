@@ -1,5 +1,5 @@
 "Class methods for Walmart Stores API"
-from keys import walmart
+from beholder.keys.keys import walmart
 
 class walmartAPI:
     def __init__(self):

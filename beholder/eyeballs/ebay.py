@@ -3,7 +3,7 @@ import datetime
 from ebaysdk.finding import Connection as findingConnection
 from ebaysdk.shopping import Connection as shoppingConnection
 from .amazon import amazonAPI
-from keys.ebay import ebay
+from beholder.keys.keys import ebay
 
 
 class ebayAPI:
@@ -14,10 +14,10 @@ class ebayAPI:
             'value': ['1000', '1500', '1750', '2000', '3000', '4000', '5000', '6000']
             }]
         self.findingConnection = findingConnection(
-            appid=self.ebay.key['appid'],
+            appid=self.ebay.key['production']['appid'],
             config_file=None,)
         self.shoppingConnection = shoppingConnection(
-            appid=self.ebay.key['appid'],
+            appid=self.ebay.key['production']['appid'],
             config_file=None,)
 
     def getUPC(self, ebayModel): # Todo! function under construction!
