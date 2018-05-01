@@ -72,7 +72,7 @@ class amazonAPI:
             _data = {**_data, **{
                 'name': _data['ItemAttributes']['Title'],
                 'keywords': request.GET.get('keywords'),
-                'type': 'game',
+                'type': '',
                 'priced': False,
                 'purchased': False,
                 'created': datetime.datetime.now().__str__(),

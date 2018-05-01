@@ -9,18 +9,18 @@
       <li><p>Condition: <strong>{{ ebayItem.data.ConditionDisplayName }}</strong></p></li>
       <li><p>Bids: <strong>{{ ebayItem.data.BidCount }}</strong></p><li>
       <li><p>TimeLeft: <strong>{{ ebayItem.data.TimeLeftStr }}</strong></p></li>
-      <li><h5>Sales: <strong>${{ ebayItem.financial.current.totalSales }}</strong></h5></li>
-      <li><h5>FBAFees: <strong>${{ ebayItem.financial.current.totalFBAFees }}</strong></h5></li>
-      <li><h5>SellFees: <strong>${{ ebayItem.financial.current.totalSellFees }}</strong></h5></li>
-      <li><h5>FBAShip: <strong>${{ ebayItem.financial.current.totalFBAShipping }}</strong></h5></li>
-      <li><h5>NetValue: <strong>${{ ebayItem.financial.current.totalNet }}</strong></h5>
-      <li><h5>TTP: <strong>{{ ebayItem.financial.current.totalTTP }}</strong> mins</h5></li>
+      <li><h5>Sales: <strong>${{ ebayItem.data.financial.current.totalSales }}</strong></h5></li>
+      <li><h5>FBAFees: <strong>${{ ebayItem.data.financial.current.totalFBAFees }}</strong></h5></li>
+      <li><h5>SellFees: <strong>${{ ebayItem.data.financial.current.totalSellFees }}</strong></h5></li>
+      <li><h5>FBAShip: <strong>${{ ebayItem.data.financial.current.totalFBAShipping }}</strong></h5></li>
+      <li><h5>NetValue: <strong>${{ ebayItem.data.financial.current.totalNet }}</strong></h5>
+      <li><h5>TTP: <strong>{{ ebayItem.data.financial.current.totalTTP }}</strong> mins</h5></li>
     </ul>
     <ul class="list-inline">
-      <li><h4>Profit@40%: <strong>${{ ebayItem.financial.current.profit40 }}</strong></h4></li>
-      <li><h4>MaxBid@40%: <strong>${{ ebayItem.financial.current.maxBid40 }}</strong></h4></li>
-      <li><h4>LaborRate@40%: <strong>${{ ebayItem.financial.current.laborRate40 }}/hr</strong></h4></li>
-      <li><h4>MaxBid@100LR <strong>${{ ebayItem.financial.current.maxBid100LR }}</strong></h4></li>
+      <li><h4>Profit@40%: <strong>${{ ebayItem.data.financial.current.profit40 }}</strong></h4></li>
+      <li><h4>MaxBid@40%: <strong>${{ ebayItem.data.financial.current.maxBid40 }}</strong></h4></li>
+      <li><h4>LaborRate@40%: <strong>${{ ebayItem.data.financial.current.laborRate40 }}/hr</strong></h4></li>
+      <li><h4>MaxBid@100LR <strong>${{ ebayItem.data.financial.current.maxBid100LR }}</strong></h4></li>
     </ul>
     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
       <div class="panel panel-default">
@@ -103,11 +103,11 @@
       <img src="{{ amazonItem.data.SmallImage.URL }}" height="100" width="100">
     </div>
     <div class="col-xs-10" align="left">
-      <form action="{% url 'pricing:findASIN' %}" method="get">
+      <form action="" method="get">
         <ul class="list-inline">
           <li>
            <div class="btn-group" data-toggle="buttons">
-               {% if amazonItem.data.type == "game" %}
+               {% if request.GET.itemType == "game" %}
                 <label class="btn btn-primary active">
                   <input type="radio" name="itemType" value="game" checked>GM
                 {% else %}
@@ -115,7 +115,7 @@
                   <input type="radio" name="itemType" value="game">GM
                 {% endif %}
                 </label>
-                {% if amazonItem.data.type == "console" %}
+                {% if request.GET.itemType == "console" %}
                   <label class="btn btn-primary active">
                     <input type="radio" name="itemType" value="console" checked>CN
                 {% else %}
@@ -123,7 +123,7 @@
                     <input type="radio" name="itemType" value="console">CN
                 {% endif %}
               </label>
-              {% if amazonItem.type == "accessory" %}
+              {% if request.GET.itemType == "accessory" %}
                 <label class="btn btn-primary active">
                   <input type="radio" name="itemType" value="accessory" checked>AC
               {% else %}
