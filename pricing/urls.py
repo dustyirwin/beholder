@@ -17,5 +17,5 @@ urlpatterns = [
     url(r'^alibaba/search/$', views.searchAmazon, name='searchAlibaba'),
 
     url(r'^priceEbayItem/$', views.priceEbayItem, name='priceEbayItem'),
-    url(r'^priceAmazonItem/find$', views.searchAmazon, name='findASIN'),
+    url(r'^priceAmazonItem/$', views.searchAmazon, name='findASIN'),
 ]

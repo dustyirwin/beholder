@@ -63,10 +63,10 @@
     </div>
     <div class="row" align="left">
       <div class="col-xs-8">
-        <form action="find" method="get">
-          <ul class="list-inline" style="padding-left:10px">
+        <form action="{% url 'pricing:findASIN' %}" method="get">
+          <ul class="list-inline" style="padding-left:5px">
             <li><input type="text" name="keywords" value="{{ request.GET.keywords }}" style="width:200px" class="form-control" placeholder="Search amazon in..."></li>
-            <li><input type="text" name="amazonCatId" value="VideoGames" style="width:110px" class="form-control" placeholder="in category..."></li>
+            <li><input type="text" name="amazonCatId" value="{{ request.GET.amazonCatId }}" style="width:110px" class="form-control" placeholder="in category..."></li>
             <li><button type="submit" class="btn btn-default">Go</button></li>
           </ul>
           <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
@@ -103,11 +103,11 @@
       <img src="{{ amazonItem.data.SmallImage.URL }}" height="100" width="100">
     </div>
     <div class="col-xs-10" align="left">
-      <form action="{% url 'pricing:priceItem' %}" method="get">
+      <form action="{% url 'pricing:findASIN' %}" method="get">
         <ul class="list-inline">
           <li>
            <div class="btn-group" data-toggle="buttons">
-               {% if amazonItem.type == "game" %}
+               {% if amazonItem.data.type == "game" %}
                 <label class="btn btn-primary active">
                   <input type="radio" name="itemType" value="game" checked>GM
                 {% else %}
@@ -115,7 +115,7 @@
                   <input type="radio" name="itemType" value="game">GM
                 {% endif %}
                 </label>
-                {% if amazonItem.type == "console" %}
+                {% if amazonItem.data.type == "console" %}
                   <label class="btn btn-primary active">
                     <input type="radio" name="itemType" value="console" checked>CN
                 {% else %}
@@ -140,39 +140,39 @@
         <ul class="list-inline">
           <li>
             <label>Qty</label>
-            <input type="text" style="width:35px" name="qty" value="{{ amazonItem.financial.current.qty }}" class="form-control" placeholder="qty" aria-describedby="sizing-addon3">
+            <input type="text" style="width:35px" name="qty" value="{{ amazonItem.data.financial.current.qty }}" class="form-control" placeholder="qty" aria-describedby="sizing-addon3">
           </li>
           <li>
             <label>ListPrice</label>
-            <input type="text" style="width:70px" name="listPrice" value="{{ amazonItem.financial.current.listPrice }}" class="form-control" placeholder="$$$" aria-describedby="sizing-addon3">
+            <input type="text" style="width:70px" name="listPrice" value="{{ amazonItem.data.financial.current.listPrice }}" class="form-control" placeholder="$$$" aria-describedby="sizing-addon3">
           </li>
           <li>
               <label>TTP</label>
-              <input type="text" style="width:42px" name="TTP" value="{{ amazonItem.financial.current.TTP }}" class="form-control" placeholder="min" aria-describedby="sizing-addon3">
+              <input type="text" style="width:42px" name="TTP" value="{{ amazonItem.data.financial.current.TTP }}" class="form-control" placeholder="min" aria-describedby="sizing-addon3">
           </li>
           <li>
               <label>Wt</label>
-              <input type="text" style="width:53px" name="Weight" value="{{ amazonItem.financial.current.Weight }}" class="form-control" placeholder="lbs" aria-describedby="sizing-addon3">
+              <input type="text" style="width:53px" name="Weight" value="{{ amazonItem.data.financial.current.Weight }}" class="form-control" placeholder="lbs" aria-describedby="sizing-addon3">
           </li>
           <li>
             <label>Sell</label>
-            <p>${{ amazonItem.financial.current.sellFee }}</p>
+            <p>${{ amazonItem.data.financial.current.sellFee }}</p>
           </li>
           <li>
               <label>FBA</label>
-              <p>${{ amazonItem.financial.current.FBAFee }}</p>
+              <p>${{ amazonItem.data.financial.current.FBAFee }}</p>
           </li>
           <li>
             <label>Ship</label>
-            <p>${{ amazonItem.financial.current.FBAShip }}</p>
+            <p>${{ amazonItem.data.financial.current.FBAShip }}</p>
           </li>
           <li>
             <label>LPrm</label>
-            <p>${{ amazonItem.financial.current.primePrices.lowPrime }}</p>
+            <p>${{ amazonItem.data.financial.current.primePrices.lowPrime }}</p>
           </li>
           <li>
             <label>Net</label>
-            <p>${{ amazonItem.financial.current.net }}</p>
+            <p>${{ amazonItem.data.financial.current.net }}</p>
           </li>
           <li>
             <button type="submit" style="visibility:hidden;" class="btn btn-default"></button>

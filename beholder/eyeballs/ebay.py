@@ -78,20 +78,24 @@ class ebayAPI:
                 {'itemID': request.GET.get('itemId'),
                  'includeSelector': 'TextDescription, ShippingCosts'}
             ).dict()['Item']
-            _data['TimeLeftStr'] = isodate.parse_duration(_data['TimeLeft']).__str__()
-            _data['keywords'] = request.GET.get('keywords')
-            _data['financial'] = {
-                'current': {},
-                'historical': {}
-                }
-            _data['ASINInfo'] = {}
-            _data['priced'] = False
-            _data['purchased'] = False
-            _data['created'] = datetime.datetime.now().__str__()
-            _data['lastModified'] = datetime.datetime.now().__str__()
+            _data = {**_data, **{
+                'name': _data['Title'],
+                'TimeLeftStr': isodate.parse_duration(_data['TimeLeft']).__str__(),
+                'keywords': request.GET.get('keywords'),
+                'financial': {
+                    'current': {},
+                    'historical': {}
+                    },
+                'ASINInfo': {},
+                'priced': False,
+                'purchased': False,
+                'created': datetime.datetime.now().__str__(),
+                'lastModified': datetime.datetime.now().__str__(),
+                'selected': 0,
+            }}
 
             ebayItem = ebayModel(
-                name=_data['Title'],
+                name=_data['name'],
                 itemId=_data['ItemID'],
                 data=_data,
             ).save()
@@ -122,7 +126,7 @@ class ebayAPI:
             ebayItem = ebayModel.objects.get(itemId=request.GET.get('itemId'))
 
             if not request.GET.get('ASIN') in ebayItem.data['ASINInfo'].keys():
-                amazonItem.selected += 1
+                amazonItem.data['selected'] += 1
                 ebayItem.data['ASINInfo'][request.GET.get('ASIN')] = {'qty': 1,
                                                               'amazonCatId': request.GET.get('amazonCatId'),
                                                               'title': amazonItem.name}

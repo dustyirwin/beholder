@@ -69,30 +69,38 @@ class amazonAPI:
                 ResponseGroup='Medium, EditorialReview')
             _data = xmltodict.parse(_data)
             _data = json.loads(json.dumps(_data))['ItemLookupResponse']['Items']['Item']
-            _data['name'] = _data['ItemAttributes']['Title']
-            _data['keywords'] = request.GET.get('keywords')
-            _data['financial'] = {
-                'historical': [],
-                'current': {
-                    'primePrices': {
-                        'lowPrime': 0.0,
-                        'avgPrime': 0.0,
-                        },
-                    'listPrice': 0.0,
-                    'FBAFee': 0.0,
-                    'refFee': 0.0,
-                    'TTP': 2,
-                    'qty': 1,
-                    'shipping': 1.0,
-                    'net': 1.0,
-                    'Weight': 1.0,
-                    'datetimeStamp': datetime.datetime.now().replace(microsecond=0).__str__(),
-                    }
-                }
+            _data = {**_data, **{
+                'name': _data['ItemAttributes']['Title'],
+                'keywords': request.GET.get('keywords'),
+                'type': 'game',
+                'priced': False,
+                'purchased': False,
+                'created': datetime.datetime.now().__str__(),
+                'lastModified': datetime.datetime.now().__str__(),
+                'selected': 0,
+                'financial': {
+                    'historical': [],
+                    'current': {
+                        'primePrices': {
+                            'lowPrime': 0.0,
+                            'avgPrime': 0.0,
+                            },
+                        'listPrice': 0.0,
+                        'FBAFee': 0.0,
+                        'refFee': 0.0,
+                        'TTP': 2,
+                        'qty': 1,
+                        'shipping': 1.0,
+                        'net': 1.0,
+                        'Weight': 1.0,
+                        'datetimeStamp': datetime.datetime.now().replace(microsecond=0).__str__(),
+                        }, }
+                    }}
 
             amazonItem = amazonModel(
-                data=_data,
-                ASIN=request.GET.get('ASIN')
+            name=_data['name'],
+            data=_data,
+            ASIN=request.GET.get('ASIN')
             ).save()
 
             # assert(amazonModel.objects.filter(ASIN=request.GET.get('ASIN')).exists())

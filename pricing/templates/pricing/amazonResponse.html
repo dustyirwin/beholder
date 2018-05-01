@@ -41,7 +41,7 @@
     {% if request.GET.itemId %}
       <li>
         <div style="padding-bottom:5px">
-          <form method="get" action="{% url 'pricing:priceItem' %}">
+          <form method="get" action="{% url 'pricing:priceEbayItem' %}">
             <button type="submit" class="btn btn-success">Select</button>
             <input type="hidden" name="ASIN" value="{{ item.ASIN }}" class="form-control">
             <input type="hidden" name="itemId" value="{{ request.GET.itemId }}" class="form-control">
