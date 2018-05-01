@@ -107,7 +107,7 @@
         <ul class="list-inline">
           <li>
            <div class="btn-group" data-toggle="buttons">
-               {% if request.GET.itemType == "game" %}
+               {% if amazonItem.data.itemType == "game" %}
                 <label class="btn btn-primary active">
                   <input type="radio" name="itemType" value="game" checked>GM
                 {% else %}
@@ -115,7 +115,7 @@
                   <input type="radio" name="itemType" value="game">GM
                 {% endif %}
                 </label>
-                {% if request.GET.itemType == "console" %}
+                {% if amazonItem.data.itemType == "console" %}
                   <label class="btn btn-primary active">
                     <input type="radio" name="itemType" value="console" checked>CN
                 {% else %}
@@ -123,7 +123,7 @@
                     <input type="radio" name="itemType" value="console">CN
                 {% endif %}
               </label>
-              {% if request.GET.itemType == "accessory" %}
+              {% if amazonItem.data.itemType == "accessory" %}
                 <label class="btn btn-primary active">
                   <input type="radio" name="itemType" value="accessory" checked>AC
               {% else %}

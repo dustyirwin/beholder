@@ -72,7 +72,7 @@ class amazonAPI:
             _data = {**_data, **{
                 'name': _data['ItemAttributes']['Title'],
                 'keywords': request.GET.get('keywords'),
-                'type': '',
+                'itemType': '',
                 'priced': False,
                 'purchased': False,
                 'created': datetime.datetime.now().__str__(),
@@ -135,9 +135,9 @@ class amazonAPI:
                 'listPrice'] = float(request.GET.get('listPrice'))
 
         if 'itemType' not in request.GET:
-            amazonItem.type = values['itemType'] = 'game'
+            amazonItem.data['itemType'] = values['itemType'] = 'game'
         else:
-            amazonItem.type = values['itemType'] = request.GET.get('itemType')
+            amazonItem.data['itemType'] = values['itemType'] = request.GET.get('itemType')
 
         amazonItem.save()
 
