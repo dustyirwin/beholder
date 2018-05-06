@@ -14,11 +14,11 @@ class ebayAPI:
             'value': ['1000', '1500', '1750', '2000', '3000', '4000', '5000', '6000']
             }]
         self.findingConnection = findingConnection(
-            appid=self.ebay.key['production']['appid'],config_file=None,)
+            appid=self.ebay.key['production']['appid'], config_file=None,)
         self.shoppingConnection = shoppingConnection(
-            appid=self.ebay.key['production']['appid'],config_file=None,)
+            appid=self.ebay.key['production']['appid'], config_file=None,)
 
-    def getUPC(self, ebayModel): # Todo! function under construction!
+    def getUPC(self, ebayModel):  # Todo! function under construction!
         ebayItems = self.findingConnection.execute(
             'findItemsByProduct', {
             }
