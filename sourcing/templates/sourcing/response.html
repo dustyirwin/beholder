@@ -1,21 +1,29 @@
-<ul class="nav nav-tabs">
-  <li class="nav-item">
-    <a class="nav-link active" href="#">Mixed</a>
-  </li>
-  <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-    <div class="dropdown-menu">
-      <a class="dropdown-item" href="#"></a>
-      <a class="dropdown-item" href="#"></a>
-      <a class="dropdown-item" href="#">Something else here</a>
-      <div class="dropdown-divider"></div>
-      <a class="dropdown-item" href="#">Separated link</a>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="#">Link</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link disabled" href="#">Disabled</a>
-  </li>
-</ul>
+
+{% if marketplaceId in request.GET %}
+
+  <ul class="nav nav-tabs m-1 p-1">
+    <li class="nav-item">
+      {% if request.GET.tab == 'All' %}
+      <a class="nav-link active" href="#">All</a>
+      {% else %}
+      <a class="nav-link" href="#">All</a>
+      {% endif %}
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">Alibaba</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">Amazon</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">eBay</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">WalMart</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">Wish</a>
+    </li>
+  </ul>
+
+{% endif %}

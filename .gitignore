@@ -1,1 +1,5 @@
 /beholder/keys
+/beholder/__pycache__
+/login/__pycache__
+/sourcing/__pycache__
+/pricing/__pycache__

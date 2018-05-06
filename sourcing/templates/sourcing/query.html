@@ -1,6 +1,6 @@
 {% extends "login/header.html" %}
 {% block content %}
-  <nav class="navbar navbar-inverse">
+  <nav class="navbar navbar-inverse m-1 p-1">
     <a href="{% url 'sourcing:query' %}">
       <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="42px" height="auto" style="padding-left:10px;padding-top:5px">
     </a>
@@ -15,7 +15,7 @@
       </div>
       <div class="collapse navbar-collapse" id="topNavBar">
         <div class="form-group">
-          <form action="{% url 'sourcing:query' %}" method="get" class="navbar-form navbar-left">
+          <form action="{% url 'sourcing:response' %}" method="get" class="navbar-form navbar-left">
             <input style="width:200px" type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control" placeholder="Search for a product...">
             <button type="submit" class="btn btn-default">Go</button>
           </form>
