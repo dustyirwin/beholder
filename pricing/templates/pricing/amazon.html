@@ -1,7 +1,7 @@
 {% extends 'login/header.html' %}
 
 {% block content %}
-  <nav class="navbar navbar-inverse">
+  <nav class="navbar navbar-expand-lg">
     <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="42px" height="auto" style="padding-left:10px;padding-top:5px">
     <div class="container-fluid">
       <div class="navbar-header">
@@ -14,9 +14,9 @@
         <a class="navbar-brand" style="color:#2ECC40;padding-left:25px" href="{% url 'pricing:ebay' %}">PRICING</a>
       </div>
       <div class="collapse navbar-collapse" id="topNavBar">
-        <ul class="nav navbar-nav">
-          <li class=""><a href="{% url 'pricing:ebay' %}">eBay<span class="sr-only">(current)</span></a></li>
-          <li class="active"><a href="{% url 'pricing:amazon' %}">amazon</a></li>
+        <ul class="navbar-nav mr-auto">
+          <li class=nav-item""><a href="{% url 'pricing:ebay' %}">eBay<span class="sr-only">(current)</span></a></li>
+          <li class="nav-item active"><a href="{% url 'pricing:amazon' %}">amazon</a></li>
         </ul>
         <div class="form-group">
           {% if request.GET.itemId %}

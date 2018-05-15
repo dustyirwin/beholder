@@ -1,33 +1,26 @@
 {% extends 'login/header.html' %}
 
 {% block content %}
-  <nav class="navbar navbar-inverse">
-    <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="42px" height="auto" style="padding-left:10px;padding-top:5px">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topNavBar" aria-expanded="false">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" style="color:#2ECC40;padding-left:25px" href="{% url 'pricing:ebay' %}"> PRICING</a>
+<nav class="navbar navbar-expand-sm navbar-light bg-dark">
+  <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="42px" height="auto" style="padding-left:10px;padding-top:5px">
+  <a class="navbar-brand" style="color:#2ECC40;padding-left:25px" href="{% url 'pricing:ebay' %}">PRICING</a>
+  <button type="button" class="navbar-toggler " data-toggle="collapse" data-target="#topNavBar" aria-expanded="false">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="topNavBar">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active"><a href="{% url 'pricing:ebay' %}">eBay<span class="sr-only">(current)</span></a></li>
+      <li class="nav-item"><a href="{% url 'pricing:amazon' %}">amazon</a></li>
+    </ul>
+    <form action="{% url 'pricing:searchEbay' %}" method="get" class="form-inline">
+      <div class="input-group">
+        <input style="width:160px" type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control mr-auto" placeholder="Search for items...">
+        <input style="width:110px" type="text" name="ebayCatId" value="{{ request.GET.ebayCatId }}" class="form-control mr-auto" placeholder="in category...">
+        <input type="hidden" name="page" value="1">
       </div>
-      <div class="collapse navbar-collapse" id="topNavBar">
-        <ul class="nav navbar-nav">
-          <li class="active"><a href="{% url 'pricing:ebay' %}">eBay<span class="sr-only">(current)</span></a></li>
-          <li class=""><a href="{% url 'pricing:amazon' %}">amazon</a></li>
-        </ul>
-        <form action="{% url 'pricing:searchEbay' %}" method="get" class="navbar-form navbar-left">
-            <div class="form-group">
-              <input style="width:160px" type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control" placeholder="Search for items...">
-              <input style="width:110px" type="text" name="ebayCatId" value="{{ request.GET.ebayCatId }}" class="form-control" placeholder="in category...">
-              <input type="hidden" name="page" value="1">
-            </div>
-          <button type="submit" class="btn btn-default">Go</button>
-        </form>
-      </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-  </nav>
-  {% include 'pricing/ebayResponse.html' %}
+      <button type="submit" class="btn btn-default">Go</button>
+    </form>
+  </div><!-- /.navbar-collapse -->
+</nav>
+{% include 'pricing/ebayResponse.html' %}
 {% endblock %}

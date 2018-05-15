@@ -1,29 +1,16 @@
 
-{% if marketplaceId in request.GET %}
 
-  <ul class="nav nav-tabs m-1 p-1">
-    <li class="nav-item">
-      {% if request.GET.tab == 'All' %}
-      <a class="nav-link active" href="#">All</a>
-      {% else %}
-      <a class="nav-link" href="#">All</a>
-      {% endif %}
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#">Alibaba</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#">Amazon</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#">eBay</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#">WalMart</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#">Wish</a>
-    </li>
-  </ul>
-
-{% endif %}
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link active" href="#">All</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">Amazon</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">eBay</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link disabled" href="#">Disabled</a>
+  </li>
+</ul>
