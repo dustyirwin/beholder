@@ -2,29 +2,70 @@
 
 {% block query %}
   <nav class="navbar navbar-expand-sm navbar-light bg-dark">
-    <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="42px" height="auto" style="padding-left:10px;padding-top:5px">
-    <a class="navbar-brand" style="color:#2ECC40;padding-left:25px" href="{% url 'sourcing:query' %}">SOURCING</a>
+    <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="35px" height="auto">
+    <a class="navbar-brand" style="color:#2ECC40" href="{% url 'sourcing:query' %}">SOURCING</a>
     <button type="button" class="navbar-toggler " data-toggle="collapse" data-target="#topNavBar" aria-expanded="false">
       <span class="navbar-toggler-icon"></span>
-    </button><div class="collapse navbar-collapse" id="topNavBar">
-    <form action="{% url 'sourcing:response' %}" method="get" class="form-inline">
-      <div class="input-group">
-        <input style="width:200px" type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control mr-auto" placeholder="Search for items...">
-      </div>
-      <button type="submit" class="btn btn-default">Go</button>
-      <div class="input-group mb-3">
-        <div class="input-group-prepend">
-          <label class="input-group-text" for="amazonCategories">amazon</label>
+    </button>
+    <div class="collapse navbar-collapse" id="topNavBar">
+      <form action="{% url 'sourcing:response' %}" method="get" class="form-inline">
+        <div class="input-group">
+          <input style="width:200px" type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control mr-auto" placeholder="Search for items...">
+          <button type="submit" class="btn btn-default">Go</button>
+          <button class="btn btn-success" type="button" data-toggle="collapse" data-target="#options" aria-expanded="false" aria-controls="collapseExample">Options</button>
         </div>
-        <select class="custom-select" id="amazonCategories">
-          <option selected>{{ request.GET.amazonCatId }}</option>
-          {% for category in amazonCategories %}
-            <option value="{{ forloop.counter0 }}">{{ category }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </form>
+      </form>
+    </div>
   </nav>
+
+  <div class="collapse" id="options">
+    <div class="input-group mb-0">
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="walmartCategories">walmart</label>
+      </div>
+      <select class="custom-select" id="walmartCategories">
+        <option selected>{{ request.GET.walmartCatId }}</option>
+        {% for category in walmartCategories %}
+          <option name="walmartCatId" value="{{ category }}">{{ category }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="input-group mb-0">
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="amazonCategories">amazon</label>
+      </div>
+      <select class="custom-select" id="amazonCategories">
+        <option selected>{{ request.GET.amazonCatId }}</option>
+        {% for category in amazonCategories %}
+          <option name="amazonCatId" value="{{ category }}">{{ category }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="input-group mb-0">
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="ebayCategories">ebay</label>
+      </div>
+      <select class="custom-select" id="ebayCategories">
+        <option selected>{{ request.GET.ebayCatId }}</option>
+        {% for category in ebayCategories %}
+          <option name="ebayCatId" value="{{ category }}">{{ category }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="input-group mb-0">
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="alibabaCategories">alibaba</label>
+      </div>
+      <select class="custom-select" id="ebayCategories">
+        <option selected>{{ request.GET.alibabaCatId }}</option>
+        {% for category in alibabaCategories %}
+          <option name="alibabaCatId" value="{{ category }}">{{ category }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+
   {% block response %}
   {% endblock %}
 {% endblock %}

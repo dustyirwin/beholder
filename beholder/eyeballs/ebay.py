@@ -17,6 +17,7 @@ class ebayAPI:
             appid=self.ebay.key['production']['appid'], config_file=None,)
         self.shoppingConnection = shoppingConnection(
             appid=self.ebay.key['production']['appid'], config_file=None,)
+        self.categories = ['139971']
 
     def getUPC(self, ebayModel):  # Todo! function under construction!
         ebayItems = self.findingConnection.execute(
