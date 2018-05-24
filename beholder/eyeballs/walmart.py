@@ -1,4 +1,5 @@
 "Class methods for Walmart Stores API"
+
 from beholder.keys.keys import walmart
 
 class walmartAPI:
