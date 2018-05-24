@@ -5,7 +5,7 @@ from beholder.keys.keys import walmart
 class walmartAPI:
     def __init__(self):
         self.walmart = walmart()
-        self.apiKey = self.walmart.key['apiKey']
+        self.apiKey = self.walmart.key['walid']
 
     def getItemInfo(self, request):
         UPC_URL = 'http://api.walmartlabs.com/v1/items?apiKey='+self.apiKey+'a' + request.GET.get('UPC')

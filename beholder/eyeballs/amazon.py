@@ -22,6 +22,18 @@ class amazonAPI:
             self.mws.key['AWS_SECRET_ACCESS_KEY'],
             self.mws.key['AWS_ASSOCIATE_TAG'],
         )
+        self.categories = ['All','Wine','Wireless','ArtsAndCrafts',
+        'Miscellaneous','Electronics','Jewelry','MobileApps','Photo','Shoes',
+        'KindleStore','Automotive','Vehicles','Pantry','MusicalInstruments',
+        'DigitalMusic','GiftCards','FashionBaby','FashionGirls','GourmetFood',
+        'HomeGarden','MusicTracks','UnboxVideo','FashionWomen','VideoGames',
+        'FashionMen','Kitchen','Video','Software','Beauty','Grocery',
+        'FashionBoys','Industrial','PetSupplies','OfficeProducts','Magazines',
+        'Watches','Luggage','OutdoorLiving','Toys','SportingGoods','PCHardware',
+        'Movies','Books','Collectibles','Handmade','VHS','MP3Downloads',
+        'HomeAndBusinessServices','Fashion','Tools','Baby','Apparel',
+        'Marketplace','DVD','Appliances','Music','LawnAndGarden',
+        'WirelessAccessories','Blended','HealthPersonalCare','Classical']
 
     def search(self, request, amazonModel):
         if 'ASIN' in request.GET:
@@ -31,7 +43,7 @@ class amazonAPI:
         resp = self.amazon.ItemSearch(
             Keywords=request.GET.get('keywords'),
             SearchIndex=request.GET.get('amazonCatId'),
-            ResponseGroup='Medium,EditorialReview'
+            ResponseGroup='Medium, EditorialReview'
         )
         amazonItems = xmltodict.parse(resp)['ItemSearchResponse']['Items']
         amazonItems = json.loads(json.dumps(amazonItems))

@@ -12,6 +12,17 @@
         <input style="width:200px" type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control mr-auto" placeholder="Search for items...">
       </div>
       <button type="submit" class="btn btn-default">Go</button>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="amazonCategories">amazon</label>
+        </div>
+        <select class="custom-select" id="amazonCategories">
+          <option selected>{{ request.GET.amazonCatId }}</option>
+          {% for category in amazonCategories %}
+            <option value="{{ forloop.counter0 }}">{{ category }}</option>
+          {% endfor %}
+        </select>
+      </div>
     </form>
   </nav>
   {% block response %}
