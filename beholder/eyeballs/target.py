@@ -5,7 +5,7 @@ from beholder.keys.keys import target
 class targetAPI:
     def __init__(self):
         self.target = target()
-        self.apiKey = self.target.key['targetid']
+        self.apiKey = self.target.key['targetAPIKey']
         self.categories = ['All']
 
     def getItemInfo(self, request):

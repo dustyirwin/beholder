@@ -14,11 +14,10 @@
           <button type="submit" class="btn btn-default">Go</button> .
           <button class="btn btn-outline-success" type="button" data-toggle="collapse" data-target="#options" aria-expanded="false" aria-controls="collapseExample">Options</button>
         </div>
-        <input type="hidden" name="amazonCatId" value="VideoGames">
+        <input type="hidden" name="walmartCatId" value="5438">
       </form>
     </div>
   </nav>
-
   <div class="collapse" id="options">
     <div class="input-group mb-0">
       <div class="input-group-prepend">
@@ -27,7 +26,7 @@
       <select name="walmartCatId" class="custom-select" id="walmartCategories">
         <option selected>{{ request.GET.walmartCatId }}</option>
         {% for category in walmartCategories %}
-          <option value="{{ category }}">{{ category }}</option>
+          <option value="{{ category.code }}">{{ category.name }}</option>
         {% endfor %}
       </select>
     </div>
@@ -49,18 +48,18 @@
       <select name="ebayCatId" class="custom-select" id="ebayCategories">
         <option selected>{{ request.GET.ebayCatId }}</option>
         {% for category in ebayCategories %}
-          <option value="{{ category.value }}">{{ category.name }}</option>
+          <option value="{{ category.code }}">{{ category.name }}</option>
         {% endfor %}
       </select>
     </div>
     <div class="input-group mb-0">
       <div class="input-group-prepend">
-        <label class="input-group-text" for="alibabaCategories">alibaba</label>
+        <label class="input-group-text" for="targetCategories">target</label>
       </div>
-      <select name="alibabaCatId" class="custom-select" id="ebayCategories">
-        <option selected>{{ request.GET.alibabaCatId }}</option>
-        {% for category in alibabaCategories %}
-          <option name="alibabaCatId" value="{{ category }}">{{ category }}</option>
+      <select name="targetCatId" class="custom-select" id="targetCategories">
+        <option selected>{{ request.GET.targetCatId }}</option>
+        {% for category in targetCategories %}
+          <option name="targetCatId" value="{{ category }}">{{ category }}</option>
         {% endfor %}
       </select>
     </div>

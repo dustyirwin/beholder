@@ -32,7 +32,7 @@ class Alibaba(models.Model):
 
 class Walmart(models.Model):
     name = models.CharField(max_length=200)
-    walmartId = models.CharField(max_length=14)
+    itemId = models.CharField(max_length=14)
     data = JSONField(null=True, blank=True)
 
     def __str__(self):
@@ -40,7 +40,7 @@ class Walmart(models.Model):
 
 class Target(models.Model):
     name = models.CharField(max_length=200)
-    targetId = models.CharField(max_length=14)
+    itemId = models.CharField(max_length=14)
     data = JSONField(null=True, blank=True)
 
     def __str__(self):
