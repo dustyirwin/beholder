@@ -9,26 +9,25 @@ class walmartAPI:
         self.apiKey = self.walmart.key["walmartAPIKey"]
         self.wapy = Wapy(self.apiKey)
         self.categories = [
-            {'name':'Arts, Crafts & Sewing'}, {'name':'Auto & Tires','code':'91083'},
-            {'name':'Baby','code':'5427'}, {'name':'Beauty','code':'1085666'},
-            {'name':'Books','code':'3920'}, {'name':'Cell Phones','code':'1105910'},
-            {'name':'Clothing','code':'5438'}, {'name':'Electronics','code':'3944'},
-            {'name':'Food','code':'976759'}, {'name':'Gifts & Registry','code':'1094765'},
-            {'name':'Health','code':'976760'}, {'name':'Home','code':'4044'},
-            {'name':'Home Improvement','code':'1072864'}, {'name':'Household Essentials','code':'1115193'},
-            {'name':'Industrial & Scientific','code':'6197502'}, {'name':'Jewelry','code':'3891'},
-            {'name':'Movies & TV Shows','code':'4096'}, {'name':'Music on CD or Vinyl','code':'4104'},
-            {'name':'Musical Instruments','code':'7796869'}, {'name':'Office','code':'1229749'},
-            {'name':'Party & Occasions','code':'2637'}, {'name':'Patio & Garden','code':'5428'},
-            {'name':'Personal Care','code':'1005862'}, {'name':'Pets','code':'5440'},
-            {'name':'Photo Center','code':'5426'}, {'name':'Premium Beauty','code':'792499'},
-            {'name':'Seasonal','code':'1085632'}, {'name':'Sports & Outdoors','code':'4125'},
-            {'name':'Toys','code':'4171'}, {'name':'Video Games','code':'2636'},
-            {'name':'Walmart for Business','code':'6735581'},
+            {'name':'All','code':''}, {'name':'Arts, Crafts & Sewing','code':'1334134'},
+            {'name':'Auto & Tires','code':'91083'}, {'name':'Baby','code':'5427'},
+            {'name':'Beauty','code':'1085666'}, {'name':'Books','code':'3920'},
+            {'name':'Cell Phones','code':'1105910'}, {'name':'Clothing','code':'5438'},
+            {'name':'Electronics','code':'3944'}, {'name':'Food','code':'976759'},
+            {'name':'Gifts & Registry','code':'1094765'}, {'name':'Health','code':'976760'},
+            {'name':'Home','code':'4044'}, {'name':'Home Improvement','code':'1072864'},
+            {'name':'Household Essentials','code':'1115193'}, {'name':'Industrial & Scientific','code':'6197502'},
+            {'name':'Jewelry','code':'3891'}, {'name':'Movies & TV Shows','code':'4096'},
+            {'name':'Music on CD or Vinyl','code':'4104'}, {'name':'Musical Instruments','code':'7796869'},
+            {'name':'Office','code':'1229749'}, {'name':'Party & Occasions','code':'2637'},
+            {'name':'Patio & Garden','code':'5428'}, {'name':'Personal Care','code':'1005862'},
+            {'name':'Pets','code':'5440'}, {'name':'Photo Center','code':'5426'},
+            {'name':'Premium Beauty','code':'792499'}, {'name':'Seasonal','code':'1085632'},
+            {'name':'Sports & Outdoors','code':'4125'}, {'name':'Toys','code':'4171'},
+            {'name':'Video Games','code':'2636'}, {'name':'Walmart for Business','code':'6735581'},
             ]
 
-
-    def getBestSellers(self, request, walmartModel):
+    def getBestSellers(self, request):
         walmartItems = self.wapy.bestseller_products(int(request.GET.get("walmartCatId")))
         for i, item in enumerate(walmartItems):
 
@@ -37,17 +36,16 @@ class walmartAPI:
 
         return walmartItems
 
-    def getClearance(self, request, walmartModel):
+    def getClearance(self, request):
         return self.wapy.clearance_products(int(request.GET.get("walmartCatId")))
 
-    def getSpecialBuy(self, request, walmartModel):
+    def getSpecialBuy(self, request):
         return self.wapy.clearance_products(int(request.GET.get("walmartCatId")))
 
-    def getTrending(self, walmartModel):
-
+    def getTrending(self):
         return self.wapy.trending_products()
 
-    def search(self, request, walmartModel):
+    def search(self, request):
         products = wapy.search(
             request.GET.get("keywords"),
             numItems=25,
@@ -57,7 +55,6 @@ class walmartAPI:
             )
         return products
 
-w = walmart()
 
 wapy = Wapy(w.key["walmartAPIKey"])
 product = wapy.product_lookup('21853453')

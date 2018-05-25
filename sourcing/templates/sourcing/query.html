@@ -2,7 +2,7 @@
 
 {% block query %}
   <nav class="navbar navbar-expand-sm navbar-light bg-dark">
-    <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="35px" height="auto">
+    <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="auto" height="40px" style="padding-right:10px">
     <a class="navbar-brand" style="color:#2ECC40" href="{% url 'sourcing:query' %}">SOURCING</a>
     <button type="button" class="navbar-toggler " data-toggle="collapse" data-target="#topNavBar" aria-expanded="false">
       <span class="navbar-toggler-icon"></span>
@@ -10,11 +10,11 @@
     <div class="collapse navbar-collapse" id="topNavBar">
       <form action="{% url 'sourcing:response' %}" method="get" class="form-inline">
         <div class="input-group">
-          <input style="width:200px" type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control mr-auto" placeholder="Search for items...">
+          <input type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control mr-auto" placeholder="Search for items...">
           <button type="submit" class="btn btn-default">Go</button> .
           <button class="btn btn-outline-success" type="button" data-toggle="collapse" data-target="#options" aria-expanded="false" aria-controls="collapseExample">Options</button>
         </div>
-        <input type="hidden" name="walmartCatId" value="5438">
+        <input type="hidden" name="walmartCatId" value="1">
       </form>
     </div>
   </nav>

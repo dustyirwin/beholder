@@ -24,10 +24,10 @@ def query(request):
 def response(request):
     context = {}
     walmartQueries = {
-        'Best Sellers': walmart.getBestSellers(request, Walmart),
-        'Clearance': walmart.getClearance(request, Walmart),
-        'Special Buy': walmart.getSpecialBuy(request, Walmart),
-        'Trending': walmart.getTrending(Walmart),
+        'Best Sellers': walmart.getBestSellers(request),
+        'Clearance': walmart.getClearance(request),
+        'Special Buy': walmart.getSpecialBuy(request),
+        'Trending': walmart.getTrending(),
         }
 
     if request.GET.get("amazonCatId"):
