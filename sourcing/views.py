@@ -8,15 +8,15 @@ amazon = amazon.amazonAPI()
 walmart = walmart.walmartAPI()
 alibaba = alibaba.alibabaAPI()
 
-marketNames = ['walmart','ebay','amazon','alibaba']
-
+marketNames = ['walmart','ebay','amazon','target']
+walmartQueries = ['Best Sellers','Clearance','Special Buy','Trending']
 
 def query(request):
     context = {
     'amazonCategories': amazon.categories,
     'ebayCategories': ebay.categories,
     'walmartCategories': walmart.categories,
-    'alibabaCategories': alibaba.categories,
+    'alibabaCategories': target.categories,
     'marketNames': marketNames,
     }
     return render(request, 'sourcing/query.html', context)
@@ -25,11 +25,13 @@ def query(request):
 def response(request):
     amazonItems = amazon.search(request, Amazon)
     ebayItems = ebay.search(request, Ebay)
-    #walMartItem = walmart.getItemInfo(request)
 
+    if request.GET.get("keywords") in walmartQueries:
+        if request.GET.get("keywords") = walmartQueries[0]
+            walMartItems = walmart.getBestSellers(request, Walmart)
     context = {
-        'amazonItems': amazonItem,
-        #'walMartItems': walMartItem,
+        'amazonItems': amazonItems,
+        'walMartItems': walMartItems,
         'ebayItems': ebayItems,
     }
     return render(request, 'sourcing/response.html', context)

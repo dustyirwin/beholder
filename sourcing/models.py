@@ -4,8 +4,8 @@ from django.contrib.postgres.fields import JSONField
 
 
 class Amazon(models.Model):
-    name = models.CharField(max_length=200, null=False)
-    ASIN = models.CharField(max_length=10, null=False)
+    name = models.CharField(max_length=200)
+    ASIN = models.CharField(max_length=10)
     data = JSONField(null=True, blank=True)
 
     def __str__(self):
@@ -23,7 +23,7 @@ class Ebay(models.Model):
 
 class Alibaba(models.Model):
     name = models.CharField(max_length=200)
-    aliId = models.CharField(max_length=14)
+    alibabaId = models.CharField(max_length=14)
     data = JSONField(null=True, blank=True)
 
     def __str__(self):
@@ -32,7 +32,15 @@ class Alibaba(models.Model):
 
 class Walmart(models.Model):
     name = models.CharField(max_length=200)
-    walId = models.CharField(max_length=14)
+    walmartId = models.CharField(max_length=14)
+    data = JSONField(null=True, blank=True)
+
+    def __str__(self):
+        return self.itemId+' '+self.name
+
+class Target(models.Model):
+    name = models.CharField(max_length=200)
+    targetId = models.CharField(max_length=14)
     data = JSONField(null=True, blank=True)
 
     def __str__(self):

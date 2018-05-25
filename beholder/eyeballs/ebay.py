@@ -17,9 +17,29 @@ class ebayAPI:
             appid=self.ebay.key['production']['appid'], config_file=None,)
         self.shoppingConnection = shoppingConnection(
             appid=self.ebay.key['production']['appid'], config_file=None,)
-        self.categories = ['139971']
+        self.categories = [
+            {'name':'All','code':''}, {'name':'Antiques','code':'20081'},
+            {'name':'Art','code':'550'}, {'name':'Baby','code':'2984'},
+            {'name':'Books','code':'267'}, {'name':'Business & Industrial','code':'12576'},
+            {'name':'Camera & Photo','code':'625'}, {'name':'Cell Phones & Accessories','code':'11450'},
+            {'name':'Clothing, Shoes & Accessories','code':'11450'},
+            {'name':'Coins & Paper Money','code':'11116'}, {'name':'Collectibles','code':'1'},
+            {'name':'Computers/Tablets & Networking','code':'58058'},
+            {'name':'Consumer Electronics','code':'293'}, {'name':'Crafts','code':'14339'},
+            {'name':'Dolls & Bears','code':'237'}, {'name':'DVDs & Movies','code':'11232'},
+            {'name':'Entertainment Memorabilia','code':'45100'}, {'name':'Everything Else','code':'99'},
+            {'name':'Gift Cards & Coupons','code':'172008'}, {'name':'Health & Beauty','code':'26395'},
+            {'name':'Home & Garden','code':'11700'}, {'name':'Jewelry & Watches','code':'281'},
+            {'name':'Music','code':'11233'}, {'name':'Musical Instruments & Gear','code':'619'},
+            {'name':'Pet Supplies','code':'1281'}, {'name':'Pottery & Glass','code':'870'},
+            {'name':'Real Estate','code':'10542'}, {'name':'Specialty Services','code':'316'},
+            {'name':'Sporting Goods','code':'888'}, {'name':'Sports Mem, Cards & Fan Shop','code':'64482'},
+            {'name':'Stamps','code':'260'}, {'name':'Tickets & Experiences','code':'1305'},
+            {'name':'Toys & Hobbies','code':'220'},{'name':'Travel','code':'3252'},
+            {'name':'Video Games & Consoles','code':'1249'},
+        ]
 
-    def getUPC(self, ebayModel):  # Todo! function under construction!
+    def getUPC(self, request, ebayModel):  # Todo! function under construction!
         ebayItems = self.findingConnection.execute(
             'findItemsByProduct', {
             }
