@@ -34,6 +34,7 @@ class amazonAPI:
         'HomeAndBusinessServices','Fashion','Tools','Baby','Apparel',
         'Marketplace','DVD','Appliances','Music','LawnAndGarden',
         'WirelessAccessories','Blended','HealthPersonalCare','Classical']
+        self.categories.sort(key=str.lower)
 
     def search(self, request, amazonModel):
         if 'ASIN' in request.GET:

@@ -1,13 +1,13 @@
 {% extends "sourcing/query.html"%}
 
 {% block response %}
-  <div class="card-columns" >
+  <div class="card-columns">
     {% for item in walmartItems %}
       <div class="card">
         <img class="card-img-top" src="{{ item.medium_image }}" alt="Card image cap">
-        <div class="card-body mb-0">
+        <div class="card-body">
           <h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.name }}</h5>
-          <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.short_description }}</p>
+          <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${{ item.sale_price }} {{ item.short_description }}</p>
           <a href="#" class="btn btn-primary btn-sm">Go</a>
         </div>
       </div>
