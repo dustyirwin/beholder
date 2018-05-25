@@ -28,13 +28,7 @@ class walmartAPI:
             ]
 
     def getBestSellers(self, request):
-        walmartItems = self.wapy.bestseller_products(int(request.GET.get("walmartCatId")))
-        for i, item in enumerate(walmartItems):
-
-            if walmartModel.objects.filter(itemId=item.item_id).exists():
-                walmartItems[i] = walmartModel.objects.get(itemId=item['itemId'])
-
-        return walmartItems
+        return self.wapy.bestseller_products(int(request.GET.get("walmartCatId")))
 
     def getClearance(self, request):
         return self.wapy.clearance_products(int(request.GET.get("walmartCatId")))
@@ -46,18 +40,22 @@ class walmartAPI:
         return self.wapy.trending_products()
 
     def search(self, request):
-        products = wapy.search(
+        products = self.wapy.search(
             request.GET.get("keywords"),
             numItems=25,
             categoryId=int(request.GET.get("walmartCatId")),
-            page=request.GET.get("page"),
-            sort=request.GET.get("walmartSearchSort")
+            page=1,
+            #sort=request.GET.get("walmartSearchSort"),
             )
         return products
 
 
+w = walmart()
 wapy = Wapy(w.key["walmartAPIKey"])
 product = wapy.product_lookup('21853453')
+bestsellers = wapy.bestseller_products(3944)
+bestsellers[0].name
+bestsellers[0].sale_price
 product.available_online
 product.name
 product.upc
@@ -66,3 +64,4 @@ product.msrp
 product.stock
 product.item_id
 product.short_description
+'''

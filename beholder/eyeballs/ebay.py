@@ -1,5 +1,6 @@
 import isodate
 import datetime
+import numpy
 from ebaysdk.finding import Connection as findingConnection
 from ebaysdk.shopping import Connection as shoppingConnection
 from .amazon import amazonAPI
@@ -9,14 +10,20 @@ from beholder.keys.keys import ebay
 class ebayAPI:
     def __init__(self):
         self.ebay = ebay()
-        self.itemFilters = [{
+        self.usedFilters = [{
             'name': 'Condition',
             'value': ['1000', '1500', '1750', '2000', '3000', '4000', '5000', '6000']
-            }]
+        }]
+        self.UPCSalesDataFilters = [
+            {'name': 'Condition', 'value': ['1000']},
+            {'name': 'AvailableTo', 'value': 'US'},
+        ]
         self.findingConnection = findingConnection(
-            appid=self.ebay.key['production']['appid'], config_file=None,)
+            appid=self.ebay.key['production']['appid'], config_file=None,
+        )
         self.shoppingConnection = shoppingConnection(
-            appid=self.ebay.key['production']['appid'], config_file=None,)
+            appid=self.ebay.key['production']['appid'], config_file=None,
+        )
         self.categories = [
             {'name':'All','code':''}, {'name':'Antiques','code':'20081'},
             {'name':'Art','code':'550'}, {'name':'Baby','code':'2984'},
@@ -39,13 +46,34 @@ class ebayAPI:
             {'name':'Video Games & Consoles','code':'1249'},
         ]
 
-    def getUPC(self, request, ebayModel):  # Todo! function under construction!
-        ebayItems = self.findingConnection.execute(
-            'findItemsByProduct', {
-            }
-        )
+    def getSalesDataForUPC(self, UPC, **kwargs):  # Todo! function under construction!
+        ebayItem = self.findingConnection.execute(
+            'findCompletedItems', {
+            'productId': UPC,
+            'itemFilter': self.UPCSalesDataFilters,
+        })
+        return ebayItem
 
-    def search(self, request, ebayModel):
+    def getSalesData(self, walmartItems, **kwargs):
+        soldItems = []
+        for item in walmartItems:
+            salesData = self.getSalesDataForUPC(item.upc)
+            soldItems.append()
+            prices = [ item.sale_price for item in soldItems ]
+            salesData = {
+            'lowPrice': min(prices),
+            'meanPrice': mean(prices),
+            'stdDev': numpy.std(prices),
+            'sampleSize': len(soldItems),
+            }
+            item = {
+                'data': item,
+                'salesData': salesData,
+            }
+        #save item data to database
+        return walmartItems
+
+    def search(self, request, **kwargs):
         ebayItems = self.findingConnection.execute(
             'findItemsAdvanced', {
                 'keywords': request.GET.get('keywords'),
@@ -57,7 +85,8 @@ class ebayAPI:
                 'paginationInput': {
                     'entriesPerPage': 25,
                     'pageNumber': request.GET.get('page')}
-                }).dict()
+                }
+        ).dict()
 
         if 'errorMessage' in ebayItems:
             print(str(ebayItems['errorMessage']))
@@ -85,7 +114,7 @@ class ebayAPI:
 
         return ebayItems
 
-    def price(self, request, ebayModel, amazonModel):
+    def price(self, request, **kwargs):
         totalSales, totalFBAFees, totalReferralFees = 0, 0, 0
         totalTTP, totalNet, totalWeight = 0, 0, 0
         totalFBAShipping, totalSellFees = 0, 5.0

@@ -1,6 +1,14 @@
 {% extends "sourcing/query.html"%}
 
 {% block response %}
+  <ul class="nav nav-tabs">
+    {% for items in items %}
+      <li class="nav-item">
+        <a class="nav-link active" href="#">{{ items.marketName }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+
   <div class="card-columns">
     {% for item in walmartItems %}
       <div class="card">
