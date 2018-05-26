@@ -1,5 +1,7 @@
 /beholder/keys
 /beholder/__pycache__
+/beholder/eyeballs/ebayCategoryIDs-US.csv
 /login/__pycache__
 /sourcing/__pycache__
 /pricing/__pycache__
+
