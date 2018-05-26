@@ -1,66 +1,62 @@
 {% extends "sourcing/query.html"%}
 
 {% block response %}
-  <ul class="nav nav-tabs">
+  <nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
     {% if walmartItems %}
-      <li class="nav-item">
-        <a class="nav-link" type="button" data-toggle="collapse" data-target="#walmart">walmart</a>
-      </li>
+      <a class="nav-item nav-link active" id="nav-walmart-tab" data-toggle="tab" href="#nav-walmart" role="tab" aria-controls="nav-walmart" aria-selected="true">walmart</a>
     {% endif %}
     {% if ebayItems %}
-      <li class="nav-item">
-        <a class="nav-link" type="button" data-toggle="collapse" data-target="#ebay">ebay</a>
-      </li>
+      <a class="nav-item nav-link" id="nav-ebay-tab" data-toggle="tab" href="#nav-ebay" role="tab" aria-controls="nav-ebay" aria-selected="false">ebay</a>
     {% endif %}
     {% if amazonItems %}
-      <li class="nav-item">
-        <a class="nav-link" type="button" data-toggle="collapse" data-target="#amazon">amazon</a>
-      </li>
+      <a class="nav-item nav-link" id="nav-amazon-tab" data-toggle="tab" href="#nav-amazon" role="tab" aria-controls="nav-amazon" aria-selected="false">amazon</a>
     {% endif %}
-  </ul>
+  </nav>
 
-  <div class="collapse" id="walmart">
-    <div class="card-columns">
-      {% for item in walmartItems %}
-        <div class="card">
-          <img class="card-img-top" src="{{ item.medium_image }}" alt="Card image cap">
-          <div class="card-body">
-            <a href="{{ item.product_url }}" target="_blank"><h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.name }}</h5></a>
-            <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${{ item.sale_price }} {{ item.short_description }}</p>
-            <a href="#" class="btn btn-primary btn-sm">Go</a>
+  <!-- Tab Panels -->
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-walmart" role="tabpanel" aria-labelledby="nav-walmart-tab">
+      <div class="card-columns">
+        {% for item in walmartItems %}
+          <div class="card">
+            <img class="card-img-top" src="{{ item.medium_image }}" alt="Card image cap">
+            <div class="card-body">
+              <a href="{{ item.product_url }}" target="_blank"><h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.name }}</h5></a>
+              <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${{ item.sale_price }} {{ item.short_description }}</p>
+              <a href="#" class="btn btn-primary btn-sm">Details</a>
+            </div>
           </div>
-        </div>
-      {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+    <div class="tab-pane fade" id="nav-ebay" role="tabpanel" aria-labelledby="nav-ebay-tab">
+      <div class="card-columns">
+        {% for item in ebayItems.searchResult.item %}
+          <div class="card">
+            <img class="card-img-top" src="{{ item.galleryURL }}" alt="Card image cap">
+            <div class="card-body">
+              <a href="{{ item.viewItemURL }}" target="_blank"><h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.title }}</h5></a>
+              <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">BIN ${{ item.sellingStatus.currentPrice.value }} + ${{ item.shippingInfo.shippingServiceCost.value }} shipping</p>
+              <a href="#" class="btn btn-primary btn-sm">Details</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="tab-pane fade" id="nav-amazon" role="tabpanel" aria-labelledby="nav-amazon-tab">
+      <div class="card-columns">
+        {% for item in amazonItems.Item %}
+          <div class="card">
+            <img class="card-img-top" src="{{ item.MediumImage.URL }}" alt="Card image cap">
+            <div class="card-body">
+              <a href="{{ item.DetailPageURL }}" target="_blank"><h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.ItemAttributes.Title }}</h5></a>
+              <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">lowNew: {{ item.OfferSummary.LowestNewPrice.FormattedPrice }} rank: {{ item.SalesRank }}</p>
+              <a href="#" class="btn btn-primary btn-sm">Details</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
-  <div class="collapse" id="ebay">
-    <div class="card-columns">
-      {% for item in ebayItems.searchResult.item %}
-        <div class="card">
-          <img class="card-img-top" src="{{ item.galleryURL }}" alt="Card image cap">
-          <div class="card-body">
-            <a href="{{ item.viewItemURL }}" target="_blank"><h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.title }}</h5></a>
-            <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${{ item.sellingStatus.currentPrice.value }} + ${{ item.shippingInfo.shippingServiceCost.value }} shipping</p>
-            <a href="#" class="btn btn-primary btn-sm">Go</a>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-  <div class="collapse" id="amazon">
-    <div class="card-columns">
-      {% for item in amazonItems.Item %}
-        <div class="card">
-          <img class="card-img-top" src="{{ item.MediumImage.URL }}" alt="Card image cap">
-          <div class="card-body">
-            <a href="{{ item.DetailPageURL }}" target="_blank"><h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.ItemAttributes.Title }}</h5></a>
-            <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.OfferSummary.LowestNewPrice.FormattedPrice }} new {{ item.OfferSummary.LowestUsedPrice.FormattedPrice }} used</p>
-            <a href="#" class="btn btn-primary btn-sm">Go</a>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-
-
 {% endblock %}

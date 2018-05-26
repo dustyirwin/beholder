@@ -226,5 +226,5 @@ Scratchpad
 ebay = ebayAPI()
 itemSalesData = ebay.search(keywords="batman",ebayCatId="11450",page='1')
 itemSalesData['searchResult']['item'][0].keys()
+itemSalesData['searchResult']['item'][0]['title']
 itemSalesData['searchResult']['item'][0]
-itemSalesData['searchResult']['item'][0]['listingInfo'].keys()
