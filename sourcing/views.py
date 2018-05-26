@@ -24,9 +24,15 @@ def query(request):
 def response(request):
     context = {}
     walmartQueries = {
-        'Best Sellers': walmart.getBestSellers(request),
-        'Clearance': walmart.getClearance(request),
-        'Special Buy': walmart.getSpecialBuy(request),
+        'Best Sellers': walmart.getBestSellers(
+            walmartCatId=request.GET.get("walmartCatId"),
+        ),
+        'Clearance': walmart.getClearance(
+            walmartCatId=request.GET.get("walmartCatId")
+        ),
+        'Special Buy': walmart.getSpecialBuy(
+            walmartCatId=request.GET.get("walmartCatId")
+        ),
         'Trending': walmart.getTrending(),
         }
 
@@ -54,7 +60,6 @@ def response(request):
         context['walmartItems'] = walmartItems
     else:
         walmartItems = walmart.search(
-            request,
             keywords=request.GET.get("keywords"),
             walmartCatId=request.GET.get("walmartCatId"),
             page=request.GET.get("page")

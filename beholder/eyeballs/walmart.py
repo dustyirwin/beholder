@@ -1,12 +1,12 @@
-"Class methods for Walmart Stores API"
 from wapy.api import Wapy
-from beholder.keys.keys import walmart
+from beholder.keys.keys import walmart as walmartKeys
 
+"Class methods for Walmart Stores API"
 
 class walmartAPI:
     def __init__(self):
-        self.walmart = walmart()
-        self.apiKey = self.walmart.key["walmartAPIKey"]
+        self.walmartKeys = walmartKeys()
+        self.apiKey = self.walmartKeys.key["walmartAPIKey"]
         self.wapy = Wapy(self.apiKey)
         self.categories = [
             {'name':'All','code':''}, {'name':'Arts, Crafts & Sewing','code':'1334134'},
@@ -27,41 +27,37 @@ class walmartAPI:
             {'name':'Video Games','code':'2636'}, {'name':'Walmart for Business','code':'6735581'},
             ]
 
-    def getBestSellers(self, request, **kwargs):
-        return self.wapy.bestseller_products(int(request.GET.get("walmartCatId")))
+    def getBestSellers(self, **kwargs):
+        return self.wapy.bestseller_products(int(kwargs["walmartCatId"]))
 
-    def getClearance(self, request, **kwargs):
-        return self.wapy.clearance_products(int(request.GET.get("walmartCatId")))
+    def getClearance(self, **kwargs):
+        return self.wapy.clearance_products(int(kwargs["walmartCatId"]))
 
-    def getSpecialBuy(self, request, **kwargs):
-        return self.wapy.clearance_products(int(request.GET.get("walmartCatId")))
+    def getSpecialBuy(self, **kwargs):
+        return self.wapy.clearance_products(int(kwargs["walmartCatId"]))
 
     def getTrending(self, **kwargs):
         return self.wapy.trending_products()
 
-    def search(self, request, **kwargs):
+    def search(self, **kwargs):
         products = self.wapy.search(
-            request.GET.get("keywords"),
+            kwargs["keywords"],
             numItems=25,
-            categoryId=int(request.GET.get("walmartCatId")),
+            categoryId=int(kwargs["walmartCatId"]),
             page=1,
             #sort=request.GET.get("walmartSearchSort"),
-            )
+        )
         return products
 
+"""
+Scratchpad
+"""
 
+w = walmartAPI()
+batman_products_in_5438 = w.search(keywords="batman",walmartCatId="5438")
+best_sellers_in_5438 = w.getBestSellers(walmartCatId="5438")
+clearance_in_5438 = w.getClearance(walmartCatId="5438")
+special_buy_in_5438 = w.getSpecialBuy(walmartCatId="5438")
+trending = w.getTrending()
 
-w = walmart()
-wapy = Wapy(w.key["walmartAPIKey"])
-product = wapy.product_lookup('21853453')
-bestsellers = wapy.bestseller_products(3944)
-bestsellers[0].name
-bestsellers[0].sale_price
-product.available_online
-product.name
-product.upc
-product.sale_price
-product.msrp
-product.stock
-product.item_id
-product.short_description
+trending[0].name

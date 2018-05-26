@@ -47,7 +47,8 @@ class ebayAPI:
                 'findCompletedItems', {
                     'keywords': kwargs['keywords'],
                     'categoryId': kwargs['ebayCatId'],
-                    "sortOrder": "BestMatch",'outputSelector': ['GalleryURL', 'ConditionHistogram'],
+                    "sortOrder": "BestMatch",
+                    'outputSelector': ['GalleryURL', 'ConditionHistogram'],
                     'itemFilter': [
                         {'name': 'Condition', 'value': 'New'},
                         {'name': 'ListingType', 'value': 'AuctionWithBIN'},
@@ -81,14 +82,7 @@ class ebayAPI:
             print(str(ebayItems['errorMessage']))
             return {'error': ebayItems['errorMessage']}
 
-        ebayItems['paginationOutput']['pageRange'] = []
-        for i in range(int(ebayItems['paginationOutput']['totalPages'])):
-            ebayItems['paginationOutput']['pageRange'].append(str(i+1))
-
         '''
-        print(str('FindingResult.paginationOutput.totalPages: ' + str(ebayItems['paginationOutput']['totalPages'])))
-        print(str('FindingResultItem: '+str(ebayItems['searchResult']['item'][0])))
-
         for i, item in enumerate(ebayItems['searchResult']['item']): #gathering description and shipping costs
             if ebayModel.objects.filter(itemId=item['itemId']).exists():
                 _item = ebayModel.objects.get(itemId=item['itemId'])
@@ -230,5 +224,7 @@ Scratchpad
 """
 
 ebay = ebayAPI()
-itemSalesData = ebay.search(keywords="tablet",ebayCatId="11450",page='1')
-itemSalesData['searchResult']['_count']
+itemSalesData = ebay.search(keywords="batman",ebayCatId="11450",page='1')
+itemSalesData['searchResult']['item'][0].keys()
+itemSalesData['searchResult']['item'][0]
+itemSalesData['searchResult']['item'][0]['listingInfo'].keys()

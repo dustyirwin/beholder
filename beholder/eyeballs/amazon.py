@@ -1,8 +1,7 @@
-from django.shortcuts import Http404
+from beholder.keys.keys import amazon as amazonKeys
 from bs4 import BeautifulSoup
-from beholder.keys.keys import amazon
-import datetime
 import bottlenose
+import datetime
 import requests
 import re
 import xmltodict
@@ -10,58 +9,56 @@ import json
 
 
 """
-Beholder API for amazon products.
+Class methods for amazon products.
 """
-
 
 class amazonAPI:
     def __init__(self):
-        self.mws = amazon()
-        self.amazon = bottlenose.Amazon(
-            self.mws.key['AWS_ACCESS_KEY'],
-            self.mws.key['AWS_SECRET_ACCESS_KEY'],
-            self.mws.key['AWS_ASSOCIATE_TAG'],
-        )
-        self.categories = ['All','Wine','Wireless','ArtsAndCrafts',
-        'Miscellaneous','Electronics','Jewelry','MobileApps','Photo','Shoes',
-        'KindleStore','Automotive','Vehicles','Pantry','MusicalInstruments',
-        'DigitalMusic','GiftCards','FashionBaby','FashionGirls','GourmetFood',
-        'HomeGarden','MusicTracks','UnboxVideo','FashionWomen','VideoGames',
-        'FashionMen','Kitchen','Video','Software','Beauty','Grocery',
-        'FashionBoys','Industrial','PetSupplies','OfficeProducts','Magazines',
-        'Watches','Luggage','OutdoorLiving','Toys','SportingGoods','PCHardware',
-        'Movies','Books','Collectibles','Handmade','VHS','MP3Downloads',
-        'HomeAndBusinessServices','Fashion','Tools','Baby','Apparel',
-        'Marketplace','DVD','Appliances','Music','LawnAndGarden',
-        'WirelessAccessories','Blended','HealthPersonalCare','Classical']
+        self.amazonKeys = amazonKeys()
+        self.accessKey = self.amazonKeys.key["production"]["AMAZON_ACCESS_KEY"]
+        self.secretKey = self.amazonKeys.key["production"]["AMAZON_SECRET_KEY"]
+        self.assocTag = self.amazonKeys.key["production"]["AMAZON_ASSOC_TAG"]
+        self.categories = [
+            'All','Wine','Wireless','ArtsAndCrafts',
+            'Miscellaneous','Electronics','Jewelry','MobileApps','Photo','Shoes',
+            'KindleStore','Automotive','Vehicles','Pantry','MusicalInstruments',
+            'DigitalMusic','GiftCards','FashionBaby','FashionGirls','GourmetFood',
+            'HomeGarden','MusicTracks','UnboxVideo','FashionWomen','VideoGames',
+            'FashionMen','Kitchen','Video','Software','Beauty','Grocery',
+            'FashionBoys','Industrial','PetSupplies','OfficeProducts','Magazines',
+            'Watches','Luggage','OutdoorLiving','Toys','SportingGoods','PCHardware',
+            'Movies','Books','Collectibles','Handmade','VHS','MP3Downloads',
+            'HomeAndBusinessServices','Fashion','Tools','Baby','Apparel',
+            'Marketplace','DVD','Appliances','Music','LawnAndGarden',
+            'WirelessAccessories','Blended','HealthPersonalCare','Classical'
+            ]
         self.categories.sort(key=str.lower)
+        self.amazon = bottlenose.Amazon(self.accessKey, self.secretKey, self.assocTag)
 
-    def search(self, request, amazonModel):
-        if 'ASIN' in request.GET:
-            amazon = amazonAPI()
-            amazon.scrape(request, amazonModel)
-            amazon.fees(request, amazonModel)
+    def search(self, **kwargs):
+        if 'ASIN' in kwargs:
+            self.scrape(self, kwargs)
+            amazon.fees(self, kwargs)
+
         resp = self.amazon.ItemSearch(
-            Keywords=request.GET.get('keywords'),
-            SearchIndex=request.GET.get('amazonCatId'),
+            Keywords=kwargs['keywords'],
+            SearchIndex=kwargs['amazonCatId'],
             ResponseGroup='Medium, EditorialReview'
         )
         amazonItems = xmltodict.parse(resp)['ItemSearchResponse']['Items']
         amazonItems = json.loads(json.dumps(amazonItems))
 
-        if 'Errors' in amazonItems['Request']:
-            raise Http404(amazonItems['Request']['Errors']['Error']['Message'])
-
+        """
         for i, item in enumerate(amazonItems['Item']):
 
             if amazonModel.objects.filter(ASIN=item['ASIN']).exists():
                 amazonItems['Item'][i] = amazonModel.objects.get(ASIN=item['ASIN'])
             else:
                 amazonItems['Item'][i]['data'] = item
+        """
+        return amazonItems
 
-        return amazonItems['Item']
-
-    def scrape(self, request, amazonModel):
+    def scrape(self, **kwargs):
         priceList = []
 
         primeURL = 'https://www.amazon.com/gp/offer-listing/' + request.GET.get('ASIN') + '/ref=olp_f_primeEligible?ie=UTF8&f_primeEligible=true&f_used=true&f_usedAcceptable=true&f_usedGood=true&f_usedLikeNew=true&f_usedVeryGood=true'
@@ -135,7 +132,7 @@ class amazonAPI:
 
         return amazonItem
 
-    def fees(self, request, amazonModel):
+    def fees(self, request, amazonModel, **kwargs):
         valueNames = ['qty', 'TTP', 'Weight', 'Length', 'Width', 'Height']
         values = {}
         amazonItem = amazonModel.objects.get(ASIN=request.GET.get('ASIN'))
@@ -206,6 +203,14 @@ class amazonAPI:
         return amazonItem
 
 
-if __name__ == '__main__':
-    amazon = amazonAPI()
-    print('amazon = amazonAPI()\nmethods: search(request), scrape(request), fees(request)')
+"""
+Scratchpad
+"""
+
+amazon = amazonAPI()
+
+batman_products_in_VideoGames = amazon.search(keywords="batman",amazonCatId="VideoGames",)
+batman_products_in_VideoGames.keys()
+batman_products_in_VideoGames['Item'][0]['DetailPageURL']
+batman_products_in_VideoGames['Item'][0]['MediumImage']['URL']
+batman_products_in_VideoGames['Item'][0]
