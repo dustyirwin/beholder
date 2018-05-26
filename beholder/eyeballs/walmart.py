@@ -13,7 +13,7 @@ class walmartAPI:
             {'name':'Auto & Tires','code':'91083'}, {'name':'Baby','code':'5427'},
             {'name':'Beauty','code':'1085666'}, {'name':'Books','code':'3920'},
             {'name':'Cell Phones','code':'1105910'}, {'name':'Clothing','code':'5438'},
-            {'name':'Electronics','code':'3944'}, {'name':'Food','code':'976759'},
+            {'name':'TVs','code':'3944_1060825'}, {'name':'Food','code':'976759'},
             {'name':'Gifts & Registry','code':'1094765'}, {'name':'Health','code':'976760'},
             {'name':'Home','code':'4044'}, {'name':'Home Improvement','code':'1072864'},
             {'name':'Household Essentials','code':'1115193'}, {'name':'Industrial & Scientific','code':'6197502'},
@@ -42,10 +42,10 @@ class walmartAPI:
     def search(self, **kwargs):
         products = self.wapy.search(
             kwargs["keywords"],
-            numItems=25,
             categoryId=int(kwargs["walmartCatId"]),
-            page=1,
-            #sort=request.GET.get("walmartSearchSort"),
+            page=int(kwargs['page']),
+            #sort=kwargs['sort']),
+            #numItems=25,
         )
         return products
 
@@ -53,11 +53,11 @@ class walmartAPI:
 Scratchpad
 """
 
-w = walmartAPI()
-batman_products_in_5438 = w.search(keywords="batman",walmartCatId="5438")
-best_sellers_in_5438 = w.getBestSellers(walmartCatId="5438")
-clearance_in_5438 = w.getClearance(walmartCatId="5438")
-special_buy_in_5438 = w.getSpecialBuy(walmartCatId="5438")
-trending = w.getTrending()
+walmart = walmartAPI()
+batman_products_in_5438 = walmart.search(keywords="batman",walmartCatId="5438",page="1")
+best_sellers_in_5438 = walmart.getBestSellers(walmartCatId="5438",page="1")
+clearance_in_5438 = walmart.getClearance(walmartCatId="5438",page="1")
+special_buy_in_5438 = walmart.getSpecialBuy(walmartCatId="5438",page="1")
+trending = walmart.getTrending()
 
 trending[0].name
