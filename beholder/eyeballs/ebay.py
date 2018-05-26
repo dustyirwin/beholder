@@ -19,7 +19,7 @@ class ebayAPI:
             appid=self.ebayKeys.key['production']['appid'], config_file=None,
         )
         self.categories = [
-            {'name':'All','code':''}, {'name':'Antiques','code':'20081'},
+            {'name':'Antiques','code':'20081'},
             {'name':'Art','code':'550'}, {'name':'Baby','code':'2984'},
             {'name':'Books','code':'267'}, {'name':'Business & Industrial','code':'12576'},
             {'name':'Camera & Photo','code':'625'}, {'name':'Cell Phones & Accessories','code':'11450'},
