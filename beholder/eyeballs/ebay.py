@@ -1,28 +1,22 @@
 import isodate
 import datetime
 import numpy
-from ebaysdk.finding import Connection as findingConnection
-from ebaysdk.shopping import Connection as shoppingConnection
-from .amazon import amazonAPI
-from beholder.keys.keys import ebay
+from ebaysdk.finding import Connection as Finding
+from ebaysdk.trading import Connection as Trading
+from ebaysdk.exception import ConnectionError
+from beholder.eyeballs.amazon import amazonAPI
+from beholder.eyeballs.walmart import walmartAPI
+from beholder.keys.keys import ebay as ebayKeys
 
 
 class ebayAPI:
     def __init__(self):
-        self.ebay = ebay()
-        self.usedLotsFilters = [{
-            'name': 'Condition',
-            'value': ['1000', '1500', '1750', '2000', '3000', '4000', '5000', '6000']
-        }]
-        self.UPCSalesDataFilters = [
-            {'name': 'Condition', 'value': ['1000']},
-            {'name': 'AvailableTo', 'value': 'US'},
-        ]
-        self.findingConnection = findingConnection(
-            appid=self.ebay.key['production']['appid'], config_file=None,
+        self.ebayKeys = ebayKeys()
+        self.Finding = Finding(
+            appid=self.ebayKeys.key['production']['appid'], config_file=None,
         )
-        self.shoppingConnection = shoppingConnection(
-            appid=self.ebay.key['production']['appid'], config_file=None,
+        self.Trading = Trading(
+            appid=self.ebayKeys.key['production']['appid'], config_file=None,
         )
         self.categories = [
             {'name':'All','code':''}, {'name':'Antiques','code':'20081'},
@@ -46,57 +40,54 @@ class ebayAPI:
             {'name':'Video Games & Consoles','code':'1249'},
         ]
 
-    def getSalesDataForUPC(self, UPC, **kwargs):  # Todo! function under construction!
-        ebayItem = self.findingConnection.execute(
-            'findCompletedItems', {
-            'productId': UPC,
-            'itemFilter': self.UPCSalesDataFilters,
-        })
-        return ebayItem
 
-    def getSalesData(self, walmartItems, **kwargs):
-        soldItems = []
-        for i, item in enumerate(walmartItems):
-            salesData = self.getSalesDataForUPC(item.upc)
-            soldItems.append(salesData)
-            prices = [ item.sale_price for item in soldItems ]
-            salesData = {
-            'lowPrice': min(prices),
-            'meanPrice': mean(prices),
-            'stdDev': numpy.std(prices),
-            'sampleSize': len(soldItems),
-            }
-            walmartItems[i] = {
-                'item': item,
-                'salesData': salesData,
-            }
-        #save item data to database
-        return walmartItems
-
-    def search(self, request, **kwargs):
-        ebayItems = self.findingConnection.execute(
-            'findItemsAdvanced', {
-                'keywords': request.GET.get('keywords'),
-                'categoryId': request.GET.get('ebayCatId'),
-                'descriptionSearch': True,
-                'sortOrder': 'EndTimeSoonest',
-                'outputSelector': ['GalleryURL', 'ConditionHistogram'],
-                'itemFilter': self.usedFilters,
-                'paginationInput': {
-                    'entriesPerPage': 25,
-                    'pageNumber': request.GET.get('page')}
+    def search(self, **kwargs):
+        if "soldItems" in kwargs:
+            eBayItems = self.Finding.execute(
+                'findCompletedItems', {
+                    'keywords': kwargs['keywords'],
+                    'categoryId': kwargs['ebayCatId'],
+                    "sortOrder": "BestMatch",'outputSelector': ['GalleryURL', 'ConditionHistogram'],
+                    'itemFilter': [
+                        {'name': 'Condition', 'value': 'New'},
+                        {'name': 'ListingType', 'value': 'AuctionWithBIN'},
+                        {'name': 'LocatedIn', 'value': "US"},
+                    ],
+                    'paginationInput': {
+                        'entriesPerPage': 25,
+                        'pageNumber': kwargs['page']}
                 }
-        ).dict()
+            ).dict()
+
+        else:
+            ebayItems = self.Finding.execute(
+                'findItemsAdvanced', {
+                    'keywords': kwargs['keywords'],
+                    'categoryId': kwargs['ebayCatId'],
+                    'descriptionSearch': True,
+                    'sortOrder': 'BestMatch',  #EndTimeSoonest
+                    'outputSelector': ['GalleryURL', 'ConditionHistogram'],
+                    #'itemFilter': [
+                    #    {'name': 'Condition', 'value': 'New'},
+                    #    {'name': 'ListingType', 'value': 'AuctionWithBIN'},
+                    #],
+                    'paginationInput': {
+                        'entriesPerPage': 25,
+                        'pageNumber': kwargs['page']}
+                }
+            ).dict()
 
         if 'errorMessage' in ebayItems:
             print(str(ebayItems['errorMessage']))
+            return {'error': ebayItems['errorMessage']}
 
         ebayItems['paginationOutput']['pageRange'] = []
         for i in range(int(ebayItems['paginationOutput']['totalPages'])):
             ebayItems['paginationOutput']['pageRange'].append(str(i+1))
 
-        # print(str('FindingResult.paginationOutput.totalPages: ' + str(ebayItems['paginationOutput']['totalPages'])))
-        # print(str('FindingResultItem: '+str(ebayItems['searchResult']['item'][0])))
+        '''
+        print(str('FindingResult.paginationOutput.totalPages: ' + str(ebayItems['paginationOutput']['totalPages'])))
+        print(str('FindingResultItem: '+str(ebayItems['searchResult']['item'][0])))
 
         for i, item in enumerate(ebayItems['searchResult']['item']): #gathering description and shipping costs
             if ebayModel.objects.filter(itemId=item['itemId']).exists():
@@ -111,7 +102,7 @@ class ebayAPI:
                 ).dict()['Item']
                 _item['TimeLeftStr'] = isodate.parse_duration(_item['TimeLeft']).__str__()
                 ebayItems['searchResult']['item'][i] = {'data':_item}
-
+        '''
         return ebayItems
 
     def price(self, request, **kwargs):
@@ -232,3 +223,12 @@ class ebayAPI:
             ebayItem.save()
 
         return {'ebayItem': ebayItem, 'amazonItems': amazonItems}
+
+
+"""
+Scratchpad
+"""
+
+ebay = ebayAPI()
+itemSalesData = ebay.search(keywords="tablet",ebayCatId="11450",page='1')
+itemSalesData['searchResult']['_count']

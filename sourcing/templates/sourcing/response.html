@@ -4,26 +4,49 @@
   <ul class="nav nav-tabs">
     {% if walmartItems %}
       <li class="nav-item">
-        <a class="nav-link active" href="#">walmart</a>
+        <a class="nav-link active" type="button" data-toggle="collapse" data-target="#walmart">walmart</a>
       </li>
     {% endif %}
-    {% if ebaytems %}
+    {% if ebayItems %}
       <li class="nav-item">
-        <a class="nav-link active" href="#">ebay</a>
+        <a class="nav-link active" type="button" data-toggle="collapse" data-target="#ebay">ebay</a>
+      </li>
+    {% endif %}
+    {% if amazonItems %}
+      <li class="nav-item">
+        <a class="nav-link active" type="button" data-toggle="collapse" data-target="#amazon">amazon</a>
       </li>
     {% endif %}
   </ul>
 
-  <div class="card-columns">
-    {% for item in walmartItems %}
-      <div class="card">
-        <img class="card-img-top" src="{{ item.medium_image }}" alt="Card image cap">
-        <div class="card-body">
-          <h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.name }}</h5>
-          <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${{ item.sale_price }} {{ item.short_description }}</p>
-          <a href="#" class="btn btn-primary btn-sm">Go</a>
+  <div class="collapse" id="walmart">
+    <div class="card-columns">
+      {% for item in walmartItems %}
+        <div class="card">
+          <img class="card-img-top" src="{{ item.medium_image }}" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.name }}</h5>
+            <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${{ item.sale_price }} {{ item.short_description }}</p>
+            <a href="#" class="btn btn-primary btn-sm">Go</a>
+          </div>
         </div>
-      </div>
-    {% endfor %}
+      {% endfor %}
+    </div>
   </div>
+  <div class="collapse" id="ebay">
+    <div class="card-columns">
+      {% for item in ebayItems %}
+        <div class="card">
+          <img class="card-img-top" src="{{ item.medium_image }}" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.name }}</h5>
+            <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${{ item.sale_price }} {{ item.short_description }}</p>
+            <a href="#" class="btn btn-primary btn-sm">Go</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+
 {% endblock %}

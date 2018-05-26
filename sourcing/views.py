@@ -31,25 +31,34 @@ def response(request):
         }
 
     if request.GET.get("amazonCatId"):
-        amazonItems = amazon.search(request, Amazon=Amazon)
-        amazonItems.append("amazon")
+        amazonItems = amazon.search(
+            keywords=request.GET.get("keywords"),
+            amazonCatId=request.GET.get("amazonCatId"),
+            page=request.GET.get("page"),
+        )
         context['amazonItems'] = amazonItems
 
 
     if request.GET.get("ebayCatId"):
-        ebayItems = ebay.search(request, Ebay=Ebay)
-        ebayItems.append("ebay")
+        ebayItems = ebay.search(
+            keywords=request.GET.get("keywords"),
+            ebayCatId=request.GET.get("ebayCatId"),
+            page=request.GET.get("page"),
+        )
         context['ebayItems'] = ebayItems
 
 
     if request.GET.get("walmartCatId") and request.GET.get("keywords") in walmartQueries:
         walmartItems = walmartQueries[request.GET.get("keywords")]
         #ebaySalesData = ebay.getSalesData(walmartItems, Ebay=Ebay)
-        walmartItems.append("walmart")
         context['walmartItems'] = walmartItems
     else:
-        walmartItems = walmart.search(request, Walmart=Walmart)
-        walmartItems.append("walmart")
+        walmartItems = walmart.search(
+            request,
+            keywords=request.GET.get("keywords"),
+            walmartCatId=request.GET.get("walmartCatId"),
+            page=request.GET.get("page")
+        )
         context['walmartItems'] = walmartItems
 
     return render(request, 'sourcing/response.html', context)

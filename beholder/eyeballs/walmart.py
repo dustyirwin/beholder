@@ -50,7 +50,7 @@ class walmartAPI:
         return products
 
 
-'''
+
 w = walmart()
 wapy = Wapy(w.key["walmartAPIKey"])
 product = wapy.product_lookup('21853453')
@@ -65,4 +65,3 @@ product.msrp
 product.stock
 product.item_id
 product.short_description
-'''
