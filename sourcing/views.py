@@ -32,21 +32,24 @@ def response(request):
 
     if request.GET.get("amazonCatId"):
         amazonItems = amazon.search(request, Amazon=Amazon)
+        amazonItems.append("amazon")
         context['amazonItems'] = amazonItems
-        context['amazonItems']['marketName'] = "amazon"
+
 
     if request.GET.get("ebayCatId"):
         ebayItems = ebay.search(request, Ebay=Ebay)
+        ebayItems.append("ebay")
         context['ebayItems'] = ebayItems
-        context['ebayItems']['marketName'] = "ebay"
+
 
     if request.GET.get("walmartCatId") and request.GET.get("keywords") in walmartQueries:
         walmartItems = walmartQueries[request.GET.get("keywords")]
-        ebaySalesData = ebay.getSalesData(walmartItems, Ebay=Ebay)
+        #ebaySalesData = ebay.getSalesData(walmartItems, Ebay=Ebay)
+        walmartItems.append("walmart")
         context['walmartItems'] = walmartItems
-        context['walmartItems']['marketName'] = "walmart"
     else:
         walmartItems = walmart.search(request, Walmart=Walmart)
+        walmartItems.append("walmart")
         context['walmartItems'] = walmartItems
 
     return render(request, 'sourcing/response.html', context)

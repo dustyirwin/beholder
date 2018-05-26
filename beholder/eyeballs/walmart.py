@@ -27,19 +27,19 @@ class walmartAPI:
             {'name':'Video Games','code':'2636'}, {'name':'Walmart for Business','code':'6735581'},
             ]
 
-    def getBestSellers(self, request):
+    def getBestSellers(self, request, **kwargs):
         return self.wapy.bestseller_products(int(request.GET.get("walmartCatId")))
 
-    def getClearance(self, request):
+    def getClearance(self, request, **kwargs):
         return self.wapy.clearance_products(int(request.GET.get("walmartCatId")))
 
-    def getSpecialBuy(self, request):
+    def getSpecialBuy(self, request, **kwargs):
         return self.wapy.clearance_products(int(request.GET.get("walmartCatId")))
 
-    def getTrending(self):
+    def getTrending(self, **kwargs):
         return self.wapy.trending_products()
 
-    def search(self, request):
+    def search(self, request, **kwargs):
         products = self.wapy.search(
             request.GET.get("keywords"),
             numItems=25,
@@ -50,6 +50,7 @@ class walmartAPI:
         return products
 
 
+'''
 w = walmart()
 wapy = Wapy(w.key["walmartAPIKey"])
 product = wapy.product_lookup('21853453')

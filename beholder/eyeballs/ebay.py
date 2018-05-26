@@ -10,7 +10,7 @@ from beholder.keys.keys import ebay
 class ebayAPI:
     def __init__(self):
         self.ebay = ebay()
-        self.usedFilters = [{
+        self.usedLotsFilters = [{
             'name': 'Condition',
             'value': ['1000', '1500', '1750', '2000', '3000', '4000', '5000', '6000']
         }]
@@ -56,9 +56,9 @@ class ebayAPI:
 
     def getSalesData(self, walmartItems, **kwargs):
         soldItems = []
-        for item in walmartItems:
+        for i, item in enumerate(walmartItems):
             salesData = self.getSalesDataForUPC(item.upc)
-            soldItems.append()
+            soldItems.append(salesData)
             prices = [ item.sale_price for item in soldItems ]
             salesData = {
             'lowPrice': min(prices),
@@ -66,8 +66,8 @@ class ebayAPI:
             'stdDev': numpy.std(prices),
             'sampleSize': len(soldItems),
             }
-            item = {
-                'data': item,
+            walmartItems[i] = {
+                'item': item,
                 'salesData': salesData,
             }
         #save item data to database
@@ -81,7 +81,7 @@ class ebayAPI:
                 'descriptionSearch': True,
                 'sortOrder': 'EndTimeSoonest',
                 'outputSelector': ['GalleryURL', 'ConditionHistogram'],
-                'itemFilter': self.itemFilters,
+                'itemFilter': self.usedFilters,
                 'paginationInput': {
                     'entriesPerPage': 25,
                     'pageNumber': request.GET.get('page')}

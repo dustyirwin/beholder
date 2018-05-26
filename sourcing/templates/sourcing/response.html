@@ -2,11 +2,16 @@
 
 {% block response %}
   <ul class="nav nav-tabs">
-    {% for items in items %}
+    {% if walmartItems %}
       <li class="nav-item">
-        <a class="nav-link active" href="#">{{ items.marketName }}</a>
+        <a class="nav-link active" href="#">walmart</a>
       </li>
-    {% endfor %}
+    {% endif %}
+    {% if ebaytems %}
+      <li class="nav-item">
+        <a class="nav-link active" href="#">ebay</a>
+      </li>
+    {% endif %}
   </ul>
 
   <div class="card-columns">
