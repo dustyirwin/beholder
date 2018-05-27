@@ -21,14 +21,23 @@ class walmartEye:
             })
 
     def getBestSellers(self, **kwargs):
-        return self.wapy.bestseller_products(int(kwargs["walmartCatId"]))
+        if bool(kwargs['walmartCatId']) == True:
+            return self.wapy.bestseller_products(int(kwargs["walmartCatId"]))
+        else:
+            return []
 
     def getClearance(self, **kwargs):
-        return self.wapy.clearance_products(int(kwargs["walmartCatId"]))
+        if bool(kwargs['walmartCatId']) == True:
+            return self.wapy.clearance_products(int(kwargs["walmartCatId"]))
+        else:
+            return []
 
     def getSpecialBuy(self, **kwargs):
-        return self.wapy.clearance_products(int(kwargs["walmartCatId"]))
-
+        if bool(kwargs['walmartCatId']) == True:
+            return self.wapy.clearance_products(int(kwargs["walmartCatId"]))
+        else:
+            return []
+            
     def getTrending(self, **kwargs):
         return self.wapy.trending_products()
 

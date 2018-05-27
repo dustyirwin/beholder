@@ -3,15 +3,16 @@
 {% block response %}
   <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-    {% if walmartItems %}
-      <a class="nav-item nav-link active" id="nav-walmart-tab" data-toggle="tab" href="#nav-walmart" role="tab" aria-controls="nav-walmart" aria-selected="true">walmart</a>
-    {% endif %}
-    {% if ebayItems %}
-      <a class="nav-item nav-link" id="nav-ebay-tab" data-toggle="tab" href="#nav-ebay" role="tab" aria-controls="nav-ebay" aria-selected="false">ebay</a>
-    {% endif %}
-    {% if amazonItems %}
-      <a class="nav-item nav-link" id="nav-amazon-tab" data-toggle="tab" href="#nav-amazon" role="tab" aria-controls="nav-amazon" aria-selected="false">amazon</a>
-    {% endif %}
+      {% if walmartItems %}
+        <a class="nav-item nav-link active" id="nav-walmart-tab" data-toggle="tab" href="#nav-walmart" role="tab" aria-controls="nav-walmart" aria-selected="true">walmart</a>
+      {% endif %}
+      {% if ebayItems %}
+        <a class="nav-item nav-link" id="nav-ebay-tab" data-toggle="tab" href="#nav-ebay" role="tab" aria-controls="nav-ebay" aria-selected="false">ebay</a>
+      {% endif %}
+      {% if amazonItems %}
+        <a class="nav-item nav-link" id="nav-amazon-tab" data-toggle="tab" href="#nav-amazon" role="tab" aria-controls="nav-amazon" aria-selected="false">amazon</a>
+      {% endif %}
+    </div>
   </nav>
 
   <!-- Tab Panels -->

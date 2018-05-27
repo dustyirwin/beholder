@@ -1,6 +1,6 @@
 {% extends "login/header.html" %}
 
-{% block query %}
+{% block content %}
   <form action="{% url 'sourcing:response' %}" method="get">
     <nav class="navbar navbar-expand-sm navbar-light bg-dark">
       <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="auto" height="40px" style="padding-right:10px">
@@ -23,7 +23,7 @@
           <label class="input-group-text" for="walmartCategories">walmart</label>
         </div>
         <select name="walmartCatId" class="custom-select" id="walmartCategories">
-          <option selected>{{ request.GET.walmartCatId }}</option>
+          <option selected></option>
           {% for category in walmartCategories %}
             <option value="{{ category.id }}">{{ category.name }}</option>
           {% endfor %}

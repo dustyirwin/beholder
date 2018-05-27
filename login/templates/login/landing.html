@@ -1,11 +1,17 @@
 {% extends 'login/header.html' %}
 
-{% block pageContent %}
-<p>Welcome to BEHOLDER v0.1 copyright IRWINBROS LLC 2017</p>
+{% block content %}
+  <div class="container">
+    <h2>BEHOLDER LANDING PAGE</h2>
+    <p>SOURCE PRODUCTS HERE: /sourcing/q </p>
+    <p>SELL PRODUCTS: /selling </p>
+    <p>MANAGE ORDERS: /orders </p>
+
+  </div>
+
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Login</button>
     </form>
-
+    
 {% endblock %}

@@ -2,10 +2,10 @@ from django.shortcuts import render
 
 # Create your views here.
 
-def login():
+def login(request):
     context = {}
-    return render("login/login.html", context)
+    return render(request, "login/login.html", context)
 
 def landing(request):
     context = {}
-    return render("login/landing.html", context)
+    return render(request, "login/landing.html", context)
