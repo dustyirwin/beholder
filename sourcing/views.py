@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from sourcing.models import Amazon, Ebay, Alibaba, Walmart
 from beholder.eyeballs import amazon, ebay, walmart, target
-#import pdb; pdb.set_trace()
+
 
 ebay = ebay.ebayEye()
 amazon = amazon.amazonEye()
@@ -92,7 +92,7 @@ def response(request):
 
 """
 Scratchpad / Testing
-"""
+
 
 _walmart = walmart.walmartEye()
 _walmartQueries = {
@@ -102,6 +102,8 @@ _walmartQueries = {
     'Trending': _walmart.getTrending,}
 
 type(_walmartQueries['Best Sellers'](walmartCatId=3944)) == list
+import pdb; pdb.set_trace()
 type(_walmartQueries['Clearance'](walmartCatId=3944)) == list
 type(_walmartQueries['Special Buy'](walmartCatId=3944)) == list
 type(_walmartQueries['Trending']()) == list
+"""

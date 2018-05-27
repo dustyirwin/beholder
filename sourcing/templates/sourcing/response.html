@@ -53,7 +53,8 @@
             <div class="card-body">
               <a href="{{ item.DetailPageURL }}" target="_blank"><h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.ItemAttributes.Title }}</h5></a>
               <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">lowNew: {{ item.OfferSummary.LowestNewPrice.FormattedPrice }} rank: {{ item.SalesRank }}</p>
-              <a href="#" class="btn btn-primary btn-sm">Details</a>
+              <a href="#" class="btn btn-success btn-sm">Details</a>
+              <a href="#" class="btn btn-warning btn-sm">Prime</a>
             </div>
           </div>
         {% endfor %}
