@@ -4,20 +4,20 @@
   <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
       {% if walmartItems %}
-        <a class="nav-item nav-link active" id="nav-walmart-tab" data-toggle="tab" href="#nav-walmart" role="tab" aria-controls="nav-walmart" aria-selected="true">walmart</a>
-      {% endif %}
-      {% if ebayItems %}
-        <a class="nav-item nav-link" id="nav-ebay-tab" data-toggle="tab" href="#nav-ebay" role="tab" aria-controls="nav-ebay" aria-selected="false">ebay</a>
+        <a class="nav-item nav-link" id="nav-walmart-tab" data-toggle="tab" href="#nav-walmart" role="tab" aria-controls="nav-walmart" aria-selected="true">walmart</a>
       {% endif %}
       {% if amazonItems %}
         <a class="nav-item nav-link" id="nav-amazon-tab" data-toggle="tab" href="#nav-amazon" role="tab" aria-controls="nav-amazon" aria-selected="false">amazon</a>
+      {% endif %}
+      {% if ebayItems %}
+        <a class="nav-item nav-link" id="nav-ebay-tab" data-toggle="tab" href="#nav-ebay" role="tab" aria-controls="nav-ebay" aria-selected="false">ebay</a>
       {% endif %}
     </div>
   </nav>
 
   <!-- Tab Panels -->
   <div class="tab-content" id="nav-tabContent">
-    <div class="tab-pane fade show active" id="nav-walmart" role="tabpanel" aria-labelledby="nav-walmart-tab">
+    <div class="tab-pane fade show" id="nav-walmart" role="tabpanel" aria-labelledby="nav-walmart-tab">
       <div class="card-columns">
         {% for item in walmartItems %}
           <div class="card">
@@ -25,40 +25,95 @@
             <div class="card-body">
               <a href="{{ item.product_url }}" target="_blank"><h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.name }}</h5></a>
               <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${{ item.sale_price }} {{ item.short_description }}</p>
-              <a href="#" class="btn btn-primary btn-sm">Details</a>
+              <a href="#" class="btn btn-success btn-sm">Details</a>
             </div>
           </div>
         {% endfor %}
       </div>
     </div>
-    <div class="tab-pane fade" id="nav-ebay" role="tabpanel" aria-labelledby="nav-ebay-tab">
+    <div class="tab-pane fade show" id="nav-ebay" role="tabpanel" aria-labelledby="nav-ebay-tab">
       <div class="card-columns">
         {% for item in ebayItems.searchResult.item %}
           <div class="card">
             <img class="card-img-top" src="{{ item.galleryURL }}" alt="Card image cap">
             <div class="card-body">
-              <a href="{{ item.viewItemURL }}" target="_blank"><h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.title }}</h5></a>
+                <a href="{{ item.viewItemURL }}" target="_blank"><h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.title }}</h5></a>
               <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">BIN ${{ item.sellingStatus.currentPrice.value }} + ${{ item.shippingInfo.shippingServiceCost.value }} shipping</p>
-              <a href="#" class="btn btn-primary btn-sm">Details</a>
+              <a href="#" class="btn btn-success btn-sm">Details</a>
             </div>
           </div>
         {% endfor %}
       </div>
     </div>
-    <div class="tab-pane fade" id="nav-amazon" role="tabpanel" aria-labelledby="nav-amazon-tab">
+    <div class="tab-pane fade show" id="nav-amazon" role="tabpanel" aria-labelledby="nav-amazon-tab">
       <div class="card-columns">
         {% for item in amazonItems.Item %}
           <div class="card">
             <img class="card-img-top" src="{{ item.MediumImage.URL }}" alt="Card image cap">
-            <div class="card-body">
+            <div class="card-body p-0 m-3">
               <a href="{{ item.DetailPageURL }}" target="_blank"><h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.ItemAttributes.Title }}</h5></a>
-              <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">lowNew: {{ item.OfferSummary.LowestNewPrice.FormattedPrice }} rank: {{ item.SalesRank }}</p>
-              <a href="#" class="btn btn-success btn-sm">Details</a>
-              <a href="#" class="btn btn-warning btn-sm">Prime</a>
+              <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.OfferSummary.LowestNewPrice.FormattedPrice }} rank: {{ item.SalesRank }}</p>
+              <!-- Button trigger modal -->
+              <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#{{ item.ASIN }}Modal">
+                Details
+              </button>
+            </div>
+          </div>
+          <!-- Modal -->
+          <div class="modal fade" id="{{ item.ASIN }}Modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <a href="{{ item.DetailPageURL }}" target="_blank"><h5 class="text-center" title="{{ item.ItemAttributes.Title }}" id="{{ item.ASIN }}ModalTitle">{{ item.ItemAttributes.Title }}</h5></a>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <!-- Carousel -->
+                  <div id="{{ item.ASIN }}Carousel" class="carousel slide carousel-fade" data-ride="carousel">
+                    <ol class="carousel-indicators">
+                      <li data-target="#{{ item.ASIN }}Carousel" data-slide-to="0" class="active"></li>
+                    {% for i in item.ImageSets.ImageSet|slice:"1:" %}
+                      <li data-target="#{{ item.ASIN }}Carousel" data-slide-to="{{ forloop.counter }}"></li>
+                    {% endfor %}
+                    </ol>
+                    <div class="carousel-inner">
+                      <div class="carousel-item active">
+                        <img class="d-block w-100" src="{{ item.ImageSets.ImageSet.0.LargeImage.URL }}" alt="slide 0">
+                      </div>
+                    {% for ImageSet in item.ImageSets.ImageSet|slice:"1:" %}
+                      <div class="carousel-item">
+                        <img class="d-block w-100" src="{{ ImageSet.LargeImage.URL }}" alt="{{ forloop.counter }} slide">
+                      </div>
+                    {% endfor %}
+                    </div>
+                    <a class="carousel-control-prev" href="#{{ item.ASIN }}Carousel" role="button" data-slide="prev">
+                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                      <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#{{ item.ASIN }}Carousel" role="button" data-slide="next">
+                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                      <span class="sr-only">Next</span>
+                    </a>
+                  </div>
+                  <ul class="pl-3">
+                  {% for Feature in item.ItemAttributes.Feature %}
+                    <li>
+                      <p class="p-0 m-0" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="tooltip" title="{{ Feature }}">{{ Feature }}</p>
+                    </li>
+                  {% endfor %}
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-success">Source</button>
+                </div>
+              </div>
             </div>
           </div>
         {% endfor %}
       </div>
     </div>
   </div>
+
 {% endblock %}

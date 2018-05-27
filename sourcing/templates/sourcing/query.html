@@ -28,7 +28,7 @@
             <option value="{{ category.id }}">{{ category.name }}</option>
           {% endfor %}
         </select>
-        <button type="button" class="btn btn-outline-success btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
+        <button type="button" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
           Free Shipping Only
         </button>
       <div class="input-group mb-0">
@@ -41,8 +41,11 @@
             <option name="amazonCatId" value="{{ category }}">{{ category }}</option>
           {% endfor %}
         </select>
-        <button type="button" class="btn btn-outline-success btn-sm" data-toggle="button" aria-pressed="false" autocomplete="off">
-          Auto Scrape Prime Prices
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="button" aria-pressed="false" autocomplete="off">
+          Auto-Scrape
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
+          New Items Only
         </button>
         </div>
       </div>
@@ -56,7 +59,7 @@
             <option value="{{ category.code }}">{{ category.name }}</option>
           {% endfor %}
         </select>
-        <button type="input" name="BINOnly" value="" class="btn btn-outline-success btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
+        <button type="input" name="BINOnly" value="" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
           Buy It Now Only
         </button>
       </div>

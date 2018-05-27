@@ -27,7 +27,7 @@ class ebayEye:
             {'name':'Antiques','code':'20081'},
             {'name':'Art','code':'550'}, {'name':'Baby','code':'2984'},
             {'name':'Books','code':'267'}, {'name':'Business & Industrial','code':'12576'},
-            {'name':'Camera & Photo','code':'625'}, {'name':'Cell Phones & Accessories','code':'11450'},
+            {'name':'Camera & Photo','code':'625'}, {'name':'Cell Phones & Accessories','code':'15032'},
             {'name':'Clothing, Shoes & Accessories','code':'11450'},
             {'name':'Coins & Paper Money','code':'11116'}, {'name':'Collectibles','code':'1'},
             {'name':'Computers/Tablets & Networking','code':'58058'},
