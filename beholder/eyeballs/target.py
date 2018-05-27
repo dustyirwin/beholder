@@ -1,22 +1,32 @@
+from beholder.keys.keys import keys
+import requests
+
 "Class methods for Target Stores API"
 
-from beholder.keys.keys import target
 
-class targetAPI:
+class targetEye:
     def __init__(self):
-        self.target = target()
-        self.apiKey = self.target.key['targetAPIKey']
+        self.keys = keys()
+        self.APIKey = self.keys.target['APIKey']
+        self.target = "target api class..."
         self.categories = ['All']
 
-    def getItemInfo(self, request):
-        UPC_URL = 'http://api.walmartlabs.com/v1/items?apiKey='+self.apiKey+'a' + request.GET.get('UPC')
-        resp = request.GET.get('GET', UPC_URL)
-        print(str(resp))
-        return resp
+    def getItemInfo(self, **kwargs):
+        UPC_URL = 'http://api.target.com/upc...' + kwargs['UPC']
+        resp = requests.get(UPC_URL)
+        targetItem = resp
+        return targetItem
 
-    def search(self, request):
-        query_URL = ''
-        return query_URL
+    def search(self, **kwargs):
+        searchURL = 'http://api.target.com/upc...'
+        resp = requests.get(searchURL)
+        targetItems = resp
+        return targetItems
 
-    def price(self, request, WalmartDB):
+    def price(self, **kwargs):
         print("Do cool stuff yo!")
+
+
+"""
+Scratchpad / Testing
+"""

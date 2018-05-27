@@ -3,10 +3,10 @@ from .models import Amazon, Ebay, Alibaba, Walmart
 from beholder.eyeballs import amazon, ebay, walmart, target
 
 
-ebay = ebay.ebayAPI()
-amazon = amazon.amazonAPI()
-walmart = walmart.walmartAPI()
-target = target.targetAPI()
+ebay = ebay.ebayEye()
+amazon = amazon.amazonEye()
+walmart = walmart.walmartEye()
+target = target.targetEye()
 
 marketNames = ['walmart','ebay','amazon','target']
 
@@ -35,8 +35,10 @@ def response(request):
     amazonQueries = {}
 
     if request.GET.get("amazonCatId"):
+
         if request.GET.get("keywords") in walmartQueries or request.GET.get("keywords") in ebayQueries:
             pass
+
         else:
             amazonItems = amazon.search(
                 keywords=request.GET.get("keywords"),
@@ -47,8 +49,10 @@ def response(request):
 
 
     if request.GET.get("ebayCatId"):
+
         if request.GET.get("keywords") in walmartQueries or request.GET.get("keywords") in amazonQueries:
             pass
+
         else:
             ebayItems = ebay.search(
                 keywords=request.GET.get("keywords"),
@@ -62,9 +66,11 @@ def response(request):
         walmartItems = walmartQueries[request.GET.get("keywords")]
         #ebaySalesData = ebay.getSalesData(walmartItems, Ebay=Ebay)
         context['walmartItems'] = walmartItems
+
     else:
         if request.GET.get("keywords") in amazonQueries or request.GET.get("keywords") in ebayQueries:
             pass
+
         else:
             walmartItems = walmart.search(
                 keywords=request.GET.get("keywords"),

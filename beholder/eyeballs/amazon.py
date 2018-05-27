@@ -1,4 +1,4 @@
-from beholder.keys.keys import amazon as amazonKeys
+from beholder.keys.keys import keys
 from bs4 import BeautifulSoup
 import bottlenose
 import datetime
@@ -9,15 +9,15 @@ import json
 
 
 """
-Class methods for amazon products.
+Class methods for Amazon MWS Products API
 """
 
-class amazonAPI:
+class amazonEye:
     def __init__(self):
-        self.amazonKeys = amazonKeys()
-        self.accessKey = self.amazonKeys.key["production"]["AMAZON_ACCESS_KEY"]
-        self.secretKey = self.amazonKeys.key["production"]["AMAZON_SECRET_KEY"]
-        self.assocTag = self.amazonKeys.key["production"]["AMAZON_ASSOC_TAG"]
+        self.keys = keys()
+        self.accessKey = self.keys.amazon["production"]["AMAZON_ACCESS_KEY"]
+        self.secretKey = self.keys.amazon["production"]["AMAZON_SECRET_KEY"]
+        self.assocTag = self.keys.amazon["production"]["AMAZON_ASSOC_TAG"]
         self.categories = [
             'All','Wine','Wireless','ArtsAndCrafts',
             'Miscellaneous','Electronics','Jewelry','MobileApps','Photo','Shoes',
@@ -204,13 +204,12 @@ class amazonAPI:
 
 
 """
-Scratchpad
-"""
+Scratchpad / Tests
 
-amazon = amazonAPI()
-
+amazon = amazonEye()
 batman_products_in_VideoGames = amazon.search(keywords="batman",amazonCatId="VideoGames",)
 batman_products_in_VideoGames.keys()
 batman_products_in_VideoGames['Item'][0]['DetailPageURL']
 batman_products_in_VideoGames['Item'][0]['MediumImage']['URL']
 batman_products_in_VideoGames['Item'][0]
+"""

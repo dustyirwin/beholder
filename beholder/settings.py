@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
-from beholder.keys.keys import beholder
+from beholder.keys.keys import keys
+keys = keys()
 
-keys = beholder()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,7 +23,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = keys.key['SECRET_KEY']
+
+SECRET_KEY = keys.beholder['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -81,9 +82,9 @@ WSGI_APPLICATION = 'beholder.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': keys.dbkey['NAME'],
-        'USER': keys.dbkey['USER'],
-        'PASSWORD': keys.dbkey['PASSWORD'],
+        'NAME': keys.beholderdb['NAME'],
+        'USER': keys.beholderdb['USER'],
+        'PASSWORD': keys.beholderdb['PASSWORD'],
         'HOST': 'localhost',
         'PORT': '',
     }

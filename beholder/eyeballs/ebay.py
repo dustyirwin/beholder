@@ -4,19 +4,24 @@ import numpy
 from ebaysdk.finding import Connection as Finding
 from ebaysdk.trading import Connection as Trading
 from ebaysdk.exception import ConnectionError
-from beholder.eyeballs.amazon import amazonAPI
-from beholder.eyeballs.walmart import walmartAPI
-from beholder.keys.keys import ebay as ebayKeys
+from beholder.eyeballs.amazon import amazonEye
+from beholder.eyeballs.walmart import walmartEye
+from beholder.keys.keys import keys
 
 
-class ebayAPI:
+"""
+class methods for ebay Finding and Trading APIs
+"""
+
+
+class ebayEye:
     def __init__(self):
-        self.ebayKeys = ebayKeys()
+        self.keys = keys()
         self.Finding = Finding(
-            appid=self.ebayKeys.key['production']['appid'], config_file=None,
+            appid=self.keys.ebay['production']['appid'], config_file=None,
         )
         self.Trading = Trading(
-            appid=self.ebayKeys.key['production']['appid'], config_file=None,
+            appid=self.keys.ebay['production']['appid'], config_file=None,
         )
         self.categories = [
             {'name':'Antiques','code':'20081'},
@@ -153,7 +158,7 @@ class ebayAPI:
 
         if 'ASIN' in request.GET:
             if 'amazonCatId' in request.GET:
-                amazon = amazonAPI()
+                amazon = amazonEye()
                 amazon.scrape(request, amazonModel)
                 amazon.fees(request, amazonModel)
                 amazonItem = amazonModel.objects.get(ASIN=request.GET.get('ASIN'))
@@ -220,11 +225,11 @@ class ebayAPI:
 
 
 """
-Scratchpad
-"""
+Scratchpad / Testing
 
-ebay = ebayAPI()
+ebay = ebayEye()
 itemSalesData = ebay.search(keywords="batman",ebayCatId="11450",page='1')
 itemSalesData['searchResult']['item'][0].keys()
 itemSalesData['searchResult']['item'][0]['title']
 itemSalesData['searchResult']['item'][0]
+"""

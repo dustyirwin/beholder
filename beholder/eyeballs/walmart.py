@@ -1,14 +1,17 @@
 from wapy.api import Wapy
-from beholder.keys.keys import walmart as walmartKeys
+from beholder.keys.keys import keys
 import requests
-"Class methods for Walmart Stores API"
 
-class walmartAPI:
+"""
+Class methods for Walmart Stores API
+"""
+
+class walmartEye:
     def __init__(self):
-        self.walmartKeys = walmartKeys()
-        self.apiKey = self.walmartKeys.key["walmartAPIKey"]
-        self.wapy = Wapy(self.apiKey)
-        self.taximony = requests.get('http://api.walmartlabs.com/v1/taxonomy?apiKey='+self.apiKey).json()
+        self.keys = keys()
+        self.walmartAPIKey = self.keys.walmart["walmartAPIKey"]
+        self.wapy = Wapy(self.walmartAPIKey)
+        self.taximony = requests.get('http://api.walmartlabs.com/v1/taxonomy?apiKey='+self.walmartAPIKey).json()
         self.categories = []
 
         for category in self.taximony['categories']:
@@ -44,9 +47,8 @@ class walmartAPI:
 
 """
 Scratchpad
-"""
 
-walmart = walmartAPI()
+walmart = walmartEye()
 walmart.taximony;
 walmart.categories
 
@@ -56,3 +58,4 @@ clearance_in_5438 = walmart.getClearance(walmartCatId="5438",page="1")
 special_buy_in_5438 = walmart.getSpecialBuy(walmartCatId="5438",page="1")
 trending = walmart.getTrending()
 trending[0].name
+"""
