@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from .models import Amazon, Ebay, Alibaba, Walmart
+from sourcing.models import Amazon, Ebay, Alibaba, Walmart
 from beholder.eyeballs import amazon, ebay, walmart, target
-
+#import pdb; pdb.set_trace()
 
 ebay = ebay.ebayEye()
 amazon = amazon.amazonEye()
@@ -24,17 +24,15 @@ def response(request):
     context = {}
 
     walmartQueries = {
-        'Best Sellers': walmart.getBestSellers(
-            walmartCatId=request.GET.get("walmartCatId"),),
-        'Clearance': walmart.getClearance(
-            walmartCatId=request.GET.get("walmartCatId")),
-        'Special Buy': walmart.getSpecialBuy(
-            walmartCatId=request.GET.get("walmartCatId")),
-        'Trending': walmart.getTrending(),
-        }
+        'Best Sellers': walmart.getBestSellers,
+        'Clearance': walmart.getClearance,
+        'Special Buy': walmart.getSpecialBuy,
+        'Trending': walmart.getTrending,
+    }
     ebayQueries = {}
     amazonQueries = {}
 
+    #  try to get amazon context data
     try:
         if bool(request.GET.get("amazonCatId")) == True:
 
@@ -51,6 +49,7 @@ def response(request):
     except Exception as e:
         print(e)
 
+    #  try to get ebay context data
     try:
         if bool(request.GET.get("ebayCatId")) == True:
 
@@ -67,9 +66,11 @@ def response(request):
     except Exception as e:
         print(e)
 
+    #  try to get walmart context data
     try:
         if request.GET.get("keywords") in walmartQueries:
-            walmartItems = walmartQueries[request.GET.get("keywords")]
+            walmartItems = walmartQueries[request.GET.get("keywords")](
+                walmartCatId=int(request.GET.get("walmartCatId")))
             context['walmartItems'] = walmartItems
 
         elif request.GET.get("keywords") in amazonQueries or request.GET.get("keywords") in ebayQueries:
@@ -87,3 +88,20 @@ def response(request):
         print(e)
 
     return render(request, 'sourcing/response.html', context)
+
+
+"""
+Scratchpad / Testing
+"""
+
+_walmart = walmart.walmartEye()
+_walmartQueries = {
+    'Best Sellers': _walmart.getBestSellers,
+    'Clearance': _walmart.getClearance,
+    'Special Buy': _walmart.getSpecialBuy,
+    'Trending': _walmart.getTrending,}
+
+type(_walmartQueries['Best Sellers'](walmartCatId=3944)) == list
+type(_walmartQueries['Clearance'](walmartCatId=3944)) == list
+type(_walmartQueries['Special Buy'](walmartCatId=3944)) == list
+type(_walmartQueries['Trending']()) == list

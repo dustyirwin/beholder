@@ -2,6 +2,7 @@ from wapy.api import Wapy
 from beholder.keys.keys import keys
 import requests
 
+
 """
 Class methods for Walmart Stores API
 """
@@ -22,7 +23,7 @@ class walmartEye:
 
     def getBestSellers(self, **kwargs):
         if bool(kwargs['walmartCatId']) == True:
-            return self.wapy.bestseller_products(int(kwargs["walmartCatId"]))
+            return self.wapy.bestseller_products(int(kwargs['walmartCatId']))
         else:
             return []
 
@@ -37,7 +38,7 @@ class walmartEye:
             return self.wapy.clearance_products(int(kwargs["walmartCatId"]))
         else:
             return []
-            
+
     def getTrending(self, **kwargs):
         return self.wapy.trending_products()
 
@@ -56,15 +57,12 @@ class walmartEye:
 
 """
 Scratchpad
-
+"""
 walmart = walmartEye()
-walmart.taximony;
-walmart.categories
 
 batman_products_in_5438 = walmart.search(keywords="batman",walmartCatId="5438",page="1")
-best_sellers_in_5438 = walmart.getBestSellers(walmartCatId="5438",page="1")
+best_sellers_in_5438 = walmart.getBestSellers(walmartCatId=5438,page=1)
 clearance_in_5438 = walmart.getClearance(walmartCatId="5438",page="1")
 special_buy_in_5438 = walmart.getSpecialBuy(walmartCatId="5438",page="1")
 trending = walmart.getTrending()
 trending[0].name
-"""

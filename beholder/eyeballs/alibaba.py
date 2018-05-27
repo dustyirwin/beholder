@@ -1,9 +1,7 @@
 
 """Class methods for Alibaba marketplace"""
 
-
-
-class alibabaAPI:
+class alibabaEye:
     def __init__(self):
         self.msg = "New class for Alibaba wholesale marketplace!"
         self.categories = ['stuff']

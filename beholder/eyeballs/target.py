@@ -1,4 +1,4 @@
-from beholder.keys.keys import keys
+from beholder.keys import keys
 import requests
 
 "Class methods for Target Stores API"
