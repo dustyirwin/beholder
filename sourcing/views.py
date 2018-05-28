@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from sourcing.models import Amazon, Ebay, Alibaba, Walmart
 from beholder.eyeballs import amazon, ebay, walmart, target
-
+import traceback
 
 ebay = ebay.ebayEye()
 amazon = amazon.amazonEye()
@@ -44,10 +44,14 @@ def response(request):
                     amazonCatId=request.GET.get("amazonCatId"),
                     page=request.GET.get("page"),
                 )
+                for item in amazonItems['Item']:
+                    if 'Feature' in item['ItemAttributes'] and type(item['ItemAttributes']['Feature']) == str:
+                        item['ItemAttributes']['Feature'] = [item['ItemAttributes']['Feature']]
+
                 context['amazonItems'] = amazonItems
 
     except Exception as e:
-        print(e)
+        print(traceback.format_exc())
 
     #  try to get ebay context data
     try:
@@ -64,7 +68,7 @@ def response(request):
                 context['ebayItems'] = ebayItems
 
     except Exception as e:
-        print(e)
+        print(traceback.format_exc())
 
     #  try to get walmart context data
     try:
@@ -85,7 +89,7 @@ def response(request):
                 )
                 context['walmartItems'] = walmartItems
     except Exception as e:
-        print(e)
+        print(traceback.format_exc())
 
     for key, value in context.items():
         context['active'] = str(key)
