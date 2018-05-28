@@ -1,6 +1,7 @@
 {% extends "sourcing/query.html"%}
 
 {% block response %}
+  <!-- Tabs -->
   <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
       {% if active == "walmartItems" %}
@@ -62,11 +63,12 @@
         </div>
       </div>
   {% endif %}
-  {% if active == "amazonItems" %}
-    <div class="tab-pane fade show active" id="nav-amazon" role="tabpanel" aria-labelledby="nav-amazon-tab">
-  {% elif amazonItems %}
-    <div class="tab-pane fade show" id="nav-amazon" role="tabpanel" aria-labelledby="nav-amazon-tab">
-  {% endif %}
+  {% if amazonItems %}
+    {% if active == "amazonItems" %}
+      <div class="tab-pane fade show active" id="nav-amazon" role="tabpanel" aria-labelledby="nav-amazon-tab">
+    {% else %}
+      <div class="tab-pane fade show" id="nav-amazon" role="tabpanel" aria-labelledby="nav-amazon-tab">
+    {% endif %}
       <div class="card-columns">
         {% for item in amazonItems.Item %}
           <div class="card">
@@ -135,7 +137,7 @@
         {% endfor %}
       </div>
     </div>
-
+  {% endif %}
   </div>
 
 {% endblock %}
