@@ -87,6 +87,10 @@ def response(request):
     except Exception as e:
         print(e)
 
+    for key, value in context.items():
+        context['active'] = str(key)
+        break
+
     return render(request, 'sourcing/response.html', context)
 
 
