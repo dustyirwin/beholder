@@ -21,97 +21,108 @@ def query(request):
 
 
 def response(request):
-    context = {}
+    rv = {
+        'keywords': request.GET.get("keywords"),
+        'walmartCatId': request.GET.get("walmartCatId"),
+        'amazonCatId': request.GET.get("amazonCatId"),
+        'ebayCatId': request.GET.get("ebayCatId"),
+        'walmartPage': request.GET.get("walmartPage"),
+        'amazonPage': request.GET.get("amazonPage"),
+        'ebayPage': request.GET.get("ebayPage"),
+        }
 
-    walmartQueries = {
+    context = {}
+    context['pages'] = {
+        'walmart': {
+            'page': int(rv['walmartPage']),
+            'prev': int(rv['walmartPage']) - 1,
+            'next': int(rv['walmartPage']) + 1,
+        },
+        'amazon': {
+            'page': int(rv['amazonPage']),
+            'prev': int(rv['amazonPage']) - 1,
+            'next': int(rv['amazonPage']) + 1,
+        },
+        'ebay': {
+            'page': int(rv['ebayPage']),
+            'prev': int(rv['ebayPage']) - 1,
+            'next': int(rv['ebayPage']) + 1,
+        }
+    }
+
+    specialQueries = {
         'Best Sellers': walmart.getBestSellers,
         'Clearance': walmart.getClearance,
-        'Special Buy': walmart.getSpecialBuy,
+        'Special_Buy': walmart.getSpecialBuy,
         'Trending': walmart.getTrending,
     }
-    ebayQueries = {}
-    amazonQueries = {}
 
     #  try to get amazon context data
     try:
-        if bool(request.GET.get("amazonCatId")) == True:
+        if rv["keywords"] in specialQueries:
+            walmartItems = specialQueries[rv["keywords"]](
+                walmartCatId=int(rv["amazonCatId"]))
+            context['amazonItems'] = amazonItems
 
-            if request.GET.get("keywords") in walmartQueries or request.GET.get("keywords") in ebayQueries:
-                pass
-            else:
-                amazonItems = amazon.search(
-                    keywords=request.GET.get("keywords"),
-                    amazonCatId=request.GET.get("amazonCatId"),
-                    page=request.GET.get("page"),
-                )
-                for item in amazonItems['Item']:
-                    if 'Feature' in item['ItemAttributes'] and type(item['ItemAttributes']['Feature']) == str:
-                        item['ItemAttributes']['Feature'] = [item['ItemAttributes']['Feature']]
-
-                context['amazonItems'] = amazonItems
+        else:
+            amazonItems = amazon.search(
+                keywords=rv["keywords"],
+                amazonCatId=rv["amazonCatId"],
+                amazonPage=rv["amazonPage"],
+            )
+            context['amazonItems'] = amazonItems
 
     except Exception as e:
         print(traceback.format_exc())
 
+
     #  try to get ebay context data
     try:
-        if bool(request.GET.get("ebayCatId")) == True:
+        if rv["keywords"] in specialQueries:
+            walmartItems = specialQueries[rv["keywords"]](
+                walmartCatId=int(rv["ebayCatId"]))
+            context['ebayItems'] = ebayItems
 
-            if request.GET.get("keywords") in walmartQueries or request.GET.get("keywords") in amazonQueries:
-                pass
-            else:
-                ebayItems = ebay.search(
-                    keywords=request.GET.get("keywords"),
-                    ebayCatId=request.GET.get("ebayCatId"),
-                    page=request.GET.get("page"),
-                )
-                context['ebayItems'] = ebayItems
+        else:
+            ebayItems = ebay.search(
+                keywords=rv["keywords"],
+                ebayCatId=rv["ebayCatId"],
+                ebayPage=rv["ebayPage"],
+            )
+            context['ebayItems'] = ebayItems
 
     except Exception as e:
         print(traceback.format_exc())
 
     #  try to get walmart context data
     try:
-        if request.GET.get("keywords") in walmartQueries:
-            walmartItems = walmartQueries[request.GET.get("keywords")](
-                walmartCatId=int(request.GET.get("walmartCatId")))
+        if rv["keywords"] in specialQueries:
+            walmartItems = specialQueries[rv["keywords"]](
+                walmartCatId=rv["walmartCatId"])
             context['walmartItems'] = walmartItems
 
-        elif request.GET.get("keywords") in amazonQueries or request.GET.get("keywords") in ebayQueries:
-            pass
-
         else:
-            if bool(request.GET.get("walmartCatId")) == True:
+            if bool(rv["walmartCatId"]) == True:
                 walmartItems = walmart.search(
-                    keywords=request.GET.get("keywords"),
-                    walmartCatId=request.GET.get("walmartCatId"),
-                    page=request.GET.get("page")
+                    keywords=rv["keywords"],
+                    walmartCatId=rv["walmartCatId"],
+                    walmartPage=rv["walmartPage"],
                 )
                 context['walmartItems'] = walmartItems
+
     except Exception as e:
         print(traceback.format_exc())
 
     for key, value in context.items():
-        context['active'] = str(key)
-        break
+        if "Items" in key:
+            context["active"] = str(key)
+            break
 
     return render(request, 'sourcing/response.html', context)
 
 
 """
 Scratchpad / Testing
-
-
-_walmart = walmart.walmartEye()
-_walmartQueries = {
-    'Best Sellers': _walmart.getBestSellers,
-    'Clearance': _walmart.getClearance,
-    'Special Buy': _walmart.getSpecialBuy,
-    'Trending': _walmart.getTrending,}
-
-type(_walmartQueries['Best Sellers'](walmartCatId=3944)) == list
-import pdb; pdb.set_trace()
-type(_walmartQueries['Clearance'](walmartCatId=3944)) == list
-type(_walmartQueries['Special Buy'](walmartCatId=3944)) == list
-type(_walmartQueries['Trending']()) == list
 """
+s = "one two three"
+c = "There are two dogs."

@@ -47,30 +47,33 @@ class walmartEye:
             kwargs["keywords"],
             categoryId=int(kwargs["walmartCatId"]),
             ResponseGroup="full",
-            page=int(kwargs['page']),
+            page=int(kwargs["walmartPage"]),
             sort="bestseller",
             numItems=25,
-            start=25 * int(kwargs['page']) - 24,
         )
         return products
 
 
 """
 Scratchpad
-"""
 
 
 walmart = walmartEye()
 
-products = walmart.search(keywords="batman",walmartCatId="5438",page="1")
+products = walmart.search(keywords="batman",walmartCatId="5438",walmartPage="1")
 products[0].sale_price
 products[0].item_id
 products[0].product_url
 products[0].long_description
+products[0].stock
+products[0].available_online
+ship = products[0].get_attribute("stock")
 
+print(ship)
 
 best_sellers_in_5438 = walmart.getBestSellers(walmartCatId=5438,page=1)
 clearance_in_5438 = walmart.getClearance(walmartCatId="5438",page="1")
 special_buy_in_5438 = walmart.getSpecialBuy(walmartCatId="5438",page="1")
 trending = walmart.getTrending()
 trending[0].name
+"""

@@ -61,7 +61,7 @@ class ebayEye:
                     ],
                     'paginationInput': {
                         'entriesPerPage': 25,
-                        'pageNumber': kwargs['page']}
+                        'pageNumber': kwargs["ebayPage"]}
                 }
             ).dict()
 
@@ -79,7 +79,7 @@ class ebayEye:
                     #],
                     'paginationInput': {
                         'entriesPerPage': 25,
-                        'pageNumber': kwargs['page']}
+                        'pageNumber': kwargs["ebayPage"]}
                 }
             ).dict()
 

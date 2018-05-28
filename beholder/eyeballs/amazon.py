@@ -205,7 +205,7 @@ class amazonEye:
 
 """
 Scratchpad / Tests
-"""
+
 
 amazon = amazonEye()
 batman_products_in_VideoGames = amazon.search(keywords="batman",amazonCatId="VideoGames",)
@@ -215,3 +215,4 @@ batman_products_in_VideoGames['Item'][0]['ItemAttributes']['Feature'][0]
 batman_products_in_VideoGames['Item'][0]['MediumImage']['URL']
 batman_products_in_VideoGames['Item'][0]['ImageSets']['ImageSet'][0]['LargeImage']['URL']
 batman_products_in_VideoGames['Item'][0]['ImageSets']['ImageSet'][1]['LargeImage']['URL']
+"""

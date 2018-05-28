@@ -2,7 +2,9 @@
 
 {% block content %}
   <form action="{% url 'sourcing:response' %}" method="get">
-    <input type="hidden" name="page" value="1">
+    <input type="hidden" name="walmartPage" value=1>
+    <input type="hidden" name="amazonPage" value=1>
+    <input type="hidden" name="ebayPage" value=1>
     <nav class="navbar navbar-expand-sm navbar-light bg-dark">
       <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="auto" height="40px" style="padding-right:10px">
       <a class="navbar-brand" style="color:#2ECC40" href="{% url 'sourcing:query' %}">SOURCING</a>
@@ -63,17 +65,6 @@
           Buy It Now Only
         </button>
       </div>
-  <!--<div class="input-group mb-0">
-        <div class="input-group-prepend">
-          <label class="input-group-text" for="targetCategories">target</label>
-        </div>
-        <select name="targetCatId" class="custom-select" id="targetCategories">
-          <option selected>{{ request.GET.targetCatId }}</option>
-          {% for category in targetCategories %}
-            <option name="targetCatId" value="{{ category }}">{{ category }}</option>
-          {% endfor %}
-        </select>
-      </div>-->
     </div>
   </form>
   {% block response %}
