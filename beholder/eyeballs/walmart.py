@@ -57,14 +57,20 @@ class walmartEye:
 
 """
 Scratchpad
+"""
 
 
 walmart = walmartEye()
 
-batman_products_in_5438 = walmart.search(keywords="batman",walmartCatId="5438",page="1")
+products = walmart.search(keywords="batman",walmartCatId="5438",page="1")
+products[0].sale_price
+products[0].item_id
+products[0].product_url
+products[0].long_description
+
+
 best_sellers_in_5438 = walmart.getBestSellers(walmartCatId=5438,page=1)
 clearance_in_5438 = walmart.getClearance(walmartCatId="5438",page="1")
 special_buy_in_5438 = walmart.getSpecialBuy(walmartCatId="5438",page="1")
 trending = walmart.getTrending()
 trending[0].name
-"""
