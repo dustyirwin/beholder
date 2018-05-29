@@ -1,81 +1,88 @@
-from django.shortcuts import render
-from sourcing.models import Amazon, Ebay, Alibaba, Walmart
-from beholder.eyeballs import amazon, ebay, walmart, target
+from django.shortcuts import render, Http404
+from sourcing.models import Amazon, Ebay, Walmart
+from beholder.eyeballs import amazon, ebay, walmart
 import traceback
 
-ebay = ebay.ebayEye()
-amazon = amazon.amazonEye()
-walmart = walmart.walmartEye()
-#target = target.targetEye()
 
-marketNames = ['walmart','ebay','amazon','target']
+#  instantiate Eyes into _eyeballs dict
+meta_data = {
+    'eyeballs': {
+        "walmart": walmart.walmartEye(),
+        "amazon": amazon.amazonEye(),
+        "ebay": ebay.ebayEye(),
+    },
+}
+meta_data['categories'] = dict(
+    [ (market, eyeball.categories) for market, eyeball in meta_data['eyeballs'].items() ]
+)
+meta_data['specialQueries'] = {
+    'walmart': {
+        'Best Sellers': meta_data['eyeballs']["walmart"].getBestSellers,
+        'Clearance': meta_data['eyeballs']["walmart"].getClearance,
+        'Special_Buy': meta_data['eyeballs']["walmart"].getSpecialBuy,
+        'Trending': meta_data['eyeballs']["walmart"].getTrending,
+    }
+}
 
-def query(request):
+
+def query(request, **kwargs):
+    global meta_data
     context = {
-    'amazonCategories': amazon.categories,
-    'ebayCategories': ebay.categories,
-    'walmartCategories': walmart.categories,
-    #'targetCategories': target.categories,
-    }
-    return render(request, 'sourcing/query.html', context)
-
-
-def response(request):
-    rv = {
-        'keywords': request.GET.get("keywords"),
-        'walmartCatId': request.GET.get("walmartCatId"),
-        'amazonCatId': request.GET.get("amazonCatId"),
-        'ebayCatId': request.GET.get("ebayCatId"),
-        'walmartPage': request.GET.get("walmartPage"),
-        'amazonPage': request.GET.get("amazonPage"),
-        'ebayPage': request.GET.get("ebayPage"),
-        }
-
-    context = {}
-    context['pages'] = {
-        'walmart': {
-            'page': int(rv['walmartPage']),
-            'prev': int(rv['walmartPage']) - 1,
-            'next': int(rv['walmartPage']) + 1,
+        'options': {
+            'walmart': {
+                "FreeShippingOnly": True,
+            },
+            'amazon': {
+                "AutoScrape": False,
+                "New Items Only": True,
+            },
+            'ebay': {
+                "BuyItNowOnly": True,
+            },
         },
-        'amazon': {
-            'page': int(rv['amazonPage']),
-            'prev': int(rv['amazonPage']) - 1,
-            'next': int(rv['amazonPage']) + 1,
-        },
-        'ebay': {
-            'page': int(rv['ebayPage']),
-            'prev': int(rv['ebayPage']) - 1,
-            'next': int(rv['ebayPage']) + 1,
-        }
     }
+    return render(request, 'sourcing/query.html', meta_data)
 
-    specialQueries = {
-        'Best Sellers': walmart.getBestSellers,
-        'Clearance': walmart.getClearance,
-        'Special_Buy': walmart.getSpecialBuy,
-        'Trending': walmart.getTrending,
-    }
 
-    #  try to get amazon context data
-    try:
-        if rv["keywords"] in specialQueries:
-            walmartItems = specialQueries[rv["keywords"]](
-                walmartCatId=int(rv["amazonCatId"]))
-            context['amazonItems'] = amazonItems
+def response(request, **kwargs):
+    global meta_data
+    default_pages = dict([ (marketName+"Page", 1) for marketName in meta_data["eyeballs"].keys()])
+    resp_vars = dict([ (key, value) for key, value in request.GET.items() ])
+    resp_vars = {**default_pages, **resp_vars}
+
+    #  try to get marketplace context data
+    context = dict(
+        [ ("active", key[:-5]+"Items") for key, value in resp_vars.items() if "CatId" in key ]
+    )
+
+    for key, value in resp_vars.items():
+        if "CatId" in key and key[:-5] in meta_data["specialQueries"] and resp_vars["keywords"] in meta_data["specialQueries"][key[:-5]]:
+            try:
+                context[key[:-5]+"Items"] = meta_data["specialQueries"][key[:-5]][resp_vars["keywords"]](
+                    keywords=resp_vars["keywords"],
+                    category=value,
+                    page=resp_vars[key[:-5]+"Page"],
+                    )
+            except:
+                print(traceback.format_exc()) #  output error to std
+
+        elif "CatId" in key and bool(value):
+            try:
+                context[key[:-5]+"Items"] = meta_data["eyeballs"][key[:-5]].search(
+                    keywords=resp_vars["keywords"],
+                    category=value,
+                    page=resp_vars[key[:-5]+"Page"]
+                )
+            except:
+                print(traceback.format_exc())  # output error to std
 
         else:
-            amazonItems = amazon.search(
-                keywords=rv["keywords"],
-                amazonCatId=rv["amazonCatId"],
-                amazonPage=rv["amazonPage"],
-            )
-            context['amazonItems'] = amazonItems
+            continue
 
-    except Exception as e:
-        print(traceback.format_exc())
+    return render(request, 'sourcing/response.html', context)
 
 
+"""
     #  try to get ebay context data
     try:
         if rv["keywords"] in specialQueries:
@@ -87,7 +94,7 @@ def response(request):
             ebayItems = ebay.search(
                 keywords=rv["keywords"],
                 ebayCatId=rv["ebayCatId"],
-                ebayPage=rv["ebayPage"],
+                ebayPage=context['pages']['ebayPage']
             )
             context['ebayItems'] = ebayItems
 
@@ -106,23 +113,22 @@ def response(request):
                 walmartItems = walmart.search(
                     keywords=rv["keywords"],
                     walmartCatId=rv["walmartCatId"],
-                    walmartPage=rv["walmartPage"],
+                    walmartPage=context['pages']['walmartPage']
                 )
                 context['walmartItems'] = walmartItems
 
     except Exception as e:
         print(traceback.format_exc())
-
-    for key, value in context.items():
-        if "Items" in key:
-            context["active"] = str(key)
-            break
-
-    return render(request, 'sourcing/response.html', context)
-
+"""
 
 """
 Scratchpad / Testing
 """
-s = "one two three"
-c = "There are two dogs."
+
+names = ["foo", "bar"]
+tags = ["boz", "baz"]
+
+varNames = [ k + j for k in names for j in tags ]
+varNames
+
+d = dict([("a",1),("b",2)]+[("d",1),("c",2)])

@@ -42,8 +42,9 @@ class amazonEye:
 
         resp = self.amazon.ItemSearch(
             Keywords=kwargs['keywords'],
-            SearchIndex=kwargs['amazonCatId'],
-            ResponseGroup='Medium, EditorialReview'
+            SearchIndex=kwargs['category'],
+            ResponseGroup='Medium, EditorialReview',
+            ItemPage=kwargs['page'],
         )
         amazonItems = xmltodict.parse(resp)['ItemSearchResponse']['Items']
         amazonItems = json.loads(json.dumps(amazonItems))

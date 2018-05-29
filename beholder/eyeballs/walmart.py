@@ -22,22 +22,13 @@ class walmartEye:
             })
 
     def getBestSellers(self, **kwargs):
-        if bool(kwargs['walmartCatId']) == True:
-            return self.wapy.bestseller_products(int(kwargs['walmartCatId']))
-        else:
-            return []
+        return self.wapy.bestseller_products(int(kwargs['category']))
 
     def getClearance(self, **kwargs):
-        if bool(kwargs['walmartCatId']) == True:
-            return self.wapy.clearance_products(int(kwargs["walmartCatId"]))
-        else:
-            return []
+        return self.wapy.clearance_products(int(kwargs["category"]))
 
     def getSpecialBuy(self, **kwargs):
-        if bool(kwargs['walmartCatId']) == True:
-            return self.wapy.clearance_products(int(kwargs["walmartCatId"]))
-        else:
-            return []
+        return self.wapy.clearance_products(int(kwargs["category"]))
 
     def getTrending(self, **kwargs):
         return self.wapy.trending_products()
@@ -45,9 +36,9 @@ class walmartEye:
     def search(self, **kwargs):
         products = self.wapy.search(
             kwargs["keywords"],
-            categoryId=int(kwargs["walmartCatId"]),
+            categoryId=int(kwargs["category"]),
             ResponseGroup="full",
-            page=int(kwargs["walmartPage"]),
+            page=int(kwargs["page"]),
             sort="bestseller",
             numItems=25,
         )
@@ -55,25 +46,25 @@ class walmartEye:
 
 
 """
-Scratchpad
+Scratchpad/Testing
 
 
 walmart = walmartEye()
 
-products = walmart.search(keywords="batman",walmartCatId="5438",walmartPage="1")
+products = walmart.search(keywords="batman",category="5438",walmartPage="1")
 products[0].sale_price
 products[0].item_id
 products[0].product_url
 products[0].long_description
 products[0].stock
 products[0].available_online
-ship = products[0].get_attribute("stock")
 
-print(ship)
+ship = products[0].get_attribute("marketplace")
 
-best_sellers_in_5438 = walmart.getBestSellers(walmartCatId=5438,page=1)
-clearance_in_5438 = walmart.getClearance(walmartCatId="5438",page="1")
-special_buy_in_5438 = walmart.getSpecialBuy(walmartCatId="5438",page="1")
+
+best_sellers_in_5438 = walmart.getBestSellers(category=5438,page=1)
+clearance_in_5438 = walmart.getClearance(category="5438",page="1")
+special_buy_in_5438 = walmart.getSpecialBuy(category="5438",page="1")
 trending = walmart.getTrending()
 trending[0].name
 """

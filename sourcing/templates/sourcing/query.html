@@ -2,9 +2,6 @@
 
 {% block content %}
   <form action="{% url 'sourcing:response' %}" method="get">
-    <input type="hidden" name="walmartPage" value=1>
-    <input type="hidden" name="amazonPage" value=1>
-    <input type="hidden" name="ebayPage" value=1>
     <nav class="navbar navbar-expand-sm navbar-light bg-dark">
       <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="auto" height="40px" style="padding-right:10px">
       <a class="navbar-brand" style="color:#2ECC40" href="{% url 'sourcing:query' %}">SOURCING</a>
@@ -26,7 +23,7 @@
         </div>
         <select name="walmartCatId" class="custom-select" id="walmartCategories">
           <option selected>{{ request.GET.walmartCatId }}</option>
-          {% for category in walmartCategories %}
+          {% for category in categories.walmart %}
             <option value="{{ category.id }}">{{ category.name }}</option>
           {% endfor %}
         </select>
@@ -39,7 +36,7 @@
         </div>
         <select name="amazonCatId" class="custom-select" id="amazonCategories">
           <option selected>{{ request.GET.amazonCatId }}</option>
-          {% for category in amazonCategories %}
+          {% for category in categories.amazon %}
             <option name="amazonCatId" value="{{ category }}">{{ category }}</option>
           {% endfor %}
         </select>
@@ -57,7 +54,7 @@
         </div>
         <select name="ebayCatId" class="custom-select" id="ebayCategories">
           <option selected>{{ request.GET.ebayCatId }}</option>
-          {% for category in ebayCategories %}
+          {% for category in categories.ebay %}
             <option value="{{ category.code }}">{{ category.name }}</option>
           {% endfor %}
         </select>

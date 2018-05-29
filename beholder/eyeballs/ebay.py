@@ -47,41 +47,22 @@ class ebayEye:
 
 
     def search(self, **kwargs):
-        if "soldItems" in kwargs:
-            eBayItems = self.Finding.execute(
-                'findCompletedItems', {
-                    'keywords': kwargs['keywords'],
-                    'categoryId': kwargs['ebayCatId'],
-                    "sortOrder": "BestMatch",
-                    'outputSelector': ['GalleryURL', 'ConditionHistogram'],
-                    'itemFilter': [
-                        {'name': 'Condition', 'value': 'New'},
-                        {'name': 'ListingType', 'value': 'AuctionWithBIN'},
-                        {'name': 'LocatedIn', 'value': "US"},
-                    ],
-                    'paginationInput': {
-                        'entriesPerPage': 25,
-                        'pageNumber': kwargs["ebayPage"]}
-                }
-            ).dict()
-
-        else:
-            ebayItems = self.Finding.execute(
-                'findItemsAdvanced', {
-                    'keywords': kwargs['keywords'],
-                    'categoryId': kwargs['ebayCatId'],
-                    'descriptionSearch': True,
-                    'sortOrder': 'BestMatch',  #EndTimeSoonest
-                    'outputSelector': ['GalleryURL', 'ConditionHistogram'],
-                    #'itemFilter': [
-                    #    {'name': 'Condition', 'value': 'New'},
-                    #    {'name': 'ListingType', 'value': 'AuctionWithBIN'},
-                    #],
-                    'paginationInput': {
-                        'entriesPerPage': 25,
-                        'pageNumber': kwargs["ebayPage"]}
-                }
-            ).dict()
+        ebayItems = self.Finding.execute(
+            'findItemsAdvanced', {
+                'keywords': kwargs['keywords'],
+                'categoryId': kwargs['category'],
+                'descriptionSearch': True,
+                'sortOrder': 'BestMatch',  #EndTimeSoonest
+                'outputSelector': ['GalleryURL', 'ConditionHistogram'],
+                #'itemFilter': [
+                #    {'name': 'Condition', 'value': 'New'},
+                #    {'name': 'ListingType', 'value': 'AuctionWithBIN'},
+                #],
+                'paginationInput': {
+                    'entriesPerPage': 25,
+                    'pageNumber': kwargs["page"]}
+            }
+        ).dict()
 
         if 'errorMessage' in ebayItems:
             print(str(ebayItems['errorMessage']))
