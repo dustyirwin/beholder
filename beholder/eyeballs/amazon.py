@@ -12,6 +12,7 @@ import json
 Class methods for Amazon MWS Products API
 """
 
+
 class amazonEye:
     def __init__(self):
         self.keys = keys()
@@ -38,7 +39,7 @@ class amazonEye:
     def search(self, **kwargs):
         if 'ASIN' in kwargs:
             self.scrape(self, kwargs)
-            amazon.fees(self, kwargs)
+            self.amazon.fees(self, kwargs)
 
         resp = self.amazon.ItemSearch(
             Keywords=kwargs['keywords'],
@@ -46,7 +47,7 @@ class amazonEye:
             ResponseGroup='Medium, EditorialReview',
             ItemPage=kwargs['page'],
         )
-        amazonItems = xmltodict.parse(resp)['ItemSearchResponse']['Items']
+        amazonItems = xmltodict.parse(resp)['ItemSearchResponse']['Items']['Item']
         amazonItems = json.loads(json.dumps(amazonItems))
 
         """
@@ -59,7 +60,7 @@ class amazonEye:
         """
         return amazonItems
 
-    def scrape(self, **kwargs):
+    def scrape(self, request, amazonModel, **kwargs):
         priceList = []
 
         primeURL = 'https://www.amazon.com/gp/offer-listing/' + request.GET.get('ASIN') + '/ref=olp_f_primeEligible?ie=UTF8&f_primeEligible=true&f_used=true&f_usedAcceptable=true&f_usedGood=true&f_usedLikeNew=true&f_usedVeryGood=true'

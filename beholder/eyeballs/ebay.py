@@ -1,11 +1,8 @@
 import isodate
 import datetime
-import numpy
 from ebaysdk.finding import Connection as Finding
 from ebaysdk.trading import Connection as Trading
-from ebaysdk.exception import ConnectionError
 from beholder.eyeballs.amazon import amazonEye
-from beholder.eyeballs.walmart import walmartEye
 from beholder.keys.keys import keys
 
 
@@ -24,27 +21,41 @@ class ebayEye:
             appid=self.keys.ebay['production']['appid'], config_file=None,
         )
         self.categories = [
-            {'name':'Antiques','code':'20081'},
-            {'name':'Art','code':'550'}, {'name':'Baby','code':'2984'},
-            {'name':'Books','code':'267'}, {'name':'Business & Industrial','code':'12576'},
-            {'name':'Camera & Photo','code':'625'}, {'name':'Cell Phones & Accessories','code':'15032'},
-            {'name':'Clothing, Shoes & Accessories','code':'11450'},
-            {'name':'Coins & Paper Money','code':'11116'}, {'name':'Collectibles','code':'1'},
-            {'name':'Computers/Tablets & Networking','code':'58058'},
-            {'name':'Consumer Electronics','code':'293'}, {'name':'Crafts','code':'14339'},
-            {'name':'Dolls & Bears','code':'237'}, {'name':'DVDs & Movies','code':'11232'},
-            {'name':'Entertainment Memorabilia','code':'45100'}, {'name':'Everything Else','code':'99'},
-            {'name':'Gift Cards & Coupons','code':'172008'}, {'name':'Health & Beauty','code':'26395'},
-            {'name':'Home & Garden','code':'11700'}, {'name':'Jewelry & Watches','code':'281'},
-            {'name':'Music','code':'11233'}, {'name':'Musical Instruments & Gear','code':'619'},
-            {'name':'Pet Supplies','code':'1281'}, {'name':'Pottery & Glass','code':'870'},
-            {'name':'Real Estate','code':'10542'}, {'name':'Specialty Services','code':'316'},
-            {'name':'Sporting Goods','code':'888'}, {'name':'Sports Mem, Cards & Fan Shop','code':'64482'},
-            {'name':'Stamps','code':'260'}, {'name':'Tickets & Experiences','code':'1305'},
-            {'name':'Toys & Hobbies','code':'220'},{'name':'Travel','code':'3252'},
-            {'name':'Video Games & Consoles','code':'1249'},
+            {'name': 'Antiques', 'code': '20081'},
+            {'name': 'Art', 'code': '550'},
+            {'name': 'Baby', 'code': '2984'},
+            {'name': 'Books', 'code': '267'},
+            {'name': 'Business & Industrial', 'code': '12576'},
+            {'name': 'Cell Phones & Accessories', 'code': '15032'},
+            {'name': 'Clothing,  Shoes & Accessories', 'code': '11450'},
+            {'name': 'Coins & Paper Money', 'code': '11116'},
+            {'name': 'Collectibles', 'code': '1'},
+            {'name': 'Camera & Photo', 'code': '625'},
+            {'name': 'Computers/Tablets & Networking', 'code': '58058'},
+            {'name': 'Consumer Electronics', 'code': '293'},
+            {'name': 'Crafts', 'code': '14339'},
+            {'name': 'Dolls & Bears', 'code': '237'},
+            {'name': 'DVDs & Movies', 'code': '11232'},
+            {'name': 'Entertainment Memorabilia', 'code': '45100'},
+            {'name': 'Everything Else', 'code': '99'},
+            {'name': 'Gift Cards & Coupons', 'code': '172008'},
+            {'name': 'Health & Beauty', 'code': '26395'},
+            {'name': 'Home & Garden', 'code': '11700'},
+            {'name': 'Jewelry & Watches', 'code': '281'},
+            {'name': 'Music', 'code': '11233'},
+            {'name': 'Musical Instruments & Gear', 'code': '619'},
+            {'name': 'Pet Supplies', 'code': '1281'},
+            {'name': 'Pottery & Glass', 'code': '870'},
+            {'name': 'Real Estate', 'code': '10542'},
+            {'name': 'Specialty Services', 'code': '316'},
+            {'name': 'Sporting Goods', 'code': '888'},
+            {'name': 'Sports Mem,  Cards & Fan Shop', 'code': '64482'},
+            {'name': 'Stamps', 'code': '260'},
+            {'name': 'Tickets & Experiences', 'code': '1305'},
+            {'name': 'Toys & Hobbies', 'code': '220'},
+            {'name': 'Travel', 'code': '3252'},
+            {'name': 'Video Games & Consoles', 'code': '1249'},
         ]
-
 
     def search(self, **kwargs):
         ebayItems = self.Finding.execute(
@@ -52,12 +63,12 @@ class ebayEye:
                 'keywords': kwargs['keywords'],
                 'categoryId': kwargs['category'],
                 'descriptionSearch': True,
-                'sortOrder': 'BestMatch',  #EndTimeSoonest
+                'sortOrder': 'BestMatch',  # EndTimeSoonest
                 'outputSelector': ['GalleryURL', 'ConditionHistogram'],
-                #'itemFilter': [
+                # 'itemFilter': [
                 #    {'name': 'Condition', 'value': 'New'},
                 #    {'name': 'ListingType', 'value': 'AuctionWithBIN'},
-                #],
+                # ],
                 'paginationInput': {
                     'entriesPerPage': 25,
                     'pageNumber': kwargs["page"]}
@@ -69,9 +80,10 @@ class ebayEye:
             return {'error': ebayItems['errorMessage']}
 
         '''
-        for i, item in enumerate(ebayItems['searchResult']['item']): #gathering description and shipping costs
-            if ebayModel.objects.filter(itemId=item['itemId']).exists():
-                _item = ebayModel.objects.get(itemId=item['itemId'])
+        #gathering description and shipping costs
+        for i, item in enumerate(ebayItems['searchResult']['item']):
+            if kwargs['ebayModel'].objects.filter(itemId=item['itemId']).exists():
+                _item = kwargs['ebayModel'].objects.get(itemId=item['itemId'])
                 ebayItems['searchResult']['item'][i] = _item
                 # print('eBayItem found in db!')
             else:
@@ -91,8 +103,8 @@ class ebayEye:
         totalFBAShipping, totalSellFees = 0, 5.0
         amazonItems = []
 
-        if ebayModel.objects.filter(itemId=request.GET.get('itemId')).exists():
-            ebayItem = ebayModel.objects.get(itemId=request.GET.get('itemId'))
+        if kwargs['ebayModel'].objects.filter(itemId=request.GET.get('itemId')).exists():
+            ebayItem = kwargs['ebayModel'].objects.get(itemId=request.GET.get('itemId'))
         else:
             _data = self.shoppingConnection.execute(
                 'GetSingleItem',
@@ -115,14 +127,14 @@ class ebayEye:
                 'selected': 0,
             }}
 
-            ebayItem = ebayModel(
+            ebayItem = kwargs['ebayModel'](
                 name=_data['name'],
                 itemId=_data['ItemID'],
                 data=_data,
             ).save()
 
             # print('New item '+ str(ebayModel.objects.get(itemId=request.GET.get('itemId')).name)+ ' added to the database.')
-            ebayItem = ebayModel.objects.get(itemId=request.GET.get('itemId'))
+            ebayItem = kwargs['ebayModel'].objects.get(itemId=request.GET.get('itemId'))
 
         if 'currentPrice' in request.GET:
             ebayItem.data['ConvertedCurrentPrice']['value'] = request.GET.get('currentPrice')
@@ -140,11 +152,11 @@ class ebayEye:
         if 'ASIN' in request.GET:
             if 'amazonCatId' in request.GET:
                 amazon = amazonEye()
-                amazon.scrape(request, amazonModel)
-                amazon.fees(request, amazonModel)
-                amazonItem = amazonModel.objects.get(ASIN=request.GET.get('ASIN'))
+                amazon.scrape(request, kwargs['amazonModel'])
+                amazon.fees(request, kwargs['amazonModel'])
+                amazonItem = kwargs['amazonModel'].objects.get(ASIN=request.GET.get('ASIN'))
 
-            ebayItem = ebayModel.objects.get(itemId=request.GET.get('itemId'))
+            ebayItem = kwargs['ebayModel'].objects.get(itemId=request.GET.get('itemId'))
 
             if not request.GET.get('ASIN') in ebayItem.data['ASINInfo'].keys():
                 amazonItem.data['selected'] += 1
@@ -172,10 +184,10 @@ class ebayEye:
             amazonItem.save()
             ebayItem.save()
 
-        ebayItem = ebayModel.objects.get(itemId=request.GET.get('itemId'))
+        ebayItem = kwargs['ebayModel'].objects.get(itemId=request.GET.get('itemId'))
         if ebayItem.data['ASINInfo'] != {}:
             for ASIN, info in ebayItem.data['ASINInfo'].items():
-                _ = amazonModel.objects.get(ASIN=ASIN)
+                _ = kwargs['amazonModel'].objects.get(ASIN=ASIN)
                 totalSales += float(_.data['financial']['current']['listPrice']) * int(info['qty'])
                 totalFBAFees += float(_.data['financial']['current']['FBAFee']) * int(info['qty'])
                 totalReferralFees += float(_.data['financial']['current']['refFee']) * int(info['qty'])

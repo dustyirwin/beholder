@@ -1,6 +1,7 @@
 from wapy.api import Wapy
 from beholder.keys.keys import keys
 import requests
+import traceback
 
 
 """
@@ -9,17 +10,21 @@ Class methods for Walmart Stores API
 
 class walmartEye:
     def __init__(self):
+        self.categories = []
         self.keys = keys()
         self.walmartAPIKey = self.keys.walmart["walmartAPIKey"]
         self.wapy = Wapy(self.walmartAPIKey)
-        self.taximony = requests.get('http://api.walmartlabs.com/v1/taxonomy?apiKey='+self.walmartAPIKey).json()
-        self.categories = []
+        try:
+            self.taximony = requests.get('http://api.walmartlabs.com/v1/taxonomy?apiKey='+self.walmartAPIKey).json()
+            for category in self.taximony['categories']:
+                self.categories.append({
+                'id': category['id'],
+                'name': category['name'],
+                })
+        except:
+            print(traceback.format_exc()) #  output error to std
 
-        for category in self.taximony['categories']:
-            self.categories.append({
-            'id': category['id'],
-            'name': category['name'],
-            })
+
 
     def getBestSellers(self, **kwargs):
         return self.wapy.bestseller_products(int(kwargs['category']))
