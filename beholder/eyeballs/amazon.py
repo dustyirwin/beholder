@@ -7,7 +7,6 @@ import re
 import xmltodict
 import json
 
-
 """
 Class methods for Amazon MWS Products API
 """
@@ -20,21 +19,25 @@ class amazonEye:
         self.secretKey = self.keys.amazon["production"]["AMAZON_SECRET_KEY"]
         self.assocTag = self.keys.amazon["production"]["AMAZON_ASSOC_TAG"]
         self.categories = [
-            'All','Wine','Wireless','ArtsAndCrafts',
-            'Miscellaneous','Electronics','Jewelry','MobileApps','Photo','Shoes',
-            'KindleStore','Automotive','Vehicles','Pantry','MusicalInstruments',
-            'DigitalMusic','GiftCards','FashionBaby','FashionGirls','GourmetFood',
-            'HomeGarden','MusicTracks','UnboxVideo','FashionWomen','VideoGames',
-            'FashionMen','Kitchen','Video','Software','Beauty','Grocery',
-            'FashionBoys','Industrial','PetSupplies','OfficeProducts','Magazines',
-            'Watches','Luggage','OutdoorLiving','Toys','SportingGoods','PCHardware',
-            'Movies','Books','Collectibles','Handmade','VHS','MP3Downloads',
-            'HomeAndBusinessServices','Fashion','Tools','Baby','Apparel',
-            'Marketplace','DVD','Appliances','Music','LawnAndGarden',
-            'WirelessAccessories','Blended','HealthPersonalCare','Classical'
+            'All', 'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
+            'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
+            'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
+            'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
+            'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
+            'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
+            'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
+            'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
+            'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
+            'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
+            'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
+            'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
+            'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
+            'Blended', 'HealthPersonalCare', 'Classical'
             ]
         self.categories.sort(key=str.lower)
-        self.amazon = bottlenose.Amazon(self.accessKey, self.secretKey, self.assocTag)
+        self.amazon = bottlenose.Amazon(
+            self.accessKey, self.secretKey, self.assocTag
+        )
 
     def search(self, **kwargs):
         if 'ASIN' in kwargs:
@@ -54,7 +57,9 @@ class amazonEye:
         for i, item in enumerate(amazonItems['Item']):
 
             if amazonModel.objects.filter(ASIN=item['ASIN']).exists():
-                amazonItems['Item'][i] = amazonModel.objects.get(ASIN=item['ASIN'])
+                amazonItems['Item'][i] = amazonModel.objects.get(
+                    ASIN=item['ASIN']
+                )
             else:
                 amazonItems['Item'][i]['data'] = item
         """
@@ -110,9 +115,9 @@ class amazonEye:
                     }}
 
             amazonItem = amazonModel(
-            name=_data['name'],
-            data=_data,
-            ASIN=request.GET.get('ASIN')
+                name=_data['name'],
+                data=_data,
+                ASIN=request.GET.get('ASIN')
             ).save()
 
             # assert(amazonModel.objects.filter(ASIN=request.GET.get('ASIN')).exists())
@@ -207,14 +212,16 @@ class amazonEye:
 
 """
 Scratchpad / Tests
-
+"""
 
 amazon = amazonEye()
-batman_products_in_VideoGames = amazon.search(keywords="batman",amazonCatId="VideoGames",)
+batman_products_in_VideoGames = amazon.search(
+    keywords="batman",
+    category="VideoGames",
+    page="1")
 batman_products_in_VideoGames.keys()
 batman_products_in_VideoGames['Item'][0]['ItemAttributes']['UPC']
 batman_products_in_VideoGames['Item'][0]['ItemAttributes']['Feature'][0]
 batman_products_in_VideoGames['Item'][0]['MediumImage']['URL']
 batman_products_in_VideoGames['Item'][0]['ImageSets']['ImageSet'][0]['LargeImage']['URL']
 batman_products_in_VideoGames['Item'][0]['ImageSets']['ImageSet'][1]['LargeImage']['URL']
-"""

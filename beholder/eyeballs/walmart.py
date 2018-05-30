@@ -8,6 +8,7 @@ import traceback
 Class methods for Walmart Stores API
 """
 
+
 class walmartEye:
     def __init__(self):
         self.categories = []
@@ -15,16 +16,16 @@ class walmartEye:
         self.walmartAPIKey = self.keys.walmart["walmartAPIKey"]
         self.wapy = Wapy(self.walmartAPIKey)
         try:
-            self.taximony = requests.get('http://api.walmartlabs.com/v1/taxonomy?apiKey='+self.walmartAPIKey).json()
+            self.taximony = requests.get(
+                'http://api.walmartlabs.com/v1/taxonomy?apiKey='+self.walmartAPIKey
+                ).json()
             for category in self.taximony['categories']:
                 self.categories.append({
-                'id': category['id'],
-                'name': category['name'],
+                    'id': category['id'],
+                    'name': category['name'],
                 })
-        except:
-            print(traceback.format_exc()) #  output error to std
-
-
+        except Exception:
+            print(traceback.format_exc())  # output error to std
 
     def getBestSellers(self, **kwargs):
         return self.wapy.bestseller_products(int(kwargs['category']))
@@ -65,8 +66,6 @@ products[0].stock
 products[0].available_online
 
 ship = products[0].get_attribute("marketplace")
-
-
 best_sellers_in_5438 = walmart.getBestSellers(category=5438,page=1)
 clearance_in_5438 = walmart.getClearance(category="5438",page="1")
 special_buy_in_5438 = walmart.getSpecialBuy(category="5438",page="1")

@@ -98,8 +98,9 @@ class ebayEye:
         return ebayItems
 
     def price(self, request, **kwargs):
-        totalSales, totalFBAFees, totalReferralFees = 0, 0, 0
-        totalTTP, totalNet, totalWeight = 0, 0, 0
+        totalSales, totalNet = 0, 0
+        totalFBAFees, totalReferralFees = 0, 0
+        totalTTP, totalWeight = 0, 0
         totalFBAShipping, totalSellFees = 0, 5.0
         amazonItems = []
 
@@ -160,9 +161,11 @@ class ebayEye:
 
             if not request.GET.get('ASIN') in ebayItem.data['ASINInfo'].keys():
                 amazonItem.data['selected'] += 1
-                ebayItem.data['ASINInfo'][request.GET.get('ASIN')] = {'qty': 1,
-                                                              'amazonCatId': request.GET.get('amazonCatId'),
-                                                              'title': amazonItem.name}
+                ebayItem.data['ASINInfo'][request.GET.get('ASIN')] = {
+                           'qty': 1,
+                           'amazonCatId': request.GET.get('amazonCatId'),
+                           'title': amazonItem.name
+                           }
             if 'listPrice' in request.GET:
                 amazonItem.data['financial']['current']['listPrice'] = request.GET.get('listPrice')
             else:
