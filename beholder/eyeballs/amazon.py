@@ -1,11 +1,12 @@
+from amazon.api import AmazonAPI
 from beholder.keys.keys import keys
 from bs4 import BeautifulSoup
-import bottlenose
 import datetime
 import requests
 import re
 import xmltodict
 import json
+import traceback
 
 """
 Class methods for Amazon MWS Products API
@@ -35,40 +36,44 @@ class amazonEye:
             'Blended', 'HealthPersonalCare', 'Classical'
             ]
         self.categories.sort(key=str.lower)
-        self.amazon = bottlenose.Amazon(
+        self.amazon = AmazonAPI(
             self.accessKey, self.secretKey, self.assocTag
         )
 
     def search(self, **kwargs):
-        if 'ASIN' in kwargs:
-            self.scrape(self, kwargs)
-            self.amazon.fees(self, kwargs)
+        try:
+            response = self.amazon.ItemSearch(
+                Keywords=kwargs['keywords'],
+                SearchIndex=kwargs['category'],
+                ResponseGroup='Medium, EditorialReview',
+                ItemPage=kwargs['page'],
+            )
+            items = xmltodict.parse(
+                response)['ItemSearchResponse']['Items']['Item']
+            items = json.loads(json.dumps(items))
+        except Exception:
+            print(traceback.format_exc())  # output error to std
+            return []
 
-        resp = self.amazon.ItemSearch(
-            Keywords=kwargs['keywords'],
-            SearchIndex=kwargs['category'],
-            ResponseGroup='Medium, EditorialReview',
-            ItemPage=kwargs['page'],
-        )
-        amazonItems = xmltodict.parse(resp)['ItemSearchResponse']['Items']['Item']
-        amazonItems = json.loads(json.dumps(amazonItems))
+        return items
 
-        """
-        for i, item in enumerate(amazonItems['Item']):
+    def save_object(self, MarketData, **kwargs):
+        """ #  check if item in database
+        for i, item in enumerate(items['Item']):
 
-            if amazonModel.objects.filter(ASIN=item['ASIN']).exists():
-                amazonItems['Item'][i] = amazonModel.objects.get(
-                    ASIN=item['ASIN']
+            if MarketData['amazon'].objects.filter(item_id=item["item_id"]).exists():
+                items['Item'][i] = MarketData['amazon'].objects.get(
+                    item_id=item["item_id"]
                 )
             else:
-                amazonItems['Item'][i]['data'] = item
+                items['Item'][i]['data'] = item
         """
-        return amazonItems
+        return
 
-    def scrape(self, request, amazonModel, **kwargs):
+    def scrape(self, MarketData, **kwargs):
         priceList = []
 
-        primeURL = 'https://www.amazon.com/gp/offer-listing/' + request.GET.get('ASIN') + '/ref=olp_f_primeEligible?ie=UTF8&f_primeEligible=true&f_used=true&f_usedAcceptable=true&f_usedGood=true&f_usedLikeNew=true&f_usedVeryGood=true'
+        primeURL = 'https://www.amazon.com/gp/offer-listing/' + kwargs.get("item_id") + '/ref=olp_f_primeEligible?ie=UTF8&f_primeEligible=true&f_used=true&f_usedAcceptable=true&f_usedGood=true&f_usedLikeNew=true&f_usedVeryGood=true'
         response = requests.get(primeURL, headers={'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'})
         soup = BeautifulSoup(response.content, 'lxml')
         priceColumn = soup.find_all('span', "a-size-large a-color-price olpOfferPrice a-text-bold")
@@ -78,17 +83,17 @@ class amazonEye:
             price = re.search(primeRE, str(_))
             priceList.append(float(price.group(0).replace(',', '')))
 
-        if amazonModel.objects.filter(ASIN=request.GET.get('ASIN')).exists():
-            amazonItem = amazonModel.objects.get(ASIN=request.GET.get('ASIN'))
+        if MarketData['amazon'].objects.filter(item_id=kwargs.get("item_id")).exists():
+            amazonItem = MarketData['amazon'].objects.get(item_id=kwargs.get("item_id"))
         else:
             _data = self.amazon.ItemLookup(
-                ItemId=request.GET.get('ASIN'),
+                ItemId=kwargs.get("item_id"),
                 ResponseGroup='Medium, EditorialReview')
             _data = xmltodict.parse(_data)
             _data = json.loads(json.dumps(_data))['ItemLookupResponse']['Items']['Item']
             _data = {**_data, **{
                 'name': _data['ItemAttributes']['Title'],
-                'keywords': request.GET.get('keywords'),
+                'keywords': kwargs.get('keywords'),
                 'itemType': '',
                 'priced': False,
                 'purchased': False,
@@ -114,58 +119,58 @@ class amazonEye:
                         }, }
                     }}
 
-            amazonItem = amazonModel(
+            item = MarketData['amazon'](
                 name=_data['name'],
                 data=_data,
-                ASIN=request.GET.get('ASIN')
+                item_id=kwargs.get("item_id")
             ).save()
 
-            # assert(amazonModel.objects.filter(ASIN=request.GET.get('ASIN')).exists())
-            print('New item ' + str(amazonModel.objects.get(ASIN=request.GET.get('ASIN')).name) + ' added to the database.')
+            # assert(MarketData['amazon'].objects.filter(item_id=kwargs.get("item_id")).exists())
+            print('New item ' + str(MarketData['amazon'].objects.get(item_id=kwargs.get("item_id")).name) + ' added to the database.')
 
         if len(priceList) > 0:
-            amazonItem = amazonModel.objects.get(ASIN=request.GET.get('ASIN'))
-            amazonItem.data['financial']['historical'].append(amazonItem.data['financial']['current'])
-            amazonItem.data['financial']['current']['primePrices'] = {
+            item = MarketData['amazon'].objects.get(item_id=kwargs.get("item_id"))
+            item.data['financial']['historical'].append(item.data['financial']['current'])
+            item.data['financial']['current']['primePrices'] = {
                 'lowPrime': min(priceList),
                 'avgPrime': round(sum(priceList) / len(priceList), 2),
                 'highPrime': max(priceList)}
-            amazonItem.data['financial']['current']['listPrice'] = min(priceList)
-            amazonItem.data['financial']['current']['datetimeStamp'] = datetime.datetime.now().date().__str__()
-            amazonItem.save()
-            print('ASIN: ' + request.GET.get('ASIN') + ' scraped.')
+            item.data['financial']['current']['listPrice'] = min(priceList)
+            item.data['financial']['current']['datetimeStamp'] = datetime.datetime.now().date().__str__()
+            item.save()
+            print('item_id: ' + kwargs.get("item_id") + ' scraped.')
         else:
-            print('Failed to scrape ASIN: '+request.GET.get('ASIN'))
+            print('Failed to scrape item_id: '+kwargs.get("item_id"))
 
-        return amazonItem
+        return item
 
-    def fees(self, request, amazonModel, **kwargs):
+    def fees(self, MarketData, **kwargs):
         valueNames = ['qty', 'TTP', 'Weight', 'Length', 'Width', 'Height']
         values = {}
-        amazonItem = amazonModel.objects.get(ASIN=request.GET.get('ASIN'))
+        item = MarketData['amazon'].objects.get(item_id=kwargs.get("item_id"))
 
-        if 'listPrice' not in request.GET:
-            amazonItem.data['financial']['current']['listPrice'] = values[
-                'listPrice'] = amazonItem.data['financial']['current']['primePrices']['lowPrime']
+        if 'listPrice' not in kwargs:
+            item.data['financial']['current']['listPrice'] = values[
+                'listPrice'] = item.data['financial']['current']['primePrices']['lowPrime']
         else:
-            amazonItem.data['financial']['current']['listPrice'] = values[
-                'listPrice'] = float(request.GET.get('listPrice'))
+            item.data['financial']['current']['listPrice'] = values[
+                'listPrice'] = float(kwargs.get('listPrice'))
 
-        if 'itemType' not in request.GET:
-            amazonItem.data['itemType'] = values['itemType'] = 'game'
+        if 'itemType' not in kwargs:
+            item.data['itemType'] = values['itemType'] = 'game'
         else:
-            amazonItem.data['itemType'] = values['itemType'] = request.GET.get('itemType')
+            item.data['itemType'] = values['itemType'] = kwargs.get('itemType')
 
-        amazonItem.save()
+        item.save()
 
         for value in valueNames:
-            if value in request.GET:
-                amazonItem.data['financial']['current'][value] = request.GET.get(value)
-                values[value] = request.GET.get(value)
+            if value in kwargs:
+                item.data['financial']['current'][value] = kwargs.get(value)
+                values[value] = kwargs.get(value)
             else:
                 try:
-                    values[value] = float(amazonItem.data['ItemAttributes']['ItemDimensions'][value]['#text']) / 100
-                    amazonItem.data['financial']['current'][value] = values[value]
+                    values[value] = float(item.data['ItemAttributes']['ItemDimensions'][value]['#text']) / 100
+                    item.data['financial']['current'][value] = values[value]
                     print(str(value) + ' found. Value: ' + str(values[value]))
                 except Exception as e:
                     print(str(e) + ' not found. Using default value of 1.')
@@ -178,7 +183,7 @@ class amazonEye:
                 'TTP': 2,
                 },
             'console': {
-                'FBAFee': 3.96 + (0.39 * float(amazonItem.data['financial']['current']['Weight'])),
+                'FBAFee': 3.96 + (0.39 * float(item.data['financial']['current']['Weight'])),
                 'refFee': float(values['listPrice']) * 0.08,
                 'TTP': 10
                 },
@@ -190,38 +195,40 @@ class amazonEye:
 
         for itemType in feeSchedules.keys():
             if values['itemType'] == itemType:
-                amazonItem.data['financial']['current']['itemType'] = values['itemType']
-                amazonItem.data['financial']['current']['varFee'] = 1.80
-                amazonItem.data['financial']['current']['TTP'] = feeSchedules[itemType]['TTP']
-                amazonItem.data['financial']['current']['refFee'] = round(feeSchedules[itemType]['refFee'])
-                amazonItem.data['financial']['current']['FBAFee'] = round(feeSchedules[itemType]['FBAFee'], 2)
-                amazonItem.data['financial']['current']['sellFee'] = round(feeSchedules[itemType]['refFee'] + 1.80, 2)
-                amazonItem.data['financial']['current']['FBAShip'] = round(float(values['Weight']) * 0.35, 2)
-                amazonItem.save()
-                amazonItem.data['financial']['current']['net'] = values['net'] = round(
-                                float(amazonItem.data['financial']['current']['listPrice']) \
-                                 - amazonItem.data['financial']['current']['FBAFee'] \
-                                 - amazonItem.data['financial']['current']['sellFee'] \
-                                 - amazonItem.data['financial']['current']['FBAShip'], 2)
-                amazonItem.data['financial']['current']['laborRate'] = round(values['net'] / (int(values['TTP']) / 60), 2)
-                amazonItem.save()
-                # print("amazonItem.data['financial']: " + str(amazonItem.data['financial']))
+                item.data['financial']['current']['itemType'] = values['itemType']
+                item.data['financial']['current']['varFee'] = 1.80
+                item.data['financial']['current']['TTP'] = feeSchedules[itemType]['TTP']
+                item.data['financial']['current']['refFee'] = round(feeSchedules[itemType]['refFee'])
+                item.data['financial']['current']['FBAFee'] = round(feeSchedules[itemType]['FBAFee'], 2)
+                item.data['financial']['current']['sellFee'] = round(feeSchedules[itemType]['refFee'] + 1.80, 2)
+                item.data['financial']['current']['FBAShip'] = round(float(values['Weight']) * 0.35, 2)
+                item.save()
+                item.data['financial']['current']['net'] = values['net'] = round(
+                                float(item.data['financial']['current']['listPrice']) \
+                                 - item.data['financial']['current']['FBAFee'] \
+                                 - item.data['financial']['current']['sellFee'] \
+                                 - item.data['financial']['current']['FBAShip'], 2)
+                item.data['financial']['current']['laborRate'] = round(values['net'] / (int(values['TTP']) / 60), 2)
+                item.save()
+                # print("item.data['financial']: " + str(item.data['financial']))
 
-        return amazonItem
+        return item
 
 
 """
 Scratchpad / Tests
-"""
 
 amazon = amazonEye()
 batman_products_in_VideoGames = amazon.search(
     keywords="batman",
     category="VideoGames",
     page="1")
+
+
 batman_products_in_VideoGames.keys()
 batman_products_in_VideoGames['Item'][0]['ItemAttributes']['UPC']
 batman_products_in_VideoGames['Item'][0]['ItemAttributes']['Feature'][0]
 batman_products_in_VideoGames['Item'][0]['MediumImage']['URL']
 batman_products_in_VideoGames['Item'][0]['ImageSets']['ImageSet'][0]['LargeImage']['URL']
 batman_products_in_VideoGames['Item'][0]['ImageSets']['ImageSet'][1]['LargeImage']['URL']
+"""

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from sourcing.models import Amazon, Ebay, Walmart
+from sourcing.models import MarketData
 from beholder.eyeballs import amazon, ebay, walmart
 import traceback
 
@@ -12,12 +12,14 @@ meta_data = {
         "amazon": amazon.amazonEye(),
         "ebay": ebay.ebayEye(),
     },
+    'MarketData': MarketData,
 }
 
 #  special queries for markets
 
 meta_data['categories'] = dict(
-    [(market, eyeball.categories) for market, eyeball in meta_data['eyeballs'].items()]
+    [(market, eyeball.categories)
+        for market, eyeball in meta_data['eyeballs'].items()]
 )
 
 meta_data['specialQueries'] = {
@@ -62,7 +64,9 @@ def query(request, **kwargs):
 def response(request, **kwargs):
     global meta_data
 
-    default_pages = dict([(marketName+"Page", 1) for marketName in meta_data["eyeballs"].keys()])
+    default_pages = dict(
+        [(marketName+"Page", 1) for marketName in meta_data["eyeballs"].keys()]
+    )
     resp_vars = dict([(key, value) for key, value in request.GET.items()])
     resp_vars = {**default_pages, **resp_vars}
 
