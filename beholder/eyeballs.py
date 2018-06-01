@@ -66,40 +66,40 @@ class Ebay(Eye):
             self.FindingAPI = Finding(appid=self.keys.ebay['production']['appid'], config_file=None)
             self.taxonomy = ''
             self.categories = [
-                {'name': 'Antiques', 'code': '20081'},
-                {'name': 'Art', 'code': '550'},
-                {'name': 'Baby', 'code': '2984'},
-                {'name': 'Books', 'code': '267'},
-                {'name': 'Business & Industrial', 'code': '12576'},
-                {'name': 'Cell Phones & Accessories', 'code': '15032'},
-                {'name': 'Clothing,  Shoes & Accessories', 'code': '11450'},
-                {'name': 'Coins & Paper Money', 'code': '11116'},
-                {'name': 'Collectibles', 'code': '1'},
-                {'name': 'Camera & Photo', 'code': '625'},
-                {'name': 'Computers/Tablets & Networking', 'code': '58058'},
-                {'name': 'Consumer Electronics', 'code': '293'},
-                {'name': 'Crafts', 'code': '14339'},
-                {'name': 'Dolls & Bears', 'code': '237'},
-                {'name': 'DVDs & Movies', 'code': '11232'},
-                {'name': 'Entertainment Memorabilia', 'code': '45100'},
-                {'name': 'Everything Else', 'code': '99'},
-                {'name': 'Gift Cards & Coupons', 'code': '172008'},
-                {'name': 'Health & Beauty', 'code': '26395'},
-                {'name': 'Home & Garden', 'code': '11700'},
-                {'name': 'Jewelry & Watches', 'code': '281'},
-                {'name': 'Music', 'code': '11233'},
-                {'name': 'Musical Instruments & Gear', 'code': '619'},
-                {'name': 'Pet Supplies', 'code': '1281'},
-                {'name': 'Pottery & Glass', 'code': '870'},
-                {'name': 'Real Estate', 'code': '10542'},
-                {'name': 'Specialty Services', 'code': '316'},
-                {'name': 'Sporting Goods', 'code': '888'},
-                {'name': 'Sports Mem,  Cards & Fan Shop', 'code': '64482'},
-                {'name': 'Stamps', 'code': '260'},
-                {'name': 'Tickets & Experiences', 'code': '1305'},
-                {'name': 'Toys & Hobbies', 'code': '220'},
-                {'name': 'Travel', 'code': '3252'},
-                {'name': 'Video Games & Consoles', 'code': '1249'},
+                {'name': 'Antiques', 'id': '20081'},
+                {'name': 'Art', 'id': '550'},
+                {'name': 'Baby', 'id': '2984'},
+                {'name': 'Books', 'id': '267'},
+                {'name': 'Business & Industrial', 'id': '12576'},
+                {'name': 'Cell Phones & Accessories', 'id': '15032'},
+                {'name': 'Clothing,  Shoes & Accessories', 'id': '11450'},
+                {'name': 'Coins & Paper Money', 'id': '11116'},
+                {'name': 'Collectibles', 'id': '1'},
+                {'name': 'Camera & Photo', 'id': '625'},
+                {'name': 'Computers/Tablets & Networking', 'id': '58058'},
+                {'name': 'Consumer Electronics', 'id': '293'},
+                {'name': 'Crafts', 'id': '14339'},
+                {'name': 'Dolls & Bears', 'id': '237'},
+                {'name': 'DVDs & Movies', 'id': '11232'},
+                {'name': 'Entertainment Memorabilia', 'id': '45100'},
+                {'name': 'Everything Else', 'id': '99'},
+                {'name': 'Gift Cards & Coupons', 'id': '172008'},
+                {'name': 'Health & Beauty', 'id': '26395'},
+                {'name': 'Home & Garden', 'id': '11700'},
+                {'name': 'Jewelry & Watches', 'id': '281'},
+                {'name': 'Music', 'id': '11233'},
+                {'name': 'Musical Instruments & Gear', 'id': '619'},
+                {'name': 'Pet Supplies', 'id': '1281'},
+                {'name': 'Pottery & Glass', 'id': '870'},
+                {'name': 'Real Estate', 'id': '10542'},
+                {'name': 'Specialty Services', 'id': '316'},
+                {'name': 'Sporting Goods', 'id': '888'},
+                {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},
+                {'name': 'Stamps', 'id': '260'},
+                {'name': 'Tickets & Experiences', 'id': '1305'},
+                {'name': 'Toys & Hobbies', 'id': '220'},
+                {'name': 'Travel', 'id': '3252'},
+                {'name': 'Video Games & Consoles', 'id': '1249'},
             ]
             print("eBay API initialized. Found " + str(len(self.categories)) + " categories.")
         except Exception:
@@ -285,8 +285,7 @@ class Amazon(Eye):
                 self.keys.amazon["production"]["AMAZON_ACCESS_KEY"],
                 self.keys.amazon["production"]["AMAZON_SECRET_KEY"],
                 self.keys.amazon["production"]["AMAZON_ASSOC_TAG"],)
-            self.taxonomy = ""
-            self.categories = [
+            self.taxonomy = [
                 'All', 'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
                 'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
                 'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
@@ -302,7 +301,8 @@ class Amazon(Eye):
                 'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
                 'Blended', 'HealthPersonalCare', 'Classical'
                 ]
-            self.categories.sort(key=str.lower)
+            self.categories = dict([(category, category) for category in self.taxonomy])
+
             print("Amazon API initialized. Found " + str(len(self.categories)) + " categories.")
         except Exception:
             print("ERROR: "+traceback.format_exc())  # output error to std

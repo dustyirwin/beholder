@@ -3,7 +3,6 @@ from sourcing.models import ItemData
 from beholder.eyeballs import Walmart, Ebay, Amazon
 import traceback
 
-
 #  instantiate apis into _eyeballs dict
 
 _eyeballs = {
@@ -11,6 +10,8 @@ _eyeballs = {
     "ebay": Ebay(),
     "amazon": Amazon(),
 }
+
+# create meta data for html page context
 
 meta_data = {
     'categories': dict(
@@ -25,7 +26,7 @@ meta_data = {
         "amazon": {
             "autoScrapePrime": False, },
     },
-    'specialQueries':  {
+    'special_queries':  {
         'walmart': {
             'Best Sellers': _eyeballs["walmart"].getBestSellers,
             'Clearance': _eyeballs["walmart"].getClearance,
@@ -43,7 +44,7 @@ def query(request, **kwargs):
     context = {
         'categories': meta_data['categories'],
         'query_options': meta_data['query_defaults'],
-        'specialQueries': meta_data['specialQueries'],
+        'special_queries': meta_data['special_queries'],
     }
     print("context.keys(): ", context.keys())  # debugging
 
@@ -52,10 +53,8 @@ def query(request, **kwargs):
 
 def response(request, **kwargs):
     global meta_data
-
     default_pages = dict(
-        [(market+"Page", 1) for market in meta_data["eyeballs"].keys()]
-    )
+        [(market+"Page", 1) for market in meta_data["eyeballs"].keys()])
     resp_vars = dict([(key, value) for key, value in request.GET.items()])
     resp_vars = {**default_pages, **resp_vars}
 
@@ -108,4 +107,5 @@ def response(request, **kwargs):
 
     context["marketNames"] = [market['name'] for market in context["markets"]]
     print(context["marketNames"])  # debugging
+
     return render(request, 'sourcing/response.html', context)

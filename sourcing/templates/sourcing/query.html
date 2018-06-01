@@ -24,17 +24,20 @@
         <div class="input-group-prepend">
           <label class="input-group-text" for="{{ market }}Categories">{{ market }}</label>
         </div>
-        <select name="{{ market.name }}CatId" class="custom-select" id="{{ market.name }}Categories">
-          <option selected>{{ market.category }}</option>
+        <select name="{{ market }}CatId" class="custom-select" id="{{ market }}Categories">
+          <option selected></option>
 
-          {% for category in market %}
+        {% for category in market %}
 
-            <option value="{{ category.name }}">{{ category.id }}</option>
+          <option value="{{ category.id }}">{{ category.name }}</option>
+          <option value="">hmmm</option>
 
-          {% endfor %}
+        {% endfor %}
 
         </select>
-      {% if market.name == walmart %}
+
+        <!-- query option buttons -->
+      {% if market == walmart %}
         <button type="input" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
           {{ Option1 }}
         </button>

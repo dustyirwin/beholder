@@ -1,4 +1,4 @@
-/beholder/keys
+/beholder/keys.py
 /beholder/eyeballs/__pycache__
 /beholder/eyeballs/ebay.yaml
 /beholder/__pycache__
@@ -6,3 +6,4 @@
 /sourcing/__pycache__
 /pricing/__pycache__
 db.sqlite3
+key.*
