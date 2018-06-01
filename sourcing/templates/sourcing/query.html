@@ -17,53 +17,49 @@
       </div>
     </nav>
     <div class="collapse" id="options">
+
+    {% for market in categories %}
+
       <div class="input-group mb-0">
         <div class="input-group-prepend">
-          <label class="input-group-text" for="walmartCategories">walmart</label>
+          <label class="input-group-text" for="{{ market }}Categories">{{ market }}</label>
         </div>
-        <select name="walmartCatId" class="custom-select" id="walmartCategories">
-          <option selected>{{ request.GET.walmartCatId }}</option>
-          {% for category in categories.walmart %}
-            <option value="{{ category.id }}">{{ category.name }}</option>
+        <select name="{{ market.name }}CatId" class="custom-select" id="{{ market.name }}Categories">
+          <option selected>{{ market.category }}</option>
+
+          {% for category in market %}
+
+            <option value="{{ category.name }}">{{ category.id }}</option>
+
           {% endfor %}
+
         </select>
-        <button type="button" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
+      {% if market.name == walmart %}
+        <button type="input" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
           Free Shipping Only
         </button>
-      <div class="input-group mb-0">
-        <div class="input-group-prepend">
-          <label class="input-group-text" for="amazonCategories">amazon</label>
-        </div>
-        <select name="amazonCatId" class="custom-select" id="amazonCategories">
-          <option selected>{{ request.GET.amazonCatId }}</option>
-          {% for category in categories.amazon %}
-            <option name="amazonCatId" value="{{ category }}">{{ category }}</option>
-          {% endfor %}
-        </select>
-        <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="button" aria-pressed="false" autocomplete="off">
+      {% endif %}
+      {% if market.name == amazon %}
+        <button type="input" class="btn btn-outline-secondary btn-sm" data-toggle="button" aria-pressed="false" autocomplete="off">
           Auto-Scrape
         </button>
+      {% endif %}
+      {% if market.name == ebay %}
         <button type="button" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
           New Items Only
         </button>
-        </div>
-      </div>
-      <div class="input-group mb-0">
-        <div class="input-group-prepend">
-          <label class="input-group-text" for="ebayCategories">ebay</label>
-        </div>
-        <select name="ebayCatId" class="custom-select" id="ebayCategories">
-          <option selected>{{ request.GET.ebayCatId }}</option>
-          {% for category in categories.ebay %}
-            <option value="{{ category.code }}">{{ category.name }}</option>
-          {% endfor %}
-        </select>
         <button type="input" name="BINOnly" value="" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
           Buy It Now Only
         </button>
+      {% endif %}
       </div>
+
+    {% endfor %}
+
     </div>
   </form>
+
   {% block response %}
   {% endblock %}
+
 {% endblock %}

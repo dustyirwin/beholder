@@ -1,8 +1,6 @@
 from django.shortcuts import render
 from .models import Amazon, Ebay, Alibaba, Walmart
-from beholder.eyeballs import amazon as az
-from beholder.eyeballs import ebay as eb
-from beholder.eyeballs import walmart as wm
+from beholder.eyeballs.eyeballs import Eye
 
 
 def amazon(request):
@@ -10,7 +8,7 @@ def amazon(request):
 
 
 def searchAmazon(request):
-    amazon = az.amazonAPI()
+    amazon = Eye.Amazon()
     amazonItems = amazon.search(request, Amazon)
 
     # if pricing an eBay item, insert ebayItem into context
@@ -28,22 +26,22 @@ def ebay(request):
 
 
 def searchEbay(request):
-    ebay = eb.ebayAPI()
+    ebay = Eye.Ebay()
     ebayItems = ebay.search(request, Ebay)
 
     return render(request, 'pricing/ebay.html', ebayItems)
 
 
 def priceEbayItem(request):
-    ebay = eb.ebayAPI()
+    ebay = Eye.Ebay()
     context = ebay.price(request, Ebay, Amazon)
     return render(request, 'pricing/priceEbayItem.html', context)
 
 
 def sourceItem(request):
-    ebay = eb.ebayAPI()
-    amazon = az.amazonAPI()
-    walmart = wm.walmartAPI()
+    ebay = Eye.Ebay()
+    amazon = Eye.Amazon()
+    walmart = Eye.Walmart()
     amazonItem = amazon.scrape(request, Amazon)
     ebayItems = ebay.getUPC(request, )
     walMartItem = walmart.getItemInfo(request)

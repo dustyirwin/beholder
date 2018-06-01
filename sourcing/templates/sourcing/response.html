@@ -5,14 +5,12 @@
   <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
 
-      {% for market in markets %}
+      {% for market in market %}
 
         {% if market.active == True %}
           <a class="nav-item nav-link active" id="nav-{{ market.name }}-tab" data-toggle="tab" href="#nav-{{ market.name }}" role="tab" aria-controls="nav-{{ market.name }}" aria-selected="true">{{ market.name }}</a>
         {% elif market.name in marketNames %}
           <a class="nav-item nav-link" id="nav-{{ market.name }}-tab" data-toggle="tab" href="#nav-{{ market.name }}" role="tab" aria-controls="nav-{{ market.name }}" aria-selected="false">{{ market.name }}</a>
-        {% else %}
-          <a class="nav-item nav-link disabled">Error!<a>
         {% endif %}
 
       {% endfor%}
@@ -40,7 +38,7 @@
             <div class="card-body p-3">
                 <a href="{{ item.url }}" target="_blank"><h5 class="card-title m-0 p-1" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.name }}</h5></a>
                 <p class="card-text m-0 p-1" style="">
-                    ${{ item.sale_price }} {{ item.stock }} {{ item.customer_rating }}
+                    ${{ item.sale_price }} {{ item.stock }} rating: {{ item.customer_rating }}
                 </p>
                 <!-- Button trigger modal -->
                 <button type="button m-0 p-1" class="btn btn-success btn-sm" data-toggle="modal" data-target="#{{ item.item_id }}Modal">
