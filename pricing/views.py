@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import Amazon, Ebay, Alibaba, Walmart
-from beholder.eyeballs.eyeballs import Eye
+from beholder.eyeballs import Eye
 
 
 def amazon(request):

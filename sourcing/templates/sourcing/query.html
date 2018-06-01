@@ -20,7 +20,7 @@
 
     {% for market in categories %}
 
-      <div class="input-group mb-0">
+      <div class="input-group mb-0"> <!-- category dropdown -->
         <div class="input-group-prepend">
           <label class="input-group-text" for="{{ market }}Categories">{{ market }}</label>
         </div>
@@ -36,20 +36,7 @@
         </select>
       {% if market.name == walmart %}
         <button type="input" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
-          Free Shipping Only
-        </button>
-      {% endif %}
-      {% if market.name == amazon %}
-        <button type="input" class="btn btn-outline-secondary btn-sm" data-toggle="button" aria-pressed="false" autocomplete="off">
-          Auto-Scrape
-        </button>
-      {% endif %}
-      {% if market.name == ebay %}
-        <button type="button" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
-          New Items Only
-        </button>
-        <button type="input" name="BINOnly" value="" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
-          Buy It Now Only
+          {{ Option1 }}
         </button>
       {% endif %}
       </div>

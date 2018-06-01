@@ -1,31 +1,40 @@
 from django.shortcuts import render
 from sourcing.models import ItemData
-from beholder.eyeballs.eyeballs import Walmart, Ebay, Amazon
+from beholder.eyeballs import Walmart, Ebay, Amazon
 import traceback
 
 
-#  instantiate Eyes into _eyeballs dict
+#  instantiate apis into _eyeballs dict
+
+_eyeballs = {
+    "walmart": Walmart(),
+    "ebay": Ebay(),
+    "amazon": Amazon(),
+}
 
 meta_data = {
-    'eyeballs': {
-        "walmart": Walmart(),
-        "ebay": Ebay(),
-        "amazon": Amazon(),
-        },
-    'ItemData': ItemData,
-}
-meta_data['categories'] = dict(
-    [(market, eyeball.categories) for market, eyeball in meta_data['eyeballs'].items()]
-)
-meta_data['specialQueries'] = {
-    'walmart': {
-        'Best Sellers': meta_data['eyeballs']["walmart"].getBestSellers,
-        'Clearance': meta_data['eyeballs']["walmart"].getClearance,
-        'Special_Buy': meta_data['eyeballs']["walmart"].getSpecialBuy,
-        'Trending': meta_data['eyeballs']["walmart"].getTrending,
+    'categories': dict(
+        [(market, eyeball.categories) for market, eyeball in _eyeballs.items()]
+    ),
+    'query_defaults': {
+        "walmart": {
+            "freeShipping": True, },
+        "ebay": {
+            "buyItNowOnly": True,
+            "newItemsOnly": True, },
+        "amazon": {
+            "autoScrapePrime": False, },
     },
-    'amazon': {},
-    'ebay': {}
+    'specialQueries':  {
+        'walmart': {
+            'Best Sellers': _eyeballs["walmart"].getBestSellers,
+            'Clearance': _eyeballs["walmart"].getClearance,
+            'Special_Buy': _eyeballs["walmart"].getSpecialBuy,
+            'Trending': _eyeballs["walmart"].getTrending,
+        },
+        'amazon': {},
+        'ebay': {},
+    }
 }
 
 
@@ -33,21 +42,10 @@ def query(request, **kwargs):
     global meta_data
     context = {
         'categories': meta_data['categories'],
-        'options': {
-            'walmart': {
-                "FreeShippingOnly": True,
-            },
-            'amazon': {
-                "AutoScrape": False,
-                "New Items Only": True,
-            },
-            'ebay': {
-                "BuyItNowOnly": True,
-            },
-        },
+        'query_options': meta_data['query_defaults'],
+        'specialQueries': meta_data['specialQueries'],
     }
     print("context.keys(): ", context.keys())  # debugging
-    print("context['categories']: ", context['categories'])  # debugging
 
     return render(request, 'sourcing/query.html', context)
 

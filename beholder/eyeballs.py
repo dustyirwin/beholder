@@ -1,21 +1,16 @@
-from beholder.keys.keys import keys  # api keys
+from beholder.keys import keys  # api keys
 from amazon.api import AmazonAPI  # amazon api
 from wapy.api import Wapy  # walmart api
 from ebaysdk.finding import Connection as Finding  # ebay apis
 # from ebaysdk.trading import Connection as Trading
 # from ebaysdk.shopping import Connection as Shopping
 from bs4 import BeautifulSoup
-import datetime
-import requests
-import re
-import xmltodict
-import json
-import traceback
-import isodate
+import datetime, isodate, json, requests, re, traceback, isodate
 
 
 class Eye:
-
+    def __init__(self):
+        pass
     def searchCategory(self, ):
         self.items = "massaged response from Eye"
         return self.items
@@ -35,7 +30,7 @@ class Walmart(Eye):
             ).json()
 
             self.categories = [{'id': category['id'], 'name': category['name']} for category in self.taxonomy['categories']]
-            print("FOUND CATEGORIES: ", self.categories)
+            print("Walmart API initialized. Found " + str(len(self.categories)) + " categories.")
 
         except Exception:
             print("ERROR: "+traceback.format_exc())  # output error to std
@@ -67,45 +62,46 @@ class Walmart(Eye):
 class Ebay(Eye):
     def __init__(self):
         self.keys = keys()
-        self.FindingAPI = Finding(appid=self.keys.ebay['production']['appid'], config_file=None)
-        self.categories = [
-            {'name': 'Antiques', 'code': '20081'},
-            {'name': 'Art', 'code': '550'},
-            {'name': 'Baby', 'code': '2984'},
-            {'name': 'Books', 'code': '267'},
-            {'name': 'Business & Industrial', 'code': '12576'},
-            {'name': 'Cell Phones & Accessories', 'code': '15032'},
-            {'name': 'Clothing,  Shoes & Accessories', 'code': '11450'},
-            {'name': 'Coins & Paper Money', 'code': '11116'},
-            {'name': 'Collectibles', 'code': '1'},
-            {'name': 'Camera & Photo', 'code': '625'},
-            {'name': 'Computers/Tablets & Networking', 'code': '58058'},
-            {'name': 'Consumer Electronics', 'code': '293'},
-            {'name': 'Crafts', 'code': '14339'},
-            {'name': 'Dolls & Bears', 'code': '237'},
-            {'name': 'DVDs & Movies', 'code': '11232'},
-            {'name': 'Entertainment Memorabilia', 'code': '45100'},
-            {'name': 'Everything Else', 'code': '99'},
-            {'name': 'Gift Cards & Coupons', 'code': '172008'},
-            {'name': 'Health & Beauty', 'code': '26395'},
-            {'name': 'Home & Garden', 'code': '11700'},
-            {'name': 'Jewelry & Watches', 'code': '281'},
-            {'name': 'Music', 'code': '11233'},
-            {'name': 'Musical Instruments & Gear', 'code': '619'},
-            {'name': 'Pet Supplies', 'code': '1281'},
-            {'name': 'Pottery & Glass', 'code': '870'},
-            {'name': 'Real Estate', 'code': '10542'},
-            {'name': 'Specialty Services', 'code': '316'},
-            {'name': 'Sporting Goods', 'code': '888'},
-            {'name': 'Sports Mem,  Cards & Fan Shop', 'code': '64482'},
-            {'name': 'Stamps', 'code': '260'},
-            {'name': 'Tickets & Experiences', 'code': '1305'},
-            {'name': 'Toys & Hobbies', 'code': '220'},
-            {'name': 'Travel', 'code': '3252'},
-            {'name': 'Video Games & Consoles', 'code': '1249'},
-        ]
         try:
-            self.taximony = ''
+            self.FindingAPI = Finding(appid=self.keys.ebay['production']['appid'], config_file=None)
+            self.taxonomy = ''
+            self.categories = [
+                {'name': 'Antiques', 'code': '20081'},
+                {'name': 'Art', 'code': '550'},
+                {'name': 'Baby', 'code': '2984'},
+                {'name': 'Books', 'code': '267'},
+                {'name': 'Business & Industrial', 'code': '12576'},
+                {'name': 'Cell Phones & Accessories', 'code': '15032'},
+                {'name': 'Clothing,  Shoes & Accessories', 'code': '11450'},
+                {'name': 'Coins & Paper Money', 'code': '11116'},
+                {'name': 'Collectibles', 'code': '1'},
+                {'name': 'Camera & Photo', 'code': '625'},
+                {'name': 'Computers/Tablets & Networking', 'code': '58058'},
+                {'name': 'Consumer Electronics', 'code': '293'},
+                {'name': 'Crafts', 'code': '14339'},
+                {'name': 'Dolls & Bears', 'code': '237'},
+                {'name': 'DVDs & Movies', 'code': '11232'},
+                {'name': 'Entertainment Memorabilia', 'code': '45100'},
+                {'name': 'Everything Else', 'code': '99'},
+                {'name': 'Gift Cards & Coupons', 'code': '172008'},
+                {'name': 'Health & Beauty', 'code': '26395'},
+                {'name': 'Home & Garden', 'code': '11700'},
+                {'name': 'Jewelry & Watches', 'code': '281'},
+                {'name': 'Music', 'code': '11233'},
+                {'name': 'Musical Instruments & Gear', 'code': '619'},
+                {'name': 'Pet Supplies', 'code': '1281'},
+                {'name': 'Pottery & Glass', 'code': '870'},
+                {'name': 'Real Estate', 'code': '10542'},
+                {'name': 'Specialty Services', 'code': '316'},
+                {'name': 'Sporting Goods', 'code': '888'},
+                {'name': 'Sports Mem,  Cards & Fan Shop', 'code': '64482'},
+                {'name': 'Stamps', 'code': '260'},
+                {'name': 'Tickets & Experiences', 'code': '1305'},
+                {'name': 'Toys & Hobbies', 'code': '220'},
+                {'name': 'Travel', 'code': '3252'},
+                {'name': 'Video Games & Consoles', 'code': '1249'},
+            ]
+            print("eBay API initialized. Found " + str(len(self.categories)) + " categories.")
         except Exception:
             print("ERROR: "+traceback.format_exc())  # output error to std
 
@@ -284,27 +280,32 @@ class Ebay(Eye):
 class Amazon(Eye):
     def __init__(self):
         self.keys = keys()
-        self.Amazon = AmazonAPI(
-            self.keys.amazon["production"]["AMAZON_ACCESS_KEY"],
-            self.keys.amazon["production"]["AMAZON_SECRET_KEY"],
-            self.keys.amazon["production"]["AMAZON_ASSOC_TAG"],)
-        self.categories = [
-            'All', 'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
-            'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
-            'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
-            'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
-            'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
-            'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
-            'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
-            'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
-            'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
-            'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
-            'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
-            'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
-            'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
-            'Blended', 'HealthPersonalCare', 'Classical'
-            ]
-        self.categories.sort(key=str.lower)
+        try:
+            self.Amazon = AmazonAPI(
+                self.keys.amazon["production"]["AMAZON_ACCESS_KEY"],
+                self.keys.amazon["production"]["AMAZON_SECRET_KEY"],
+                self.keys.amazon["production"]["AMAZON_ASSOC_TAG"],)
+            self.taxonomy = ""
+            self.categories = [
+                'All', 'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
+                'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
+                'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
+                'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
+                'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
+                'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
+                'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
+                'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
+                'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
+                'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
+                'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
+                'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
+                'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
+                'Blended', 'HealthPersonalCare', 'Classical'
+                ]
+            self.categories.sort(key=str.lower)
+            print("Amazon API initialized. Found " + str(len(self.categories)) + " categories.")
+        except Exception:
+            print("ERROR: "+traceback.format_exc())  # output error to std
 
     def search(self, **kwargs):
         try:
@@ -507,6 +508,7 @@ class TargetEye(Eye):
 """
 Testing
 """
+wally = Walmart()
 
 
 """

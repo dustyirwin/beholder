@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
-from beholder.keys.keys import keys
+from beholder.keys import keys
 keys = keys()
 
 
