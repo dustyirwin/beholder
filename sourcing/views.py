@@ -3,52 +3,25 @@ from sourcing.models import ItemData
 from beholder.eyeballs import Walmart, Ebay, Amazon
 import traceback
 
-#  instantiate apis into _eyeballs dict
-
+#  instantiate market objects into _eyeballs dict
 _eyeballs = {
     "walmart": Walmart(),
     "ebay": Ebay(),
     "amazon": Amazon(),
-}
+    }
 
 # create meta data for html page context
+meta_datas = [
+    #wally.meta_data['categories'],
+    #_eyeballs['ebay'].meta_data,
+    #_eyeballs['amazon'].meta_data,
+    ]
 
-meta_data = {
-    'categories': dict(
-        [(market, eyeball.categories) for market, eyeball in _eyeballs.items()]
-    ),
-    'query_defaults': {
-        "walmart": {
-            "freeShipping": True, },
-        "ebay": {
-            "buyItNowOnly": True,
-            "newItemsOnly": True, },
-        "amazon": {
-            "autoScrapePrime": False, },
-    },
-    'special_queries':  {
-        'walmart': {
-            'Best Sellers': _eyeballs["walmart"].getBestSellers,
-            'Clearance': _eyeballs["walmart"].getClearance,
-            'Special_Buy': _eyeballs["walmart"].getSpecialBuy,
-            'Trending': _eyeballs["walmart"].getTrending,
-        },
-        'amazon': {},
-        'ebay': {},
-    }
-}
-
+_eyeballs["walmart"].categories
 
 def query(request, **kwargs):
-    global meta_data
-    context = {
-        'categories': meta_data['categories'],
-        'query_options': meta_data['query_defaults'],
-        'special_queries': meta_data['special_queries'],
-    }
-    print("context.keys(): ", context.keys())  # debugging
-
-    return render(request, 'sourcing/query.html', context)
+    global meta_datas
+    return render(request, 'sourcing/query.html', context = {"markets": meta_datas})
 
 
 def response(request, **kwargs):

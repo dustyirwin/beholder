@@ -18,19 +18,18 @@
     </nav>
     <div class="collapse" id="options">
 
-    {% for market in categories %}
+  {% for market, data in markets.items %}
 
       <div class="input-group mb-0"> <!-- category dropdown -->
         <div class="input-group-prepend">
           <label class="input-group-text" for="{{ market }}Categories">{{ market }}</label>
         </div>
         <select name="{{ market }}CatId" class="custom-select" id="{{ market }}Categories">
-          <option selected></option>
+          <option selected>Choose...</option>
 
-        {% for category in market %}
+        {% for category in data.taxonomy.categories %}
 
-          <option value="{{ category.id }}">{{ category.name }}</option>
-          <option value="">hmmm</option>
+          <option value="{{ id }}">{{ category.name }}</option>
 
         {% endfor %}
 

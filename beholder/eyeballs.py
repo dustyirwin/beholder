@@ -9,31 +9,34 @@ import datetime, isodate, json, requests, re, traceback, isodate
 
 
 class Eye:
-    def __init__(self):
-        pass
-    def searchCategory(self, ):
-        self.items = "massaged response from Eye"
-        return self.items
 
-    def getItem(self, itemId):
-        self.item = "massaged response from Eye"
-        return self.item
+    def __init__(self):
+        keys = keys.keys
+        pass
+
+    def searchCategory(self, ):
+        items = "massaged response from Eye"
+        return items
+
+    def getItem(self, ):
+        item = "massaged response from Eye"
+        return item
 
 
 class Walmart(Eye):
     def __init__(self):
-        self.keys = keys()
-        self.WalmartAPI = Wapy(self.keys.walmart['apiKey'])
+        self.WalmartAPI = Wapy(keys.keys['walmart']['apiKey'])
         try:
             self.taxonomy = requests.get(
-                'http://api.walmartlabs.com/v1/taxonomy?apiKey=' + self.keys.walmart['apiKey']
-            ).json()
-
-            self.categories = [{'id': category['id'], 'name': category['name']} for category in self.taxonomy['categories']]
+                'http://api.walmartlabs.com/v1/taxonomy?apiKey=' + keys.keys['walmart']['apiKey']).json()
+            self.categories = [{"name", category['name'], "id", category['id']} for category in self.taxonomy['categories']]
+            self.meta_data = {'name': 'walmart','categories': self.categories,'query_defaults': {"freeShipping": True, },}
             print("Walmart API initialized. Found " + str(len(self.categories)) + " categories.")
 
         except Exception:
-            print("ERROR: "+traceback.format_exc())  # output error to std
+            self.categories = []
+            self.meta_data = {'categories': self.categories,}
+            print("***ERROR INITIALIZING WALMART CATEGORIES***: " + traceback.format_exc())  # output error to std
 
     def search(self, **kwargs):
         items = self.WalmartAPI.search(
@@ -61,9 +64,8 @@ class Walmart(Eye):
 
 class Ebay(Eye):
     def __init__(self):
-        self.keys = keys()
         try:
-            self.FindingAPI = Finding(appid=self.keys.ebay['production']['appid'], config_file=None)
+            self.FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
             self.taxonomy = ''
             self.categories = [
                 {'name': 'Antiques', 'id': '20081'},
@@ -101,9 +103,14 @@ class Ebay(Eye):
                 {'name': 'Travel', 'id': '3252'},
                 {'name': 'Video Games & Consoles', 'id': '1249'},
             ]
+            self.meta_data = {
+                'categories': self.categories,
+                'query_defaults': {
+                    "freeShipping": True, },
+            },
             print("eBay API initialized. Found " + str(len(self.categories)) + " categories.")
         except Exception:
-            print("ERROR: "+traceback.format_exc())  # output error to std
+            print("ERROR INITIALIZING EBAY API: "+traceback.format_exc())  # output error to std
 
     def search(self, **kwargs):
         try:
@@ -279,12 +286,11 @@ class Ebay(Eye):
 
 class Amazon(Eye):
     def __init__(self):
-        self.keys = keys()
         try:
             self.Amazon = AmazonAPI(
-                self.keys.amazon["production"]["AMAZON_ACCESS_KEY"],
-                self.keys.amazon["production"]["AMAZON_SECRET_KEY"],
-                self.keys.amazon["production"]["AMAZON_ASSOC_TAG"],)
+                keys.keys['amazon']["production"]["AMAZON_ACCESS_KEY"],
+                keys.keys['amazon']["production"]["AMAZON_SECRET_KEY"],
+                keys.keys['amazon']["production"]["AMAZON_ASSOC_TAG"],)
             self.taxonomy = [
                 'All', 'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
                 'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
@@ -301,8 +307,12 @@ class Amazon(Eye):
                 'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
                 'Blended', 'HealthPersonalCare', 'Classical'
                 ]
-            self.categories = dict([(category, category) for category in self.taxonomy])
-
+            self.categories = dict([(("name", category), ("id", category)) for category in self.taxonomy])
+            self.meta_data = {
+                'categories': self.categories,
+                'query_defaults': {
+                    "freeShipping": True, },
+            }
             print("Amazon API initialized. Found " + str(len(self.categories)) + " categories.")
         except Exception:
             print("ERROR: "+traceback.format_exc())  # output error to std
@@ -508,7 +518,17 @@ class TargetEye(Eye):
 """
 Testing
 """
-wally = Walmart()
+
+kzs = keys()
+WalmartAPI = Wapy(kzs.keys['walmart']['apiKey'])
+taxonomy = requests.get('http://api.walmartlabs.com/v1/taxonomy?apiKey=' + kzs.keys['walmart']['apiKey']).json()
+categories = [{"name", category['name'], "id", category['id']} for category in taxonomy['categories']]
+meta_data = {
+    'name': 'walmart',
+    'categories': categories,
+    'query_defaults': {"freeShipping": True, },
+    }
+
 
 
 """
