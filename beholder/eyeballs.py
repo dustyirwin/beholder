@@ -288,9 +288,9 @@ class Amazon(Eye):
     def __init__(self):
         try:
             self.Amazon = AmazonAPI(
-                keys.keys['amazon']["production"]["AMAZON_ACCESS_KEY"],
-                keys.keys['amazon']["production"]["AMAZON_SECRET_KEY"],
-                keys.keys['amazon']["production"]["AMAZON_ASSOC_TAG"],)
+                self.keys.amazon["production"]["AMAZON_ACCESS_KEY"],
+                self.keys.amazon["production"]["AMAZON_SECRET_KEY"],
+                self.keys.amazon["production"]["AMAZON_ASSOC_TAG"],)
             self.taxonomy = [
                 'All', 'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
                 'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
@@ -307,12 +307,8 @@ class Amazon(Eye):
                 'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
                 'Blended', 'HealthPersonalCare', 'Classical'
                 ]
-            self.categories = dict([(("name", category), ("id", category)) for category in self.taxonomy])
-            self.meta_data = {
-                'categories': self.categories,
-                'query_defaults': {
-                    "freeShipping": True, },
-            }
+            self.categories = dict([(category, category) for category in self.taxonomy])
+
             print("Amazon API initialized. Found " + str(len(self.categories)) + " categories.")
         except Exception:
             print("ERROR: "+traceback.format_exc())  # output error to std

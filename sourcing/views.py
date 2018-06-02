@@ -17,7 +17,14 @@ meta_datas = [
     #_eyeballs['amazon'].meta_data,
     ]
 
-_eyeballs["walmart"].categories
+def query(request, **kwargs):
+    global meta_data
+    context = {
+        'categories': meta_data['categories'],
+        'query_options': meta_data['query_defaults'],
+        'special_queries': meta_data['special_queries'],
+    }
+    print("context.keys(): ", context.keys())  # debugging
 
 def query(request, **kwargs):
     global meta_datas
