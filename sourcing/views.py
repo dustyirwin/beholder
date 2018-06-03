@@ -33,12 +33,12 @@ def response(request, **kwargs):
     resp_vars = dict([(key, value) for key, value in request.GET.items()])
     default_pages = dict(
         [(key[:-5]+"Page", 1) for key, value in resp_vars.items() if "CatId" in key or value == 'All'])
-    resp_vars = {**default_pages, **resp_vars}
+    resp_vars = {**resp_vars, **default_pages}
 
     #  query marketplace for context data
     code = "CatId"
     code_len = len(code)
-    context = {**{'items': []}, **{'markets': meta_datas}}
+    context = {**{'items': []}, **{'markets': meta_datas}, **resp_vars}
 
     for key, value in resp_vars.items():
 
@@ -57,11 +57,12 @@ def response(request, **kwargs):
                 "name": key[:-code_len],
                 "page": resp_vars[key[:-code_len]+"Page"],
                 "category": resp_vars[key[:-code_len]+code],
-                "active": True if "active" in resp_vars and resp_vars["active"] == key[:-code_len] else False
+                "active": True if "active" in resp_vars and resp_vars["active"] == key[:-code_len] else False,
                 })
 
     context["marketNames"] = [market['name'] for market in context["markets"]]
-
+    context['items'][0]['active'] = True
+    print("context.keys(): ", context.keys())
     return render(request, 'sourcing/response.html', context)
 
 """

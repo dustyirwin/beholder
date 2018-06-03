@@ -5,7 +5,7 @@ from ebaysdk.finding import Connection as Finding  # ebay apis
 # from ebaysdk.trading import Connection as Trading
 # from ebaysdk.shopping import Connection as Shopping
 from bs4 import BeautifulSoup
-import datetime, isodate, json, requests, re, traceback, isodate
+import datetime, isodate, json, requests, re, traceback, isodate, xmltodict
 
 
 class Eye:
@@ -37,7 +37,7 @@ class Walmart(Eye):
     print("Walmart API initialized. Found " + str(len(categories)) + " categories.")
 
     def search(self, **kwargs):
-        items = self.WalmartAPI.search(
+        self.items = self.WalmartAPI.search(
             kwargs["keywords"],
             categoryId=int(kwargs["walmartCatId"] if type(kwargs["walmartCatId"]) != str else 0),
             ResponseGroup="base",
@@ -45,7 +45,7 @@ class Walmart(Eye):
             sort="bestseller",
             numItems=25,
         )
-        return items
+        return self.items
 
     def getBestSellers(self, **kwargs):
         return self.WalmartAPI.bestseller_products(int(kwargs["walmartCatId"]))
@@ -312,18 +312,15 @@ class Amazon(Eye):
     print("Amazon API initialized. Found " + str(len(categories)) + " categories.")
 
     def search(self, **kwargs):
-        try:
-            self.items = self.AmazonAPI.search(
-                Keywords=kwargs['keywords'],
-                SearchIndex=kwargs['amazonCatId'],
-                ResponseGroup='Medium, EditorialReview',
-                ItemPage=kwargs['amazonPage'],
-            )
-            xmltodict.parse(self.items)['ItemSearchResponse']['Items']
-            self.items = json.loads(json.dumps(self.items))
-
-        except Exception:
-            print("ERROR: "+traceback.format_exc())  # output error to std
+        items = self.AmazonAPI.search(
+            Keywords=kwargs['keywords'],
+            SearchIndex=kwargs['amazonCatId'],
+            ResponseGroup='Medium, EditorialReview',
+            ItemPage=kwargs['amazonPage'],
+        )
+        print(items)
+        xmltodict.parse(items['ItemSearchResponse']['Items'])
+        items = json.loads(json.dumps(items))
 
         #  check if item in database
         """
@@ -342,7 +339,7 @@ class Amazon(Eye):
                 item[item]['rating'] = 'ratingPath'
                 item[item]['availability'] = 'availabilityPath'
         """
-        return self.items
+        return items
 
     def scrapePrimePrice(self, **kwargs):
         priceList = []
@@ -512,6 +509,27 @@ class TargetEye(Eye):
 """
 Testing
 """
+kz = keys.keys['amazon']['production']
+aak = kz['AMAZON_ACCESS_KEY']
+ask = kz['AMAZON_SECRET_KEY']
+aat = kz['AMAZON_ASSOC_TAG']
+amy = AmazonAPI(aak, ask, aat)
+
+items = amy.search(
+    Keywords='batman',
+    SearchIndex='VideoGames',
+    ResponseGroup='Medium, EditorialReview',
+    ItemPage='1')
+
+cont = []
+for object in items.iterate_pages():
+    print(object)
+
+items.iterate_pages()
+
+xmltodict.parse(items)['ItemSearchResponse']['Items']
+items = json.loads(json.dumps(items))
+'''
 
 """
 Scratchpad

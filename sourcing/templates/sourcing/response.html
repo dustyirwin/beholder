@@ -5,7 +5,7 @@
   <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
 
-      {% for market in market %}
+      {% for market in markets %}
 
         {% if market.active == True %}
           <a class="nav-item nav-link active" id="nav-{{ market.name }}-tab" data-toggle="tab" href="#nav-{{ market.name }}" role="tab" aria-controls="nav-{{ market.name }}" aria-selected="true">{{ market.name }}</a>
@@ -26,7 +26,7 @@
       {% if market.active == True %}
         <div class="tab-pane fade show active" id="nav-{{ market.name }}" role="tabpanel" aria-labelledby="nav-{{ market.name }}-tab">
       {% elif market.name in marketNames %}
-        <div class="tab-pane fade show" id="nav-{{ market.name }}" role="tabpanel" aria-labelledby="nav-{{ market.name }}-tab">
+        <div class="tab-pane fade show" id="nav-{{ market.name }}:{{ m }}" role="tabpanel" aria-labelledby="nav-{{ market.name }}-tab">
       {% endif %}
 
           <div class="card-columns">
