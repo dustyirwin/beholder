@@ -25,7 +25,7 @@
           <label class="input-group-text" for="{{ market }}Categories">{{ market.name }}</label>
         </div>
         <select name="{{ market.name }}CatId" class="custom-select" id="{{ market.name }}Categories">
-          <option selected>Choose...</option>
+          <option selected value="All">All</option>
 
         {% for category in market.categories %}
 
@@ -35,15 +35,21 @@
 
         </select>
 
-      {% for option in market.query_options %}
+    {% for option in market.query_options %}
 
-        <button type="input" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="{{ option.value }}" autocomplete="off">
+      {% if option.value == True %}
+        <button type="input" name="{{ option.name }}" value="{{ option.value }}" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="{{ option.value }}" autocomplete="off">
           {{ option.name }}
         </button>
+      {% else %}
+        <button type="input" name="{{ option.name }}" value="{{ option.value }}" class="btn btn-outline-secondary btn-sm" data-toggle="button" aria-pressed="{{ option.value }}" autocomplete="off">
+          {{ option.name }}
+        </button>
+      {% endif %}
 
-      {% endfor %}
+    {% endfor %}
+
       </div>
-
     {% endfor %}
 
     </div>

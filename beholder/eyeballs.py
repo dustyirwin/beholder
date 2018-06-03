@@ -21,116 +21,120 @@ class Eye:
 
 
 class Walmart(Eye):
-    WalmartAPI = Wapy(keys.keys['walmart']['apiKey'])
+    def __init__(self):
+        self.WalmartAPI = Wapy(keys.keys['walmart']['apiKey'])
     taxonomy = requests.get(
         'http://api.walmartlabs.com/v1/taxonomy?apiKey=' + keys.keys['walmart']['apiKey']).json()
     categories = [
         {"name": category['name'], "id": category['id']} for category in taxonomy['categories']]
+    categories.append({'name': 'All', 'value': 0})
     meta_data = {
         'name': 'walmart',
         'categories': categories,
-        'query_defaults': [
-            {"freeShipping": True, }, ]
+        'query_options': [
+            {"name": "FreeShippingOnly", "value": True}, ],
         }
     print("Walmart API initialized. Found " + str(len(categories)) + " categories.")
 
     def search(self, **kwargs):
         items = self.WalmartAPI.search(
             kwargs["keywords"],
-            categoryId=int(kwargs["category"]),
+            categoryId=int(kwargs["walmartCatId"] if type(kwargs["walmartCatId"]) != str else 0),
             ResponseGroup="base",
-            page=int(kwargs["page"]),
+            page=int(kwargs["walmartPage"]),
             sort="bestseller",
             numItems=25,
         )
         return items
 
     def getBestSellers(self, **kwargs):
-        return self.Walmart.bestseller_products(int(kwargs['category']))
+        return self.WalmartAPI.bestseller_products(int(kwargs["walmartCatId"]))
 
     def getClearance(self, **kwargs):
-        return self.Walmart.clearance_products(int(kwargs["category"]))
+        return self.WalmartAPI.clearance_products(int(kwargs["walmartCatId"]))
 
     def getSpecialBuy(self, **kwargs):
-        return self.Walmart.clearance_products(int(kwargs["category"]))
+        return self.WalmartAPI.clearance_products(int(kwargs["walmartCatId"]))
 
     def getTrending(self, **kwargs):
-        return self.Walmart.trending_products()
+        return self.WalmartAPI.trending_products()
 
 
 class Ebay(Eye):
-    FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
+    def __init__(self):
+        self.FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
     taxonomy = ''
     categories = [
-            {'name': 'Antiques', 'id': '20081'},
-            {'name': 'Art', 'id': '550'},
-            {'name': 'Baby', 'id': '2984'},
-            {'name': 'Books', 'id': '267'},
-            {'name': 'Business & Industrial', 'id': '12576'},
-            {'name': 'Cell Phones & Accessories', 'id': '15032'},
-            {'name': 'Clothing,  Shoes & Accessories', 'id': '11450'},
-            {'name': 'Coins & Paper Money', 'id': '11116'},
-            {'name': 'Collectibles', 'id': '1'},
-            {'name': 'Camera & Photo', 'id': '625'},
-            {'name': 'Computers/Tablets & Networking', 'id': '58058'},
-            {'name': 'Consumer Electronics', 'id': '293'},
-            {'name': 'Crafts', 'id': '14339'},
-            {'name': 'Dolls & Bears', 'id': '237'},
-            {'name': 'DVDs & Movies', 'id': '11232'},
-            {'name': 'Entertainment Memorabilia', 'id': '45100'},
-            {'name': 'Everything Else', 'id': '99'},
-            {'name': 'Gift Cards & Coupons', 'id': '172008'},
-            {'name': 'Health & Beauty', 'id': '26395'},
-            {'name': 'Home & Garden', 'id': '11700'},
-            {'name': 'Jewelry & Watches', 'id': '281'},
-            {'name': 'Music', 'id': '11233'},
-            {'name': 'Musical Instruments & Gear', 'id': '619'},
-            {'name': 'Pet Supplies', 'id': '1281'},
-            {'name': 'Pottery & Glass', 'id': '870'},
-            {'name': 'Real Estate', 'id': '10542'},
-            {'name': 'Specialty Services', 'id': '316'},
-            {'name': 'Sporting Goods', 'id': '888'},
-            {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},
-            {'name': 'Stamps', 'id': '260'},
-            {'name': 'Tickets & Experiences', 'id': '1305'},
-            {'name': 'Toys & Hobbies', 'id': '220'},
-            {'name': 'Travel', 'id': '3252'},
-            {'name': 'Video Games & Consoles', 'id': '1249'},
-        ]
+        {'name': 'All', 'id': ''},
+        {'name': 'Antiques', 'id': '20081'},
+        {'name': 'Art', 'id': '550'},
+        {'name': 'Baby', 'id': '2984'},
+        {'name': 'Books', 'id': '267'},
+        {'name': 'Business & Industrial', 'id': '12576'},
+        {'name': 'Cell Phones & Accessories', 'id': '15032'},
+        {'name': 'Clothing,  Shoes & Accessories', 'id': '11450'},
+        {'name': 'Coins & Paper Money', 'id': '11116'},
+        {'name': 'Collectibles', 'id': '1'},
+        {'name': 'Camera & Photo', 'id': '625'},
+        {'name': 'Computers/Tablets & Networking', 'id': '58058'},
+        {'name': 'Consumer Electronics', 'id': '293'},
+        {'name': 'Crafts', 'id': '14339'},
+        {'name': 'Dolls & Bears', 'id': '237'},
+        {'name': 'DVDs & Movies', 'id': '11232'},
+        {'name': 'Entertainment Memorabilia', 'id': '45100'},
+        {'name': 'Everything Else', 'id': '99'},
+        {'name': 'Gift Cards & Coupons', 'id': '172008'},
+        {'name': 'Health & Beauty', 'id': '26395'},
+        {'name': 'Home & Garden', 'id': '11700'},
+        {'name': 'Jewelry & Watches', 'id': '281'},
+        {'name': 'Music', 'id': '11233'},
+        {'name': 'Musical Instruments & Gear', 'id': '619'},
+        {'name': 'Pet Supplies', 'id': '1281'},
+        {'name': 'Pottery & Glass', 'id': '870'},
+        {'name': 'Real Estate', 'id': '10542'},
+        {'name': 'Specialty Services', 'id': '316'},
+        {'name': 'Sporting Goods', 'id': '888'},
+        {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},
+        {'name': 'Stamps', 'id': '260'},
+        {'name': 'Tickets & Experiences', 'id': '1305'},
+        {'name': 'Toys & Hobbies', 'id': '220'},
+        {'name': 'Travel', 'id': '3252'},
+        {'name': 'Video Games & Consoles', 'id': '1249'},]
     meta_data = {
         'name': 'ebay',
         'categories': categories,
-        'query_defaults': {
-            "newItemsOnly": True, }, }
+        'query_options': [
+            {"name": "NewOnly", "value": True},
+            {"name": "BINOnly", "value": True}, ],
+        }
     print("eBay API initialized. Found " + str(len(categories)) + " categories.")
 
     def search(self, **kwargs):
-        try:
-            items = FindingAPI.execute(
-                'findItemsAdvanced', {
-                    'keywords': kwargs['keywords'],
-                    'categoryId': [kwargs['category'], ],
-                    'descriptionSearch': True,
-                    'sortOrder': 'BestMatch',  # EndTimeSoonest
-                    'outputSelector': ['GalleryURL', 'ConditionHistogram'],
-                    'itemFilter': [
-                        {'name': 'Condition', 'value': 'New'},
-                        {'name': 'ListingType', 'value': 'AuctionWithBIN'},
-                    ],
-                    'paginationInput': {
-                        'entriesPerPage': 25,
-                        'pageNumber': kwargs["page"]
-                        }
+        self.items = self.FindingAPI.execute(
+            'findItemsAdvanced', {
+                'keywords': kwargs['keywords'],
+                'categoryId': kwargs['ebayCatId'],
+                'descriptionSearch': True,
+                'sortOrder': 'BestMatch',
+                'outputSelector': ['GalleryURL', 'ConditionHistogram'],
+                'itemFilter': [
+                    {'name': 'Condition', 'value': ['New']},
+                    {'name': 'ListingType', 'value': 'AuctionWithBIN'},
+                    {'name': 'FreeShippingOnly', 'value': True},
+                    {'name': 'LocatedIn', 'value': 'US'},
+                ],
+                'paginationInput': {
+                    'entriesPerPage': 25,
+                    'pageNumber': kwargs["ebayPage"],
                     }
-            ).dict()
-        except Exception:
-            print("ERROR: "+traceback.format_exc())  # output error to std
+                }
+        ).dict()
 
-        if 'errorMessage' in items:
+        '''
+        if items and 'errorMessage' in items:
             print(str(items['errorMessage']))
-            return {'error': items['errorMessage']}
 
-            '''
+
             #gathering description and shipping costs
             for i, item in enumerate(ebayItems['searchResult']['item']):
                 if kwargs['ebayModel'].objects.filter(itemId=item['itemId']).exists():
@@ -146,7 +150,7 @@ class Ebay(Eye):
                     _item['TimeLeftStr'] = isodate.parse_duration(_item['TimeLeft']).__str__()
                     ebayItems['searchResult']['item'][i] = {'data':_item}
             '''
-            return items
+        return self.items
 
         def price(self, request, **kwargs):
 
@@ -277,12 +281,13 @@ class Ebay(Eye):
 
 
 class Amazon(Eye):
-    Amazon = AmazonAPI(
+    def __init__(self):
+        self.AmazonAPI = AmazonAPI(
         keys.keys['amazon']["production"]["AMAZON_ACCESS_KEY"],
         keys.keys['amazon']["production"]["AMAZON_SECRET_KEY"],
         keys.keys['amazon']["production"]["AMAZON_ASSOC_TAG"],)
-    taxonomy = [
-        'All', 'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
+    taxonomy = sorted([
+        'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
         'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
         'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
         'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
@@ -295,28 +300,27 @@ class Amazon(Eye):
         'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
         'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
         'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
-        'Blended', 'HealthPersonalCare', 'Classical'
-        ]
+        'Blended', 'HealthPersonalCare', 'Classical'])
     categories = [
         {"name": category, "id": category} for category in taxonomy]
     meta_data = {
         'name': 'amazon',
         'categories': categories,
-        'query_defaults': {
-            "newItemsOnly": True, },
+        'query_options': [
+            {"name": "NewOnly", "value": False}],
         }
     print("Amazon API initialized. Found " + str(len(categories)) + " categories.")
 
     def search(self, **kwargs):
         try:
-            items = self.Amazon.search(
+            self.items = self.AmazonAPI.search(
                 Keywords=kwargs['keywords'],
-                SearchIndex=kwargs['category'],
+                SearchIndex=kwargs['amazonCatId'],
                 ResponseGroup='Medium, EditorialReview',
-                ItemPage=kwargs['page'],
+                ItemPage=kwargs['amazonPage'],
             )
-            xmltodict.parse(items)['ItemSearchResponse']['Items']
-            items = json.loads(json.dumps(items))
+            xmltodict.parse(self.items)['ItemSearchResponse']['Items']
+            self.items = json.loads(json.dumps(self.items))
 
         except Exception:
             print("ERROR: "+traceback.format_exc())  # output error to std
@@ -338,7 +342,7 @@ class Amazon(Eye):
                 item[item]['rating'] = 'ratingPath'
                 item[item]['availability'] = 'availabilityPath'
         """
-        return items
+        return self.items
 
     def scrapePrimePrice(self, **kwargs):
         priceList = []
@@ -508,21 +512,6 @@ class TargetEye(Eye):
 """
 Testing
 """
-
-kzs = keys()
-walkey = kzs.keys['walmart']['apiKey']
-int_dict = {'wally': Wapy(walkey)}
-
-taxonomy = requests.get('http://api.walmartlabs.com/v1/taxonomy?apiKey=' + kzs.keys['walmart']['apiKey']).json()
-categories = [{"name", category['name'], "id", category['id']} for category in taxonomy['categories']]
-meta_data = {
-    'name': 'walmart',
-    'categories': categories,
-    'query_defaults': {"freeShipping": True, },
-    }
-int_dict['wally']
-meta_data['categories']
-meta_data['name']
 
 """
 Scratchpad
