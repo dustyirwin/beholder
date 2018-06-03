@@ -33,8 +33,7 @@ ALLOWED_HOSTS = ['127.0.0.1', ]
 
 INSTALLED_APPS = [
     'login',
-    'pricing',
-    'sourcing',
+    'search',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -80,8 +79,7 @@ WSGI_APPLICATION = 'beholder.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': keys.keys['beholderdb']['NAME'],
-        'USER': keys.keys['beholderdb']['USER'],
+        'NAME': 'beholder',
         'PASSWORD': keys.keys['beholderdb']['PASSWORD'],
         'HOST': 'localhost',
         'PORT': '',

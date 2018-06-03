@@ -1,5 +1,5 @@
 from beholder.keys import keys  # api keys
-from amazon.api import AmazonAPI  # amazon api
+from bottlenose import Amazon as AmazonAPI # amazon api
 from wapy.api import Wapy  # walmart api
 from ebaysdk.finding import Connection as Finding  # ebay apis
 # from ebaysdk.trading import Connection as Trading
@@ -508,7 +508,7 @@ class TargetEye(Eye):
 
 """
 Testing
-"""
+
 kz = keys.keys['amazon']['production']
 aak = kz['AMAZON_ACCESS_KEY']
 ask = kz['AMAZON_SECRET_KEY']
@@ -521,17 +521,11 @@ items = amy.search(
     ResponseGroup='Medium, EditorialReview',
     ItemPage='1')
 
-cont = []
-for object in items.iterate_pages():
-    print(object)
 
-items.iterate_pages()
-
-xmltodict.parse(items)['ItemSearchResponse']['Items']
+items = xmltodict.parse(items)['ItemSearchResponse']['Items']
 items = json.loads(json.dumps(items))
-'''
 
-"""
+
 Scratchpad
 
 Amazon = AmazonAPI(

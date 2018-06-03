@@ -1,0 +1,61 @@
+{% extends "login/header.html" %}
+
+{% block content %}
+  <form action="{% url 'search:response' %}" method="get">
+    <nav class="navbar navbar-expand-sm navbar-light bg-dark">
+      <img src=http://www.powerhoof.c om/wp-content/uploads/2013/07/beholder.gif align="left" width="auto" height="40px" style="padding-right:10px">
+      <a class="navbar-brand" style="color:#2ECC40" href="{% url 'search:query' %}">SEARCH</a>
+      <button type="button" class="navbar-toggler " data-toggle="collapse" data-target="#topNavBar" aria-expanded="false">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="topNavBar">
+        <div class="input-group">
+          <input type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control mr-auto" placeholder="Search for items...">
+          <button type="submit" class="btn btn-default">Go</button> .
+          <button class="btn btn-outline-success" type="button" data-toggle="collapse" data-target="#options" aria-expanded="false" aria-controls="options">Options</button>
+        </div>
+      </div>
+    </nav>
+    <div class="collapse" id="options">
+
+  {% for market in markets %}
+
+      <div class="input-group mb-0"> <!-- category dropdown -->
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="{{ market }}Categories">{{ market.name }}</label>
+        </div>
+        <select name="{{ market.name }}CatId" class="custom-select" id="{{ market.name }}Categories">
+          <option selected value="All">All</option>
+
+        {% for category in market.categories %}
+
+          <option value="{{ category.id }}">{{ category.name }}</option>
+
+        {% endfor %}
+
+        </select>
+
+    {% for option in market.query_options %}
+
+      {% if option.value == True %}
+        <button type="input" name="{{ option.name }}" value="{{ option.value }}" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="{{ option.value }}" autocomplete="off">
+          {{ option.name }}
+        </button>
+      {% else %}
+        <button type="input" name="{{ option.name }}" value="{{ option.value }}" class="btn btn-outline-secondary btn-sm" data-toggle="button" aria-pressed="{{ option.value }}" autocomplete="off">
+          {{ option.name }}
+        </button>
+      {% endif %}
+
+    {% endfor %}
+
+      </div>
+    {% endfor %}
+
+    </div>
+  </form>
+
+  {% block response %}
+  {% endblock %}
+
+{% endblock %}

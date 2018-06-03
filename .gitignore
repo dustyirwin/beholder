@@ -1,6 +1,6 @@
 /beholder/__pycache__/
 /login/__pycache__/
 /sourcing/__pycache__/
-/pricing/__pycache__/
+/pricing
 db.sqlite3
 keys.*
