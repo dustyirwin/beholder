@@ -23,20 +23,21 @@ class Eye:
 class Walmart(Eye):
     def __init__(self):
         self.WalmartAPI = Wapy(keys.keys['walmart']['apiKey'])
-    taxonomy = requests.get(
-        'http://api.walmartlabs.com/v1/taxonomy?apiKey=' + keys.keys['walmart']['apiKey']).json()
-    categories = [
-        {"name": category['name'], "id": category['id']} for category in taxonomy['categories']]
-    categories.append({'name': 'All', 'value': 0})
-    meta_data = {
-        'name': 'walmart',
-        'categories': categories,
-        'query_options': [
-            {"name": "FreeShippingOnly", "value": True}, ],
-        }
-    print("Walmart API initialized. Found " + str(len(categories)) + " categories.")
+        self.taxonomy = requests.get(
+            'http://api.walmartlabs.com/v1/taxonomy?apiKey=' + keys.keys['walmart']['apiKey']).json()
+        self.categories = [
+            {"name": category['name'], "id": category['id']} for category in self.taxonomy['categories']]
+        self.categories.append({'name': 'All', 'value': 0})
+        self.meta_data = {
+            'name': 'walmart',
+            'categories': self.categories,
+            'query_options': [
+                {"name": "FreeShippingOnly", "value": True}, ],
+            }
+        print("Walmart API initialized. Found " + str(len(self.categories)) + " categories.")
 
     def search(self, **kwargs):
+
         self.items = self.WalmartAPI.search(
             kwargs["keywords"],
             categoryId=int(kwargs["walmartCatId"] if type(kwargs["walmartCatId"]) != str else 0),
@@ -45,6 +46,9 @@ class Walmart(Eye):
             sort="bestseller",
             numItems=25,
         )
+        self.meta_data['items'] = self.items
+        self.meta_data['walmartPage'] = kwargs['walmartPage']
+        self.meta_data['walmartCatId'] = kwargs['walmartCatId']
         return self.items
 
     def getBestSellers(self, **kwargs):
@@ -130,6 +134,10 @@ class Ebay(Eye):
                 }
         ).dict()
 
+        for item in self.items:
+            print("item: ", item)
+
+
         '''
         if items and 'errorMessage' in items:
             print(str(items['errorMessage']))
@@ -149,7 +157,8 @@ class Ebay(Eye):
                     ).dict()['Item']
                     _item['TimeLeftStr'] = isodate.parse_duration(_item['TimeLeft']).__str__()
                     ebayItems['searchResult']['item'][i] = {'data':_item}
-            '''
+        '''
+
         return self.items
 
         def price(self, request, **kwargs):
@@ -507,26 +516,35 @@ class TargetEye(Eye):
 
 
 """
-Testing
-
-kz = keys.keys['amazon']['production']
-aak = kz['AMAZON_ACCESS_KEY']
-ask = kz['AMAZON_SECRET_KEY']
-aat = kz['AMAZON_ASSOC_TAG']
-amy = AmazonAPI(aak, ask, aat)
-
-items = amy.search(
-    Keywords='batman',
-    SearchIndex='VideoGames',
-    ResponseGroup='Medium, EditorialReview',
-    ItemPage='1')
-
-
-items = xmltodict.parse(items)['ItemSearchResponse']['Items']
-items = json.loads(json.dumps(items))
-
-
 Scratchpad
+"""
+
+kz = keys.keys
+findy = Finding(appid=kz['ebay']['production']['appid'], config_file=None)
+items = findy.execute(
+    'findItemsAdvanced', {
+        'keywords': 'batman',
+        'categoryId': '220',
+        'descriptionSearch': True,
+        'sortOrder': 'BestMatch',
+        'outputSelector': ['GalleryURL', 'ConditionHistogram'],
+        'itemFilter': [
+            {'name': 'Condition', 'value': ['New']},
+            {'name': 'ListingType', 'value': 'AuctionWithBIN'},
+            {'name': 'FreeShippingOnly', 'value': True},
+            {'name': 'LocatedIn', 'value': 'US'},
+        ],
+        'paginationInput': {
+            'entriesPerPage': 25,
+            'pageNumber': 1,
+            }
+        }).dict()
+
+for item in items:
+
+
+"""
+Testing
 
 Amazon = AmazonAPI(
     keys.amazon["production"]["AMAZON_ACCESS_KEY"],

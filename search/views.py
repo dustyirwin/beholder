@@ -34,30 +34,23 @@ def response(request, **kwargs):
     #  query marketplace for context data
     code = "CatId"
     code_len = len(code)
-    context = {**{'items': []}, **{'markets': meta_datas}, **resp_vars}
+    context = {**{'markets': meta_datas}, **resp_vars}
 
-    for key, value in resp_vars.items():
+    for market in context['markets']:
 
-        if code in key and resp_vars['keywords'] in specialQueries.keys():
-            context['items'].append({
-                "items": specialQueries[resp_vars["keywords"]](**resp_vars),
-                "name": key[:-code_len],
-                "page": resp_vars[key[:-code_len]+"Page"],
-                "category": resp_vars[key[:-code_len]+code],
-                "active": True if "active" in resp_vars and resp_vars["active"] == key[:-code_len] else False,
-            })
+        for key, value in resp_vars.items():
 
-        elif code in key and bool(value):
-            context['items'].append({
-                "items": eyeballs[key[:-code_len]].search(**resp_vars),
-                "name": key[:-code_len],
-                "page": resp_vars[key[:-code_len]+"Page"],
-                "category": resp_vars[key[:-code_len]+code],
-                "active": True if "active" in resp_vars and resp_vars["active"] == key[:-code_len] else False,
-                })
+            if code in key and resp_vars['keywords'] in specialQueries.keys():
+                specialQueries[resp_vars["keywords"]](**resp_vars)
+                market["active"] = True if "active" in resp_vars and resp_vars["active"] == key[:-code_len] else False
+
+            elif code in key and bool(value):
+                eyeballs[key[:-code_len]].search(**resp_vars)
+                market['active'] = True if "active" in resp_vars and resp_vars["active"] == key[:-code_len] else False
+
 
     context["marketNames"] = [market['name'] for market in context["markets"]]
-    context['items'][0]['active'] = True
+    context['markets'][0]['active'] = True
     print("context.keys(): ", context.keys())
     return render(request, 'search/response.html', context)
 
