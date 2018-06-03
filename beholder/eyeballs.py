@@ -9,10 +9,7 @@ import datetime, isodate, json, requests, re, traceback, isodate
 
 
 class Eye:
-
-    def __init__(self):
-        keys = keys.keys
-        pass
+    keys = keys.keys
 
     def searchCategory(self, ):
         items = "massaged response from Eye"
@@ -24,19 +21,18 @@ class Eye:
 
 
 class Walmart(Eye):
-    def __init__(self):
-        self.WalmartAPI = Wapy(keys.keys['walmart']['apiKey'])
-        try:
-            self.taxonomy = requests.get(
-                'http://api.walmartlabs.com/v1/taxonomy?apiKey=' + keys.keys['walmart']['apiKey']).json()
-            self.categories = [{"name", category['name'], "id", category['id']} for category in self.taxonomy['categories']]
-            self.meta_data = {'name': 'walmart','categories': self.categories,'query_defaults': {"freeShipping": True, },}
-            print("Walmart API initialized. Found " + str(len(self.categories)) + " categories.")
-
-        except Exception:
-            self.categories = []
-            self.meta_data = {'categories': self.categories,}
-            print("***ERROR INITIALIZING WALMART CATEGORIES***: " + traceback.format_exc())  # output error to std
+    WalmartAPI = Wapy(keys.keys['walmart']['apiKey'])
+    taxonomy = requests.get(
+        'http://api.walmartlabs.com/v1/taxonomy?apiKey=' + keys.keys['walmart']['apiKey']).json()
+    categories = [
+        {"name": category['name'], "id": category['id']} for category in taxonomy['categories']]
+    meta_data = {
+        'name': 'walmart',
+        'categories': categories,
+        'query_defaults': [
+            {"freeShipping": True, }, ]
+        }
+    print("Walmart API initialized. Found " + str(len(categories)) + " categories.")
 
     def search(self, **kwargs):
         items = self.WalmartAPI.search(
@@ -63,58 +59,54 @@ class Walmart(Eye):
 
 
 class Ebay(Eye):
-    def __init__(self):
-        try:
-            self.FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
-            self.taxonomy = ''
-            self.categories = [
-                {'name': 'Antiques', 'id': '20081'},
-                {'name': 'Art', 'id': '550'},
-                {'name': 'Baby', 'id': '2984'},
-                {'name': 'Books', 'id': '267'},
-                {'name': 'Business & Industrial', 'id': '12576'},
-                {'name': 'Cell Phones & Accessories', 'id': '15032'},
-                {'name': 'Clothing,  Shoes & Accessories', 'id': '11450'},
-                {'name': 'Coins & Paper Money', 'id': '11116'},
-                {'name': 'Collectibles', 'id': '1'},
-                {'name': 'Camera & Photo', 'id': '625'},
-                {'name': 'Computers/Tablets & Networking', 'id': '58058'},
-                {'name': 'Consumer Electronics', 'id': '293'},
-                {'name': 'Crafts', 'id': '14339'},
-                {'name': 'Dolls & Bears', 'id': '237'},
-                {'name': 'DVDs & Movies', 'id': '11232'},
-                {'name': 'Entertainment Memorabilia', 'id': '45100'},
-                {'name': 'Everything Else', 'id': '99'},
-                {'name': 'Gift Cards & Coupons', 'id': '172008'},
-                {'name': 'Health & Beauty', 'id': '26395'},
-                {'name': 'Home & Garden', 'id': '11700'},
-                {'name': 'Jewelry & Watches', 'id': '281'},
-                {'name': 'Music', 'id': '11233'},
-                {'name': 'Musical Instruments & Gear', 'id': '619'},
-                {'name': 'Pet Supplies', 'id': '1281'},
-                {'name': 'Pottery & Glass', 'id': '870'},
-                {'name': 'Real Estate', 'id': '10542'},
-                {'name': 'Specialty Services', 'id': '316'},
-                {'name': 'Sporting Goods', 'id': '888'},
-                {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},
-                {'name': 'Stamps', 'id': '260'},
-                {'name': 'Tickets & Experiences', 'id': '1305'},
-                {'name': 'Toys & Hobbies', 'id': '220'},
-                {'name': 'Travel', 'id': '3252'},
-                {'name': 'Video Games & Consoles', 'id': '1249'},
-            ]
-            self.meta_data = {
-                'categories': self.categories,
-                'query_defaults': {
-                    "freeShipping": True, },
-            },
-            print("eBay API initialized. Found " + str(len(self.categories)) + " categories.")
-        except Exception:
-            print("ERROR INITIALIZING EBAY API: "+traceback.format_exc())  # output error to std
+    FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
+    taxonomy = ''
+    categories = [
+            {'name': 'Antiques', 'id': '20081'},
+            {'name': 'Art', 'id': '550'},
+            {'name': 'Baby', 'id': '2984'},
+            {'name': 'Books', 'id': '267'},
+            {'name': 'Business & Industrial', 'id': '12576'},
+            {'name': 'Cell Phones & Accessories', 'id': '15032'},
+            {'name': 'Clothing,  Shoes & Accessories', 'id': '11450'},
+            {'name': 'Coins & Paper Money', 'id': '11116'},
+            {'name': 'Collectibles', 'id': '1'},
+            {'name': 'Camera & Photo', 'id': '625'},
+            {'name': 'Computers/Tablets & Networking', 'id': '58058'},
+            {'name': 'Consumer Electronics', 'id': '293'},
+            {'name': 'Crafts', 'id': '14339'},
+            {'name': 'Dolls & Bears', 'id': '237'},
+            {'name': 'DVDs & Movies', 'id': '11232'},
+            {'name': 'Entertainment Memorabilia', 'id': '45100'},
+            {'name': 'Everything Else', 'id': '99'},
+            {'name': 'Gift Cards & Coupons', 'id': '172008'},
+            {'name': 'Health & Beauty', 'id': '26395'},
+            {'name': 'Home & Garden', 'id': '11700'},
+            {'name': 'Jewelry & Watches', 'id': '281'},
+            {'name': 'Music', 'id': '11233'},
+            {'name': 'Musical Instruments & Gear', 'id': '619'},
+            {'name': 'Pet Supplies', 'id': '1281'},
+            {'name': 'Pottery & Glass', 'id': '870'},
+            {'name': 'Real Estate', 'id': '10542'},
+            {'name': 'Specialty Services', 'id': '316'},
+            {'name': 'Sporting Goods', 'id': '888'},
+            {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},
+            {'name': 'Stamps', 'id': '260'},
+            {'name': 'Tickets & Experiences', 'id': '1305'},
+            {'name': 'Toys & Hobbies', 'id': '220'},
+            {'name': 'Travel', 'id': '3252'},
+            {'name': 'Video Games & Consoles', 'id': '1249'},
+        ]
+    meta_data = {
+        'name': 'ebay',
+        'categories': categories,
+        'query_defaults': {
+            "newItemsOnly": True, }, }
+    print("eBay API initialized. Found " + str(len(categories)) + " categories.")
 
     def search(self, **kwargs):
         try:
-            items = self.FindingAPI.execute(
+            items = FindingAPI.execute(
                 'findItemsAdvanced', {
                     'keywords': kwargs['keywords'],
                     'categoryId': [kwargs['category'], ],
@@ -285,33 +277,35 @@ class Ebay(Eye):
 
 
 class Amazon(Eye):
-    def __init__(self):
-        try:
-            self.Amazon = AmazonAPI(
-                self.keys.amazon["production"]["AMAZON_ACCESS_KEY"],
-                self.keys.amazon["production"]["AMAZON_SECRET_KEY"],
-                self.keys.amazon["production"]["AMAZON_ASSOC_TAG"],)
-            self.taxonomy = [
-                'All', 'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
-                'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
-                'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
-                'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
-                'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
-                'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
-                'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
-                'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
-                'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
-                'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
-                'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
-                'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
-                'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
-                'Blended', 'HealthPersonalCare', 'Classical'
-                ]
-            self.categories = dict([(category, category) for category in self.taxonomy])
-
-            print("Amazon API initialized. Found " + str(len(self.categories)) + " categories.")
-        except Exception:
-            print("ERROR: "+traceback.format_exc())  # output error to std
+    Amazon = AmazonAPI(
+        keys.keys['amazon']["production"]["AMAZON_ACCESS_KEY"],
+        keys.keys['amazon']["production"]["AMAZON_SECRET_KEY"],
+        keys.keys['amazon']["production"]["AMAZON_ASSOC_TAG"],)
+    taxonomy = [
+        'All', 'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
+        'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
+        'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
+        'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
+        'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
+        'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
+        'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
+        'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
+        'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
+        'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
+        'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
+        'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
+        'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
+        'Blended', 'HealthPersonalCare', 'Classical'
+        ]
+    categories = [
+        {"name": category, "id": category} for category in taxonomy]
+    meta_data = {
+        'name': 'amazon',
+        'categories': categories,
+        'query_defaults': {
+            "newItemsOnly": True, },
+        }
+    print("Amazon API initialized. Found " + str(len(categories)) + " categories.")
 
     def search(self, **kwargs):
         try:
@@ -516,7 +510,9 @@ Testing
 """
 
 kzs = keys()
-WalmartAPI = Wapy(kzs.keys['walmart']['apiKey'])
+walkey = kzs.keys['walmart']['apiKey']
+int_dict = {'wally': Wapy(walkey)}
+
 taxonomy = requests.get('http://api.walmartlabs.com/v1/taxonomy?apiKey=' + kzs.keys['walmart']['apiKey']).json()
 categories = [{"name", category['name'], "id", category['id']} for category in taxonomy['categories']]
 meta_data = {
@@ -524,8 +520,9 @@ meta_data = {
     'categories': categories,
     'query_defaults': {"freeShipping": True, },
     }
-
-
+int_dict['wally']
+meta_data['categories']
+meta_data['name']
 
 """
 Scratchpad

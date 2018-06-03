@@ -12,9 +12,9 @@ _eyeballs = {
 
 # create meta data for html page context
 meta_datas = [
-    #wally.meta_data['categories'],
-    #_eyeballs['ebay'].meta_data,
-    #_eyeballs['amazon'].meta_data,
+    _eyeballs['walmart'].meta_data,
+    _eyeballs['ebay'].meta_data,
+    _eyeballs['amazon'].meta_data,
     ]
 
 def query(request, **kwargs):

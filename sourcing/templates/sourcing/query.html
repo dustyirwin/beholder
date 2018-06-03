@@ -18,29 +18,30 @@
     </nav>
     <div class="collapse" id="options">
 
-  {% for market, data in markets.items %}
+  {% for market in markets %}
 
       <div class="input-group mb-0"> <!-- category dropdown -->
         <div class="input-group-prepend">
-          <label class="input-group-text" for="{{ market }}Categories">{{ market }}</label>
+          <label class="input-group-text" for="{{ market }}Categories">{{ market.name }}</label>
         </div>
-        <select name="{{ market }}CatId" class="custom-select" id="{{ market }}Categories">
+        <select name="{{ market.name }}CatId" class="custom-select" id="{{ market.name }}Categories">
           <option selected>Choose...</option>
 
-        {% for category in data.taxonomy.categories %}
+        {% for category in market.categories %}
 
-          <option value="{{ id }}">{{ category.name }}</option>
+          <option value="{{ category.id }}">{{ category.name }}</option>
 
         {% endfor %}
 
         </select>
 
-        <!-- query option buttons -->
-      {% if market == walmart %}
-        <button type="input" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="true" autocomplete="off">
-          {{ Option1 }}
+      {% for option in market.query_options %}
+
+        <button type="input" class="btn btn-outline-secondary btn-sm active" data-toggle="button" aria-pressed="{{ option.value }}" autocomplete="off">
+          {{ option.name }}
         </button>
-      {% endif %}
+
+      {% endfor %}
       </div>
 
     {% endfor %}
