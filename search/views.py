@@ -8,6 +8,7 @@ eyeballs = {
     "walmart": Walmart(),
     "ebay": Ebay(),
     #"amazon": Amazon(),
+    #"bestbuy": BestBuy(),
     }
 
 # create meta data for html page context

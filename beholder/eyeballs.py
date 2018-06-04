@@ -2,8 +2,8 @@ from beholder.keys import keys  # api keys
 from bottlenose import Amazon as AmazonAPI # amazon api
 from wapy.api import Wapy  # walmart api
 from ebaysdk.finding import Connection as Finding  # ebay apis
+from ebaysdk.shopping import Connection as Shopping
 # from ebaysdk.trading import Connection as Trading
-# from ebaysdk.shopping import Connection as Shopping
 from bs4 import BeautifulSoup
 import datetime, isodate, json, requests, re, traceback, isodate, xmltodict
 
@@ -67,8 +67,9 @@ class Walmart(Eye):
 class Ebay(Eye):
     def __init__(self):
         self.FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
-    taxonomy = ''
-    categories = [
+        self.ShoppingAPI = Shopping(appid=keys.keys['ebay']['production']['appid'], config_file=None)
+        self.taxonomy = ''
+        self.categories = [
         {'name': 'All', 'id': ''},
         {'name': 'Antiques', 'id': '20081'},
         {'name': 'Art', 'id': '550'},
@@ -104,14 +105,14 @@ class Ebay(Eye):
         {'name': 'Toys & Hobbies', 'id': '220'},
         {'name': 'Travel', 'id': '3252'},
         {'name': 'Video Games & Consoles', 'id': '1249'},]
-    meta_data = {
+        self.meta_data = {
         'name': 'ebay',
-        'categories': categories,
+        'categories': self.categories,
         'query_options': [
             {"name": "NewOnly", "value": True},
             {"name": "BINOnly", "value": True}, ],
         }
-    print("eBay API initialized. Found " + str(len(categories)) + " categories.")
+        print("eBay API initialized. Found " + str(len(self.categories)) + " categories.")
 
     def search(self, **kwargs):
         self.items = self.FindingAPI.execute(
@@ -129,35 +130,44 @@ class Ebay(Eye):
                 ],
                 'paginationInput': {
                     'entriesPerPage': 25,
-                    'pageNumber': kwargs["ebayPage"],
+                    'pageNumber': 1,
                     }
-                }
-        ).dict()
-
-        for item in self.items:
-            print("item: ", item)
+                }).dict()['searchResult']['item']
 
 
-        '''
-        if items and 'errorMessage' in items:
-            print(str(items['errorMessage']))
-
-
+        for i, item in enumerate(self.items):
+            '''
+            # check if item in db
+            if kwargs['ebayModel'].objects.filter(itemId=item['itemId']).exists():
+                _item = kwargs['ebayModel'].objects.get(itemId=item['itemId'])
+                ebayItems['searchResult']['item'][i] = _item
+                # print('eBayItem found in db!')
+            else:
+            '''
             #gathering description and shipping costs
-            for i, item in enumerate(ebayItems['searchResult']['item']):
-                if kwargs['ebayModel'].objects.filter(itemId=item['itemId']).exists():
-                    _item = kwargs['ebayModel'].objects.get(itemId=item['itemId'])
-                    ebayItems['searchResult']['item'][i] = _item
-                    # print('eBayItem found in db!')
-                else:
-                    _item = self.shoppingConnection.execute(
-                        'GetSingleItem',
-                        {'itemID': item['itemId'],
-                         'includeSelector': 'TextDescription, ShippingCosts'}
-                    ).dict()['Item']
-                    _item['TimeLeftStr'] = isodate.parse_duration(_item['TimeLeft']).__str__()
-                    ebayItems['searchResult']['item'][i] = {'data':_item}
-        '''
+            extras = self.ShoppingAPI.execute(
+            'GetSingleItem', {
+            'itemID': item['itemId'],
+            'includeSelector': 'TextDescription',}).dict()
+            self.items[i] = {**item, **extras['Item']}
+
+            paths = {
+             'item_id': item['itemId'],
+             'name': item['title'],
+             'timeLeft': isodate.parse_duration(item['sellingStatus']['timeLeft']).__str__(),
+             'sale_price': item['sellingStatus']['currentPrice']['value'],
+             'BIN_price': item['listingInfo']['buyItNowPrice']['value'],
+             'shipping': item['shippingInfo']['shippingServiceCost']['value'],
+             'medium_image': item['galleryURL'],
+             'images': item['PictureURL'] if 'PictureURL' in item else item['galleryURL'],
+             'long_description': item['Description'] if 'Description' in item else 'No description available.',
+             'product_url': item['viewItemURL'],
+             'availabile_online': item['sellingStatus']['sellingState'],
+             }
+
+            self.items[i] = {**item, **extras, **paths}
+
+        self.meta_data['items'] = self.items
 
         return self.items
 
@@ -295,30 +305,30 @@ class Amazon(Eye):
         keys.keys['amazon']["production"]["AMAZON_ACCESS_KEY"],
         keys.keys['amazon']["production"]["AMAZON_SECRET_KEY"],
         keys.keys['amazon']["production"]["AMAZON_ASSOC_TAG"],)
-    taxonomy = sorted([
-        'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
-        'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
-        'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
-        'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
-        'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
-        'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
-        'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
-        'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
-        'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
-        'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
-        'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
-        'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
-        'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
-        'Blended', 'HealthPersonalCare', 'Classical'])
-    categories = [
-        {"name": category, "id": category} for category in taxonomy]
-    meta_data = {
-        'name': 'amazon',
-        'categories': categories,
-        'query_options': [
-            {"name": "NewOnly", "value": False}],
-        }
-    print("Amazon API initialized. Found " + str(len(categories)) + " categories.")
+        self.taxonomy = sorted([
+            'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
+            'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
+            'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
+            'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
+            'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
+            'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
+            'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
+            'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
+            'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
+            'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
+            'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
+            'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
+            'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
+            'Blended', 'HealthPersonalCare', 'Classical'])
+        self.categories = [
+            {"name": category, "id": category} for category in taxonomy]
+        meta_data = {
+            'name': 'amazon',
+            'categories': categories,
+            'query_options': [
+                {"name": "NewOnly", "value": False}],
+            }
+        print("Amazon API initialized. Found " + str(len(categories)) + " categories.")
 
     def search(self, **kwargs):
         items = self.AmazonAPI.search(
@@ -517,42 +527,8 @@ class TargetEye(Eye):
 
 """
 Scratchpad
-"""
-
+""
 kz = keys.keys
 findy = Finding(appid=kz['ebay']['production']['appid'], config_file=None)
-items = findy.execute(
-    'findItemsAdvanced', {
-        'keywords': 'batman',
-        'categoryId': '220',
-        'descriptionSearch': True,
-        'sortOrder': 'BestMatch',
-        'outputSelector': ['GalleryURL', 'ConditionHistogram'],
-        'itemFilter': [
-            {'name': 'Condition', 'value': ['New']},
-            {'name': 'ListingType', 'value': 'AuctionWithBIN'},
-            {'name': 'FreeShippingOnly', 'value': True},
-            {'name': 'LocatedIn', 'value': 'US'},
-        ],
-        'paginationInput': {
-            'entriesPerPage': 25,
-            'pageNumber': 1,
-            }
-        }).dict()
-
-for item in items:
-
-
-"""
-Testing
-
-Amazon = AmazonAPI(
-    keys.amazon["production"]["AMAZON_ACCESS_KEY"],
-    keys.amazon["production"]["AMAZON_SECRET_KEY"],
-    keys.amazon["production"]["AMAZON_ASSOC_TAG"],)
-items = Amazon.search(
-    Keywords="batman",
-    SearchIndex="VideoGames",
-    ResponseGroup='Medium, EditorialReview',
-    ItemPage="1", )
+shoppy = Shopping(appid=kz['ebay']['production']['appid'], config_file=None)
 """
