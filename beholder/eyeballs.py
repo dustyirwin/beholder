@@ -31,7 +31,6 @@ class Walmart(Eye):
             'http://api.walmartlabs.com/v1/taxonomy?apiKey=' + keys.keys['walmart']['apiKey']).json()
         self.categories = [
             {"name": category['name'], "id": category['id']} for category in self.taxonomy['categories']]
-        self.categories.append({'name': 'All', 'value': 0})
         self.meta_data = {
             'name': 'walmart',
             'categories': self.categories,
@@ -84,7 +83,6 @@ class Ebay(Eye):
         self.ShoppingAPI = Shopping(appid=keys.keys['ebay']['production']['appid'], config_file=None)
         self.taxonomy = ''
         self.categories = [
-            {'name': 'All', 'id': ''},
             {'name': 'Antiques', 'id': '20081'},
             {'name': 'Art', 'id': '550'},
             {'name': 'Baby', 'id': '2984'},
@@ -147,9 +145,11 @@ class Ebay(Eye):
             self.search_params['categoryId'] = kwargs['ebayCatId']
         if kwargs['keywords'] != '':
             self.search_params['keywords'] = kwargs['keywords']
-
-        self.items = self.FindingAPI.execute('findItemsAdvanced',
-            self.search_params).dict()['searchResult']['item']
+        if kwargs['keywords'] == '' and kwargs['ebayCatId'] == '':
+            self.items = self.FindingAPI.execute("findTrendingEbayItems", "somehow...")
+        else:
+            self.items = self.FindingAPI.execute('findItemsAdvanced',
+                self.search_params).dict()['searchResult']['item']
 
         for i, item in enumerate(self.items):
             '''
@@ -160,12 +160,7 @@ class Ebay(Eye):
                 # print('eBayItem found in db!')
             else:
             '''
-            #gathering description and shipping costs
-            extras = self.ShoppingAPI.execute(
-            'GetSingleItem', {
-            'itemID': item['itemId'],
-            'includeSelector': 'TextDescription',}).dict()
-            self.items[i] = {**item, **extras['Item']}
+
 
             paths = {
              'item_id': item['itemId'],
@@ -175,16 +170,28 @@ class Ebay(Eye):
              'BIN_price': item['listingInfo']['buyItNowPrice']['value'],
              'shipping': item['shippingInfo']['shippingServiceCost']['value'],
              'medium_image': item['galleryURL'] if 'galleryURL' in item else None,
-             'images': item['PictureURL'] if 'PictureURL' in item else [],
-             'long_description': item['Description'] if 'Description' in item else 'No description available.',
              'product_url': item['viewItemURL'],
-             'availabile_online': item['sellingStatus']['sellingState'],
-             }
+             'availabile_online': item['sellingStatus']['sellingState'], }
 
-            self.items[i] = {**item, **extras, **paths}
+            #gathering description and images
+            extras = self.ShoppingAPI.execute(
+            'GetSingleItem', {
+            'itemID': item['itemId'],
+            'includeSelector': 'TextDescription',}).dict()
+
+            if extras and extras['Ack'] == 'Success':
+                paths['long_description'] = extras['Item']['Description'],
+                paths['images'] = extras['Item']['PictureURL'],
+                paths['category_id'] = extras['Item']['PrimaryCategoryID'],
+                paths['category_name'] = extras['Item']['PrimaryCategoryName'],
+                self.items[i] = {**item, **paths}
+            else:
+                self.items[i] = {**item, **paths}
+
 
         self.meta_data['items'] = self.items
 
+        print("items: ", self.meta_data['items'][0])  # debugging
         return self.items
 
     def price(self, request, **kwargs):
@@ -547,15 +554,93 @@ amazony = AmazonAPI(
     keys.keys['amazon']["production"]["AMAZON_ACCESS_KEY"],
     keys.keys['amazon']["production"]["AMAZON_SECRET_KEY"],
     keys.keys['amazon']["production"]["AMAZON_ASSOC_TAG"],)
-findy = Finding(appid=kz['ebay']['production']['appid'], config_file=None)
+ebay = Ebay()
 shoppy = Shopping(appid=kz['ebay']['production']['appid'], config_file=None)
 
+True if shoppy else False
 
 
-q = 'All'
-int(q)
+itemz = ebay.search(
+    keywords="cell phone",
+    ebayCatId=15032)
 
+item = itemz[2]
+item
 
-
-
+{'itemId': '332676562967',
+ 'title': 'NEW UNLOCKED T-MOBILE ZTE AVID TRIO Z833 4G LTE Android Video Smart Cell Phone',
+ 'globalId': 'EBAY-US',
+ 'primaryCategory': {'categoryId': '9355',
+  'categoryName': 'Cell Phones & Smartphones'},
+ 'galleryURL': 'http://thumbs4.ebaystatic.com/m/mXIHWWBYVRp41lj7hpHOOLw/140.jpg',
+ 'viewItemURL': 'http://www.ebay.com/itm/NEW-UNLOCKED-T-MOBILE-ZTE-AVID-TRIO-Z833-4G-LTE-Android-Video-Smart-Cell-Phone-/332676562967',
+ 'paymentMethod': 'PayPal',
+ 'autoPay': 'true',
+ 'postalCode': '99337',
+ 'location': 'Kennewick,WA,USA',
+ 'country': 'US',
+ 'shippingInfo': {'shippingServiceCost': {'_currencyId': 'USD',
+   'value': '0.0'},
+  'shippingType': 'Free',
+  'shipToLocations': 'Worldwide',
+  'expeditedShipping': 'true',
+  'oneDayShippingAvailable': 'false',
+  'handlingTime': '1'},
+ 'sellingStatus': {'currentPrice': {'_currencyId': 'USD', 'value': '2.25'},
+  'convertedCurrentPrice': {'_currencyId': 'USD', 'value': '2.25'},
+  'bidCount': '2',
+  'sellingState': 'Active',
+  'timeLeft': 'P8DT16H15M17S'},
+ 'listingInfo': {'bestOfferEnabled': 'false',
+  'buyItNowAvailable': 'true',
+  'buyItNowPrice': {'_currencyId': 'USD', 'value': '54.0'},
+  'convertedBuyItNowPrice': {'_currencyId': 'USD', 'value': '54.0'},
+  'startTime': '2018-06-06T00:05:12.000Z',
+  'endTime': '2018-06-16T00:05:12.000Z',
+  'listingType': 'AuctionWithBIN',
+  'gift': 'false',
+  'watchCount': '3'},
+ 'returnsAccepted': 'true',
+ 'condition': {'conditionId': '1500',
+  'conditionDisplayName': 'New other (see details)'},
+ 'isMultiVariationListing': 'false',
+ 'topRatedListing': 'false',
+ 'Timestamp': '2018-06-07T07:49:55.642Z',
+ 'Ack': 'Success',
+ 'Build': 'E1063_CORE_APILW_18716243_R1',
+ 'Version': '1063',
+ 'Item': {'Description': 'We accept PayPal on all of our auctions. Payment is due within 3 days of the auction ending. Shipping prices are shown above. We also use the eBay Global Shipping Program for our international buyers. Packages are normally shipped within 24 hours of cleared payment. Free shipping is first class which can take 5-10 days. If you need speedier delivery, please upgrade to Priority Mail for just a few dollars additional at checkout.',
+  'ItemID': '332676562967',
+  'BuyItNowAvailable': 'true',
+  'ConvertedBuyItNowPrice': {'_currencyID': 'USD', 'value': '54.0'},
+  'EndTime': '2018-06-16T00:05:12.000Z',
+  'ViewItemURLForNaturalSearch': 'http://www.ebay.com/itm/NEW-UNLOCKED-T-MOBILE-ZTE-AVID-TRIO-Z833-4G-LTE-Android-Video-Smart-Cell-Phone-/332676562967',
+  'ListingType': 'Chinese',
+  'Location': 'Kennewick, Washington',
+  'GalleryURL': 'http://thumbs4.ebaystatic.com/pict/3326765629678080_1.jpg',
+  'PictureURL': ['https://i.ebayimg.com/00/s/NDg5WDUwMA==/z/UZcAAOSwhQtapI0D/$_57.JPG?set_id=8800005007'],
+  'PrimaryCategoryID': '9355',
+  'PrimaryCategoryName': 'Cell Phones & Accessories:Cell Phones & Smartphones',
+  'BidCount': '2',
+  'ConvertedCurrentPrice': {'_currencyID': 'USD', 'value': '2.25'},
+  'ListingStatus': 'Active',
+  'TimeLeft': 'P8DT16H15M17S',
+  'Title': 'NEW UNLOCKED T-MOBILE ZTE AVID TRIO Z833 4G LTE Android Video Smart Cell Phone',
+  'Country': 'US',
+  'AutoPay': 'true',
+  'ConditionID': '1500',
+  'ConditionDisplayName': 'New other (see details)',
+  'GlobalShipping': 'true',
+  'ConditionDescription': 'Phone works great and is brand new, in mint condition. Charger and SIM card are not included.This phone is unlocked for use on GSM networks worldwide.  Clean IMEI.'},
+ 'item_id': '332676562967',
+ 'name': 'NEW UNLOCKED T-MOBILE ZTE AVID TRIO Z833 4G LTE Android Video Smart Cell Phone',
+ 'timeLeft': '8 days, 16:15:17',
+ 'sale_price': '2.25',
+ 'BIN_price': '54.0',
+ 'shipping': '0.0',
+ 'medium_image': 'http://thumbs4.ebaystatic.com/m/mXIHWWBYVRp41lj7hpHOOLw/140.jpg',
+ 'images': [],
+ 'long_description': 'No description available.',
+ 'product_url': 'http://www.ebay.com/itm/NEW-UNLOCKED-T-MOBILE-ZTE-AVID-TRIO-Z833-4G-LTE-Android-Video-Smart-Cell-Phone-/332676562967',
+ 'availabile_online': 'Active'}
 """
