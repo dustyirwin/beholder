@@ -1,7 +1,11 @@
 {% extends "login/header.html" %}
 
 {% block content %}
+{% if request.path == "/inventory" %}
+  <form action="{% url 'inventory:itemList' %}" method="get">
+{% else %}
   <form action="{% url 'search:response' %}" method="get">
+{% endif %}
     <nav class="navbar navbar-expand-sm navbar-light bg-dark">
       <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="auto" height="40px" style="padding-right:10px">
       <a class="navbar-brand" style="color:#2ECC40" href="{% url 'search:query' %}">SEARCH</a>

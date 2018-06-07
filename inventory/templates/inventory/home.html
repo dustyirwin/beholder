@@ -1,0 +1,14 @@
+{% extends "login/header.html" %}
+{% block content %}
+
+{% render table %}
+
+<ol>
+  {% for item in items %}
+    <li>
+      <p>id: {{ item.item_id }}, name: {{ item.name }}, data.key1: {{ item.data.key1 }}</p>
+    </li>
+  {% endfor %}
+</ol>
+
+{% endblock %}
