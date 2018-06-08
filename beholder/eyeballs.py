@@ -45,12 +45,15 @@ class Walmart(Eye):
             "page": 1 if "walmartPage" not in kwargs else int(kwargs["walmartPage"]),
             "sort": "bestseller",
             "numItems": 25, }
-        if "walmartCatId" in kwargs and kwargs['walmartCatId'] != 'All':
-            self.search_params['categoryId'] = int(kwargs["walmartCatId"])
 
-        self.items = self.WalmartAPI.search(
-            "Best Sellers" if kwargs["keywords"] == '' else kwargs["keywords"],
-            **self.search_params, )
+        if not bool(kwargs["keywords"]):
+            self.search_params['keywords'] = 'Best Sellers'
+        if bool(kwargs['walmartCatId']):
+            self.search_params['categoryId'] = int(kwargs["walmartCatId"])
+            self.items = self.WalmartAPI.search(kwargs['keywords'], **self.search_params, )
+        else:
+            self.items = getTrending()
+
         self.meta_data['items'] = self.items
         self.meta_data['walmartPage'] = kwargs['walmartPage']
         self.meta_data['walmartCatId'] = kwargs['walmartCatId']
@@ -74,7 +77,7 @@ class Walmart(Eye):
         else:
             return self.WalmartAPI.trending_products()
 
-    def getTrending(self, **kwargs):
+    def getTrending(self):
         return self.WalmartAPI.trending_products()
 
 class Ebay(Eye):
@@ -171,7 +174,9 @@ class Ebay(Eye):
              'shipping': item['shippingInfo']['shippingServiceCost']['value'],
              'medium_image': item['galleryURL'] if 'galleryURL' in item else None,
              'product_url': item['viewItemURL'],
-             'availabile_online': item['sellingStatus']['sellingState'], }
+             'availabile_online': item['sellingStatus']['sellingState'],
+             'category_id': item['primaryCategory']['categoryId'],
+             'category_name': item['primaryCategory']['categoryName'], }
 
             #gathering description and images
             extras = self.ShoppingAPI.execute(
@@ -180,10 +185,9 @@ class Ebay(Eye):
             'includeSelector': 'TextDescription',}).dict()
 
             if extras and extras['Ack'] == 'Success':
-                paths['long_description'] = extras['Item']['Description'],
-                paths['images'] = extras['Item']['PictureURL'],
-                paths['category_id'] = extras['Item']['PrimaryCategoryID'],
-                paths['category_name'] = extras['Item']['PrimaryCategoryName'],
+                print("extras: ", extras)
+                paths['long_description'] = extras['Item']['Description'] if 'Description' in extras['Item'] else "No description available",
+                paths['images'] = extras['Item']['PictureURL'] if 'PictureURL' in extras['Item'] else [paths['medium_image']]
                 self.items[i] = {**item, **paths}
             else:
                 self.items[i] = {**item, **paths}
@@ -191,7 +195,7 @@ class Ebay(Eye):
 
         self.meta_data['items'] = self.items
 
-        print("items: ", self.meta_data['items'][0])  # debugging
+        print("items[0]: ", self.meta_data['items'][0])  # debugging
         return self.items
 
     def price(self, request, **kwargs):
@@ -359,7 +363,6 @@ class Amazon(Eye):
             ResponseGroup='Medium, EditorialReview',
             ItemPage=kwargs['amazonPage'],
         )
-        print(items)
         xmltodict.parse(items['ItemSearchResponse']['Items'])
         self.items = json.loads(json.dumps(items))
 
@@ -549,7 +552,8 @@ class TargetEye(Eye):
 Scratchpad / Testing
 ""
 kz = keys.keys
-wally = Wapy(kz['walmart']['apiKey'])
+wally = Walmart()
+wally.categories
 amazony = AmazonAPI(
     keys.keys['amazon']["production"]["AMAZON_ACCESS_KEY"],
     keys.keys['amazon']["production"]["AMAZON_SECRET_KEY"],
@@ -557,90 +561,27 @@ amazony = AmazonAPI(
 ebay = Ebay()
 shoppy = Shopping(appid=kz['ebay']['production']['appid'], config_file=None)
 
-True if shoppy else False
+params = {
+    "keywords": "iphone 7",
+    "walmartCatId": "1105910",
+    "ResponseGroup": "base",
+    "page": 1,
+    "sort": "bestseller",
+    "numItems": 25, }
+walitems = wally.search(**params)
+walitems[0].category_node
+walitems[0].category_path
+walitems[0].images[0]
+walitems[0].medium_image
 
 
 itemz = ebay.search(
     keywords="cell phone",
     ebayCatId=15032)
 
-item = itemz[2]
-item
+itemz[0]
 
-{'itemId': '332676562967',
- 'title': 'NEW UNLOCKED T-MOBILE ZTE AVID TRIO Z833 4G LTE Android Video Smart Cell Phone',
- 'globalId': 'EBAY-US',
- 'primaryCategory': {'categoryId': '9355',
-  'categoryName': 'Cell Phones & Smartphones'},
- 'galleryURL': 'http://thumbs4.ebaystatic.com/m/mXIHWWBYVRp41lj7hpHOOLw/140.jpg',
- 'viewItemURL': 'http://www.ebay.com/itm/NEW-UNLOCKED-T-MOBILE-ZTE-AVID-TRIO-Z833-4G-LTE-Android-Video-Smart-Cell-Phone-/332676562967',
- 'paymentMethod': 'PayPal',
- 'autoPay': 'true',
- 'postalCode': '99337',
- 'location': 'Kennewick,WA,USA',
- 'country': 'US',
- 'shippingInfo': {'shippingServiceCost': {'_currencyId': 'USD',
-   'value': '0.0'},
-  'shippingType': 'Free',
-  'shipToLocations': 'Worldwide',
-  'expeditedShipping': 'true',
-  'oneDayShippingAvailable': 'false',
-  'handlingTime': '1'},
- 'sellingStatus': {'currentPrice': {'_currencyId': 'USD', 'value': '2.25'},
-  'convertedCurrentPrice': {'_currencyId': 'USD', 'value': '2.25'},
-  'bidCount': '2',
-  'sellingState': 'Active',
-  'timeLeft': 'P8DT16H15M17S'},
- 'listingInfo': {'bestOfferEnabled': 'false',
-  'buyItNowAvailable': 'true',
-  'buyItNowPrice': {'_currencyId': 'USD', 'value': '54.0'},
-  'convertedBuyItNowPrice': {'_currencyId': 'USD', 'value': '54.0'},
-  'startTime': '2018-06-06T00:05:12.000Z',
-  'endTime': '2018-06-16T00:05:12.000Z',
-  'listingType': 'AuctionWithBIN',
-  'gift': 'false',
-  'watchCount': '3'},
- 'returnsAccepted': 'true',
- 'condition': {'conditionId': '1500',
-  'conditionDisplayName': 'New other (see details)'},
- 'isMultiVariationListing': 'false',
- 'topRatedListing': 'false',
- 'Timestamp': '2018-06-07T07:49:55.642Z',
- 'Ack': 'Success',
- 'Build': 'E1063_CORE_APILW_18716243_R1',
- 'Version': '1063',
- 'Item': {'Description': 'We accept PayPal on all of our auctions. Payment is due within 3 days of the auction ending. Shipping prices are shown above. We also use the eBay Global Shipping Program for our international buyers. Packages are normally shipped within 24 hours of cleared payment. Free shipping is first class which can take 5-10 days. If you need speedier delivery, please upgrade to Priority Mail for just a few dollars additional at checkout.',
-  'ItemID': '332676562967',
-  'BuyItNowAvailable': 'true',
-  'ConvertedBuyItNowPrice': {'_currencyID': 'USD', 'value': '54.0'},
-  'EndTime': '2018-06-16T00:05:12.000Z',
-  'ViewItemURLForNaturalSearch': 'http://www.ebay.com/itm/NEW-UNLOCKED-T-MOBILE-ZTE-AVID-TRIO-Z833-4G-LTE-Android-Video-Smart-Cell-Phone-/332676562967',
-  'ListingType': 'Chinese',
-  'Location': 'Kennewick, Washington',
-  'GalleryURL': 'http://thumbs4.ebaystatic.com/pict/3326765629678080_1.jpg',
-  'PictureURL': ['https://i.ebayimg.com/00/s/NDg5WDUwMA==/z/UZcAAOSwhQtapI0D/$_57.JPG?set_id=8800005007'],
-  'PrimaryCategoryID': '9355',
-  'PrimaryCategoryName': 'Cell Phones & Accessories:Cell Phones & Smartphones',
-  'BidCount': '2',
-  'ConvertedCurrentPrice': {'_currencyID': 'USD', 'value': '2.25'},
-  'ListingStatus': 'Active',
-  'TimeLeft': 'P8DT16H15M17S',
-  'Title': 'NEW UNLOCKED T-MOBILE ZTE AVID TRIO Z833 4G LTE Android Video Smart Cell Phone',
-  'Country': 'US',
-  'AutoPay': 'true',
-  'ConditionID': '1500',
-  'ConditionDisplayName': 'New other (see details)',
-  'GlobalShipping': 'true',
-  'ConditionDescription': 'Phone works great and is brand new, in mint condition. Charger and SIM card are not included.This phone is unlocked for use on GSM networks worldwide.  Clean IMEI.'},
- 'item_id': '332676562967',
- 'name': 'NEW UNLOCKED T-MOBILE ZTE AVID TRIO Z833 4G LTE Android Video Smart Cell Phone',
- 'timeLeft': '8 days, 16:15:17',
- 'sale_price': '2.25',
- 'BIN_price': '54.0',
- 'shipping': '0.0',
- 'medium_image': 'http://thumbs4.ebaystatic.com/m/mXIHWWBYVRp41lj7hpHOOLw/140.jpg',
- 'images': [],
- 'long_description': 'No description available.',
- 'product_url': 'http://www.ebay.com/itm/NEW-UNLOCKED-T-MOBILE-ZTE-AVID-TRIO-Z833-4G-LTE-Android-Video-Smart-Cell-Phone-/332676562967',
- 'availabile_online': 'Active'}
+imgs = itemz[0]['images']
+imgs[0]
+imgs[0][0]
 """
