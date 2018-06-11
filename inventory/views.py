@@ -1,29 +1,23 @@
 from django.views.generic import ListView, DetailView
-from django.shortcuts import render
+# from django.shortcuts import render
+from beholder.eyeballs import eyeballs
 from .models import ItemData
-from .tables import ItemTable
-# Create your views here.
 
-class ItemListView(ListView):
-    items = ItemData
+
+class ItemList(ListView):
     template_name = "inventory/home.html"
     context_object_name = 'items'
     ordering = ['id']
 
-    def get_query_set(self, **kwargs):
-        context = super(ItemListView, self).get_query_set(**kwargs)
-        table = ItemTable(items.objects.all())
-        RequestConfig(self.request, paginate={'per_page': 30}).configure(table)
-        context['table'] = table
-        return context
+    def get_object(self):
+        kwargs = self.request.GET.dict()
+        return ItemData.objects.filter(**kwargs).order_by(kwargs['order_by'])
 
-class ItemDetailsView(DetailView):
-    items = ItemData
+
+class ItemDetails(DetailView):
     template_name = "inventory/details.html"
     context_object_name = 'item'
 
-    def get_queryset(self, **kwargs):
-        context = super(ItemDetailsView, self).get_queryset(**kwargs)
-        item = items.objects.filter(data__key1="abcd")
-        context['item'] = item
-        return context
+    def get_object(self):
+        kwargs = self.request.GET.dict()
+        return eyeballs[kwargs['market']].get_item(**kwargs)

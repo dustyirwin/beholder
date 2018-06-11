@@ -1,6 +1,11 @@
 {% extends "login/header.html" %}
 {% block content %}
 
-  <p>item details here!</p>
+  <p>Name: {{ item.name }}</p>
+  <p>item_id: {{ item.item_id }}</p>
+  <p>market: {{ item.data.market }}
+  <p>sale_price: {{ item.data.salePrice }}</p>
+  <p>upc: {{ item.data.upc }}</p>
+  <p>long description: {{ item.data.longDescription }}
 
 {% endblock %}

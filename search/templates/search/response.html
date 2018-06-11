@@ -1,4 +1,4 @@
-{% extends "search/query.html"%}
+{% extends "search/query.html" %}
 
 {% block response %}
   <!-- Tabs -->
@@ -48,7 +48,7 @@
                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                     {{ item.name }}</h5></a>
                 <p class="card-text m-0 p-1" style="">
-                    ${{ item.sale_price }} {{ item.stock }} rating: {{ item.customer_rating }}
+                    {{ item.sale_price }} {{ item.stock }} rating: {{ item.customer_rating }}
                 </p>
 
               </div>
