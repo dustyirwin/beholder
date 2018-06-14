@@ -40,5 +40,6 @@ def response(request):
     context = {**{'markets': markets}, **kwargs}
     context["marketNames"] = [market['name'] for market in context["markets"]]
     context["active"] = context['markets'][0]['name'] if 'active' not in kwargs else kwargs['active']
+    context['kwargs'] = kwargs
 
     return render(request, 'search/response.html', context)

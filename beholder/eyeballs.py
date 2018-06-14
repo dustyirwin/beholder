@@ -99,8 +99,8 @@ class Walmart(Eye):
         items = self.WalmartAPI.search(kwargs['keywords'], **search_params)
         print(str(len(items)) + ' items found on Walmart.')
         self.market['items'] = items
-        self.market['walmartPage'] = search_params['page']
-        self.market['walmartCatId'] = kwargs['walmartCatId']
+        self.market['page'] = search_params['page']
+        self.market['category'] = kwargs['walmartCatId']
         return items
 
     def getItem(self, **kwargs):
@@ -193,13 +193,15 @@ class Ebay(Eye):
                 'sale_price': item['listingInfo']['buyItNowPrice']['value'],
                 'product_url': item['viewItemURL'],
                 'medium_image': item['galleryURL'],
-                'images': [item['pictureURLLarge']],
+                'images': [item['pictureURLLarge'] if 'pictureURLLarge' in item else None],
                 'stock': item['sellingStatus']['sellingState'],
                 'category_node': item['primaryCategory']['categoryId'],
                 'category_path': item['primaryCategory']['categoryName'], }
             items[i] = {**item, **paths}
 
         self.market['items'] = items
+        self.market['page'] = search_params['paginationInput']['pageNumber']
+        self.market['category'] = search_params['categoryId']
 
         print(str(len(items)) + ' items found on eBay.', )
 

@@ -8,13 +8,27 @@
       {% for market in markets %}
 
         {% if active == market.name %}
-          <a class="nav-item nav-link active" id="nav-{{ market.name }}-tab" data-toggle="tab"
-            href="#nav-{{ market.name }}" role="tab" aria-controls="nav-{{ market.name }}"
-            aria-selected="true">{{ market.name }}</a>
+
+          {% include "search/prev.html" %}
+
+            <a class="nav-item nav-link active" id="nav-{{ market.name }}-tab" data-toggle="tab"
+              href="#nav-{{ market.name }}" role="tab" aria-controls="nav-{{ market.name }}"
+              aria-selected="true">
+              {{ market.name }}</a>
+
+          {% include "search/next.html" %}
+
         {% elif market.name in marketNames %}
-          <a class="nav-item nav-link" id="nav-{{ market.name }}-tab" data-toggle="tab"
-            href="#nav-{{ market.name }}" role="tab" aria-controls="nav-{{ market.name }}"
-            aria-selected="false">{{ market.name }}</a>
+
+          {% include "search/prev.html" %}
+
+            <a class="nav-item nav-link" id="nav-{{ market.name }}-tab" data-toggle="tab"
+              href="#nav-{{ market.name }}" role="tab" aria-controls="nav-{{ market.name }}"
+              aria-selected="true">
+              {{ market.name }}</a>
+
+          {% include "search/next.html" %}
+
         {% endif %}
 
       {% endfor%}
@@ -60,7 +74,8 @@
           </div>
 
         <!-- pagination -->
-        {% include 'search/pagination.html' %}
+        {% include 'search/prev.html' %}
+        {% include 'search/next.html' %}
       </div>
 
     {% endfor %}
