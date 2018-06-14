@@ -1,23 +1,29 @@
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
-# from django.shortcuts import render
 from beholder.eyeballs import eyeballs
 from .models import ItemData
 
 
 class ItemList(ListView):
-    template_name = "inventory/home.html"
+    template_name = 'inventory/home.html'
     context_object_name = 'items'
     ordering = ['id']
 
     def get_object(self):
-        kwargs = self.request.GET.dict()
-        return ItemData.objects.filter(**kwargs).order_by(kwargs['order_by'])
+        return ItemData.objects.all()
 
 
 class ItemDetails(DetailView):
-    template_name = "inventory/details.html"
+    template_name = 'inventory/details.html'
     context_object_name = 'item'
 
     def get_object(self):
         kwargs = self.request.GET.dict()
-        return eyeballs[kwargs['market']].get_item(**kwargs)
+        if 'item_id' in kwargs and 'compare' in kwargs:
+            eyeballs[kwargs['compare']].compare_item(**kwargs)
+            print(ItemData.objects.filter(item_id=kwargs['item_id']))
+            return ItemData.objects.filter(item_id=kwargs['item_id'])
+        elif 'item_id' in kwargs and 'market' in kwargs:
+            return eyeballs[kwargs['market']].get_item(**kwargs)
+        else:
+            return get_object_or_404(ItemData.objects.filter(item_id=kwargs['item_id']))

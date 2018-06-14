@@ -1,11 +1,22 @@
 {% extends "login/header.html" %}
 {% block content %}
 
+  <img src="{{ item.data.mediumImage }}">
   <p>Name: {{ item.name }}</p>
   <p>item_id: {{ item.item_id }}</p>
   <p>market: {{ item.data.market }}
+
   <p>sale_price: {{ item.data.salePrice }}</p>
   <p>upc: {{ item.data.upc }}</p>
-  <p>long description: {{ item.data.longDescription }}
+  <p>long description: {{ item.data.longDescription }}</p>
+
+  <form action="{% url 'inventory:itemDetails' %}" method="get">
+    <button type="submit" class="btn btn-success">Get Prices</button>
+    <input type="hidden" name="keywords" value="{{ item.data.name }}">
+    <input type="hidden" name="compare" value="{{ item.data.market }}">
+    <input type="hidden" name="item_id" value="{{ item.item_id }}">
+  </form>
+
+  <p> compared prices: {{ item.data.compared_prices }} </p>
 
 {% endblock %}

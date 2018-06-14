@@ -3,4 +3,6 @@
 /search/__pycache__/
 /inventory/__pycache__/
 db.sqlite3
-keys.*
+keys
+scratchpad
+migrations
