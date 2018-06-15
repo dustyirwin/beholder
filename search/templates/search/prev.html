@@ -5,15 +5,15 @@
 {% else %}
 
   <a class='page-link' href='{% url "search:response" %}?
+active={{ market.name }}&
 {% for key, value in kwargs.items %}
-{% if "active" != key or market.name in key and "Page" in key %}
+{% if key == market.name|add:"Page" %}
+{{ key }}={{ value|add:-1 }}&
+{% elif key != "active" %}
 {{ key }}={{ value }}&
 {% endif %}
 {% endfor %}
-active={{ market.name }}&
-{{ market.name }}Page={{ value|add:-1 }}&
-{{ market.name }}CatId={{ market.category }}
-'>
+  '>
     &laquo;
   </a>
 
