@@ -4,12 +4,9 @@ from ebaysdk.finding import Connection as Finding
 import datetime
 
 kz = keys.keys
+
+# ebay section
 FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
-
-pages = range(1,6)
-kwargs = {'keywords': 'Samsung Galaxy 6S'}
-prices = []
-
 search_params = {
     'keywords': kwargs['keywords'],
     'descriptionSearch': True,
@@ -74,43 +71,66 @@ for page in pages:
 for price in prices:
     print(price['item_id'], ": $", price['sold_for'], " : ", price['time_stamp'])
 
+
+# walmart section
 from wapy.api import Wapy
 wally = Wapy(keys.keys['walmart']['apiKey'])
 wally_item = wally.product_lookup('16932759')
 wally_item.response_handler.payload
 
 
-taxonomy = sorted([
-    'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
-    'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
-    'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
-    'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
-    'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
-    'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
-    'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
-    'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
-    'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
-    'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
-    'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
-    'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
-    'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
-    'Blended', 'HealthPersonalCare', 'Classical']),
 
 
-amazon_search_url = 'https://www.amazon.com/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords='+'iphone 6s'
+# amazon section
+kwargs = {
+    'keywords': 'lego batman',
+    'page': '1', }
+
+kwargs_url_string = ''
+
+for key, value in kwargs.items():
+    value = value.replace(' ', '%20')
+    kwargs_url_string += str(key + '=' + value + '&')
+
+kwargs_url_string
+
+amazon_search_results_url = 'https://www.amazon.com/s/ref=sr_pg_'+ kwargs['page'] +'?&' + kwargs_url_string
+
 response = requests.get(amazon_search_url, headers={
     'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'})
-page_data = response.__dict__['_content']
-page_data.get('')
+
+page_data = response.__dict__
+page_data
+len(page_data)
 
 
+next_page_url_ =
+'''
+<a title="Next Page" id="pagnNextLink" class="pagnNext" href="/s/ref=sr_pg_2?rh=n%3A2335752011%2Cn%
+3A7072561011%2Ck%3Aiphone+6s&amp;page=2&amp;keywords=iphone+6s&amp;ie=UTF8&amp;qid=1529292428">
+<span id="pagnNextString">Next Page</span><span class="srSprite pagnNextArrow"></span></a>
+'''
+
+
+# for loop over search results in
 
 sales_price_element =
 
-name_element = '<a class="a-link-normal s-access-detail-page  s-color-twister-title-link a-text-normal" title="Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)" href="https://www.amazon.com/Apple-iPhone-6S-16GB-Refurbished/dp/B01J8PBEUM/ref=sr_1_1?s=wireless&amp;ie=UTF8&amp;qid=1529292428&amp;sr=1-1&amp;keywords=iphone+6s"><h2 data-attribute="Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)" data-max-rows="0" class="a-size-medium s-inline  s-access-title  a-text-normal">Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)</h2></a>'
 
-medium-image =
-"""<img src="https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US218_.jpg"
+name_element =
+'''
+<a class="a-link-normal s-access-detail-page  s-color-twister-title-link a-text-normal"
+title="Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)"
+href="https://www.amazon.com/Apple-iPhone-6S-16GB-Refurbished/dp/B01J8PBEUM/ref=sr_1_1?s=
+wireless&amp;ie=UTF8&amp;qid=1529292428&amp;sr=1-1&amp;keywords=iphone+6s"><h2 data-attribute=
+"Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)" data-max-rows="0"
+class="a-size-medium s-inline  s-access-title  a-text-normal">Apple iPhone 6S 16GB -
+GSM Unlocked - Rose Gold (Certified Refurbished)</h2></a>
+'''
+
+medium_image_element =
+"""
+<img src="https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US218_.jpg"
 srcset="https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US218_.jpg 1x,
 https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US327_FMwebp_QL65_.jpg 1.5x,
 https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US436_FMwebp_QL65_.jpg 2x,
