@@ -73,10 +73,14 @@
 
           </div>
 
-        <!-- pagination -->
-        {% include 'search/prev.html' %}
-        {% include 'search/next.html' %}
-      </div>
+          <!-- pagination -->
+          <ul class="pagination justify-content-center">
+            <li class="page-item">
+              {% include 'search/prev.html' %}</li>
+            <li class="page-item">
+              {% include 'search/next.html' %}</li>
+          </ul>
+        </div>
 
     {% endfor %}
 

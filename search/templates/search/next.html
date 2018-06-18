@@ -1,13 +1,9 @@
 <a class='page-link' href='{% url "search:response" %}?
-{% if "active" in kwargs %}
-{{ kwargs.active }}={{ market.name }}&
-{% else %}
 active={{ market.name }}&
-{% endif %}
 {% for key, value in kwargs.items %}
 {% if key == market.name|add:"Page" %}
 {{ key }}={{ value|add:1 }}&
-{% else %}
+{% elif key != "active" %}
 {{ key }}={{ value }}&
 {% endif %}
 {% endfor %}

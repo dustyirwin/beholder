@@ -1,31 +1,86 @@
 from beholder.keys import keys
+import requests
+from ebaysdk.finding import Connection as Finding
+import datetime
 
 kz = keys.keys
-from ebaysdk.finding import Connection as Finding
 FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
 
+pages = range(1,6)
+kwargs = {'keywords': 'Samsung Galaxy 6S'}
+prices = []
+
 search_params = {
-    'keywords': 'batman pajamas',
-    #'categoryId': '15032',
+    'keywords': kwargs['keywords'],
     'descriptionSearch': True,
     'sortOrder': 'BestMatch',
-    'outputSelector': ['GalleryURL', 'ConditionHistogram'],
+    'outputSelector': ['AspectHistogram', 'CategoryHistogram'],
     'itemFilter': [
-        {'name': 'Condition', 'value': ['New']},
+        {'name': 'SoldItemsOnly', 'value': True},
         {'name': 'ListingType', 'value': 'AuctionWithBIN'},
-        {'name': 'FreeShippingOnly', 'value': True},
+        {'name': 'Condition', 'value': ['New']},
         {'name': 'LocatedIn', 'value': 'US'}, ],
     'paginationInput': {
         'entriesPerPage': 25,
-        'pageNumber': 1, }}
-
-items = FindingAPI.execute('findItemsAdvanced', search_params).dict()
-items
-
-
+        'pageNumber': 2, }}
+response = FindingAPI.execute('findCompletedItems', search_params).dict()
+len(response['searchResult']['item'])
+response['searchResult']['item'][0]
 
 
+for page in pages:
 
+    search_params = {
+        'keywords': kwargs['keywords'],
+        'descriptionSearch': True,
+        'sortOrder': 'BestMatch',
+        'outputSelector': ['GalleryURL', 'ConditionHistogram'],
+        'itemFilter': [
+            {'name': 'SoldItemsOnly', 'value': True},
+            {'name': 'ListingType', 'value': 'AuctionWithBIN'},
+            {'name': 'Condition', 'value': ['New']},
+            {'name': 'LocatedIn', 'value': 'US'}, ],
+        'paginationInput': {
+            'entriesPerPage': 25,
+            'pageNumber': page, }}
+
+    response = FindingAPI.execute('findCompletedItems', search_params).dict()
+    if 'errorMessage' in response:
+        print(response['errorMessage'])
+    print(response['searchResult'].keys())
+    print("Found "+response['searchResult']['_count']+" prices.")
+
+    items = response['searchResult']['item']
+
+    for item in items:
+
+        _prices = {
+            'name': item['title'],
+            'item_id': item['itemId'],
+            'market': 'ebay',
+            'thumbnail_image': item['galleryURL'] if item.get('galleryURL') else None,
+            'product_url': item['viewItemURL'],
+            'sold_for': item['sellingStatus']['currentPrice']['value'],
+            'shipping_cost': item['shippingInfo']['shippingServiceCost']['value'] if item.get('shippingServiceCost') else None,
+            'sold_date': item['listingInfo']['endTime'] if 'listingInfo' in item else None,
+            'sold_zip': item['postalCode'] if item.get('postalCode') else None,
+            'time_stamp': datetime.datetime.now().__str__(), }
+
+        prices.append(_prices)
+
+    if int(response['searchResult']['_count']) < 25:
+        break
+
+
+for price in prices:
+    print(price['item_id'], ": $", price['sold_for'], " : ", price['time_stamp'])
+
+a ={}
+
+a['b']['c'] = 123
+
+for i in range(1,5):
+    print(i)
 amazony = AmazonAPI(
     keys.keys['amazon']["production"]["AMAZON_ACCESS_KEY"],
     keys.keys['amazon']["production"]["AMAZON_SECRET_KEY"],
@@ -35,16 +90,6 @@ amazony = AmazonAPI(
 
 
 
-
-
-kwargs = {
-    'compare': 'walmart',
-    'keywords': 'Herbal Essences Totally Twisted Curl Boosting Hair Mousse with '
-             'Mixed Berry Essences, 6.8 oz',
-     'item_id': '10316678',
-     }
-kwargs['keywords'] = kwargs['keywords'].replace("'","")
-kwargs['keywords']
 item = ebay.get_item()
 kwargs['keywords'] = item.data['name']
 
@@ -78,6 +123,12 @@ wally = Wapy(keys.keys['walmart']['apiKey'])
 wally_item = wally.product_lookup('16932759')
 wally_item.response_handler.payload
 
+import requests
+taxonomy = requests.get(
+    'http://api.walmartlabs.com/v1/taxonomy?apiKey='
+    + keys.keys['walmart']['apiKey']).json()
+
+taxonomy
 
 params = {
     "walmartCatId": "1105910",

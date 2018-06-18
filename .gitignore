@@ -1,7 +1,7 @@
-/beholder/__pycache__/
-/login/__pycache__/
-/search/__pycache__/
-/inventory/__pycache__/
+beholder/__pycache__
+login/__pycache__
+search/__pycache__
+inventory/__pycache__
 db.sqlite3
 keys
 scratchpad

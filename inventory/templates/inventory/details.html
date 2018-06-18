@@ -1,23 +1,35 @@
 {% extends "login/header.html" %}
 {% block content %}
 
+  <h3><a href="{{ item.product_url }}" target="_blank">{{ item.name }}</a></h3>
+  <button class="btn btn-outline-primary">List Item</button>
   <img src="{{ item.data.mediumImage }}">
-  <p>Name: {{ item.name }}</p>
+
   <p>item_id: {{ item.item_id }}</p>
   <p>market: {{ item.data.market }}
 
   <p>sale_price: {{ item.data.salePrice }}</p>
   <p>upc: {{ item.data.upc }}</p>
-  <p>long description: {{ item.data.longDescription }}</p>
+  <p>description: {{ item.data.description }}</p>
 
   <form action="{% url 'inventory:itemDetails' %}" method="get">
-    <button type="submit" class="btn btn-success">Get Prices</button>
-    <input type="hidden" name="keywords" value="{{ item.data.name }}">
-    <input type="hidden" name="compare" value="{{ item.data.market }}">
-    <input type="hidden" name="item_id" value="{{ item.item_id }}">
+    <input type="hidden" name="get_prices" value="{{ item.item_id }}">
+
+    <p>query string for ebay historical data: </p><input type="text" name="query" value="{{ item.data.prices.query }}">
+    <p>add new note: </p><input type="text" name="note">
+    <p>Notes:</p>
+    <ol>
+  {% for note in item.data.notes %}
+    <li><p>  {{ note }} </p></li>
+  {% endfor %}
+    </ol>
+    <p> ebay prices:
+      <o1>
+      {% for price in item.data.prices.prices %}
+      <p>{{ price.name }} | ${{ price.sold_for }} | shipping: ${{ price.shipping_cost }} | market: {{ price.market }} | sold_date: {{ price.sold_date }}</p>
+      {% endfor %}
+    </ol>
+    <p>Item Price History: IN A GRAPH! (coming soon?)</p>
+    <button type="submit" class="btn btn-success">save</button>
   </form>
-
-  <button class="btn btn-outline-primary">List Item</button>
-  <p> compared prices: {{ item.data.compared_prices }} </p>
-
 {% endblock %}

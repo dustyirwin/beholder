@@ -19,11 +19,19 @@ class ItemDetails(DetailView):
 
     def get_object(self):
         kwargs = self.request.GET.dict()
-        if 'item_id' in kwargs and 'compare' in kwargs:
-            eyeballs[kwargs['compare']].compare_item(**kwargs)
-            print(ItemData.objects.filter(item_id=kwargs['item_id']))
-            return ItemData.objects.filter(item_id=kwargs['item_id'])
+        if kwargs.get('note'):
+            if bool(kwargs['note']):
+                item = ItemData.objects.get(item_id=kwargs['item_id']) if 'item_id' in kwargs else ItemData.objects.get(item_id=kwargs['get_prices'])
+                item.data['notes'].append(kwargs['note'])
+                item.save()
+
+        if 'get_prices' in kwargs and 'query' in kwargs:
+            kwargs['keywords'] = kwargs['query']
+            eyeballs['ebay'].getPriceHistories(**kwargs)
+            return ItemData.objects.get(item_id=kwargs['get_prices'])
+
         elif 'item_id' in kwargs and 'market' in kwargs:
             return eyeballs[kwargs['market']].get_item(**kwargs)
+
         else:
             return get_object_or_404(ItemData.objects.filter(item_id=kwargs['item_id']))
