@@ -71,93 +71,61 @@ for page in pages:
     if int(response['searchResult']['_count']) < 25:
         break
 
-
 for price in prices:
     print(price['item_id'], ": $", price['sold_for'], " : ", price['time_stamp'])
-
-a ={}
-
-a['b']['c'] = 123
-
-for i in range(1,5):
-    print(i)
-amazony = AmazonAPI(
-    keys.keys['amazon']["production"]["AMAZON_ACCESS_KEY"],
-    keys.keys['amazon']["production"]["AMAZON_SECRET_KEY"],
-    keys.keys['amazon']["production"]["AMAZON_ASSOC_TAG"],)
-
-
-
-
-
-item = ebay.get_item()
-kwargs['keywords'] = item.data['name']
-
-for market in eyeballs:
-    print(market)
-    if market in kwargs.values():
-        pass
-    else:
-        prices[market] = []
-        items = eyeballs[market].search(**kwargs)
-
-        for item in items:
-
-            prices[market].append({
-                'salePrice': item['salePrice'],
-                'item_id': item['item_id']})
-
-            item.data['compared_prices'] = {
-                'time_stamp': datetime.datetime.now().__str__(),
-                'prices': prices, }
-
-
-
-
-
-
-
 
 from wapy.api import Wapy
 wally = Wapy(keys.keys['walmart']['apiKey'])
 wally_item = wally.product_lookup('16932759')
 wally_item.response_handler.payload
 
-import requests
-taxonomy = requests.get(
-    'http://api.walmartlabs.com/v1/taxonomy?apiKey='
-    + keys.keys['walmart']['apiKey']).json()
 
-taxonomy
-
-params = {
-    "walmartCatId": "1105910",
-    "ResponseGroup": "base",
-    "page": 1,
-    "sort": "bestseller",
-    "numItems": 25, }
-
-walitems = wally.search("iphone 7", **params)
-walitems[0].category_node
-walitems[0].category_path
-walitems[0].images[0]
-walitems[0].medium_image
-walitems[0].num_reviews
-itemz = ebay.search(
-    keywords="cell phone",
-    ebayCatId=15032)
-itemz[0]
-itm = itemz[0]
+taxonomy = sorted([
+    'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
+    'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
+    'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
+    'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
+    'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
+    'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
+    'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
+    'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
+    'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
+    'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
+    'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
+    'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
+    'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
+    'Blended', 'HealthPersonalCare', 'Classical']),
 
 
-a = '1'
-b = ''
+amazon_search_url = 'https://www.amazon.com/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords='+'iphone 6s'
+response = requests.get(amazon_search_url, headers={
+    'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'})
+page_data = response.__dict__['_content']
+page_data.get('')
 
-True if a == b == "" else False
 
-a = {
-    'a': 123,
-    None if False else 'key': 'value',
-    }
 
-a
+sales_price_element =
+
+name_element = '<a class="a-link-normal s-access-detail-page  s-color-twister-title-link a-text-normal" title="Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)" href="https://www.amazon.com/Apple-iPhone-6S-16GB-Refurbished/dp/B01J8PBEUM/ref=sr_1_1?s=wireless&amp;ie=UTF8&amp;qid=1529292428&amp;sr=1-1&amp;keywords=iphone+6s"><h2 data-attribute="Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)" data-max-rows="0" class="a-size-medium s-inline  s-access-title  a-text-normal">Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)</h2></a>'
+
+medium-image =
+"""<img src="https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US218_.jpg"
+srcset="https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US218_.jpg 1x,
+https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US327_FMwebp_QL65_.jpg 1.5x,
+https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US436_FMwebp_QL65_.jpg 2x,
+https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US500_FMwebp_QL65_.jpg 2.2935x"
+width="218" height="218" alt="Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)"
+class="s-access-image cfMarker" data-search-image-load="">
+"""
+
+
+for item in items:
+
+    item[item]['medium_image'] = 'mediumImagePath'
+    item[item]['price'] = 'pricePath'
+    item[item]['description'] = 'descriptionPath'
+    item[item]['upc'] = 'upcPath'
+    item[item]['name'] = 'namePath'
+    item[item]['rating'] = 'ratingPath'
+    item[item]['availability'] = 'availabilityPath'

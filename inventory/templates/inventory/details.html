@@ -1,8 +1,8 @@
 {% extends "login/header.html" %}
 {% block content %}
 
-  <h3><a href="{{ item.product_url }}" target="_blank">{{ item.name }}</a></h3>
-  <button class="btn btn-outline-primary">List Item</button>
+  <h3><a href="{{ item.product_url }}" target='_blank'>{{ item.name }}</a></h3>
+
   <img src="{{ item.data.mediumImage }}">
 
   <p>item_id: {{ item.item_id }}</p>
@@ -13,6 +13,7 @@
   <p>description: {{ item.data.description }}</p>
 
   <form action="{% url 'inventory:itemDetails' %}" method="get">
+    <button type="submit" class="btn btn-success">save</button> <button class="btn btn-outline-primary">list</button>
     <input type="hidden" name="get_prices" value="{{ item.item_id }}">
 
     <p>query string for ebay historical data: </p><input type="text" name="query" value="{{ item.data.prices.query }}">
@@ -23,13 +24,12 @@
     <li><p>  {{ note }} </p></li>
   {% endfor %}
     </ol>
-    <p> ebay prices:
+    <p> historical ebay prices:
       <o1>
       {% for price in item.data.prices.prices %}
-      <p>{{ price.name }} | ${{ price.sold_for }} | shipping: ${{ price.shipping_cost }} | market: {{ price.market }} | sold_date: {{ price.sold_date }}</p>
+      <p><a href="{{ price.product_url }}" target='_blank'>{{ price.item_id }}</a> | ${{ price.sold_for }} | shipping: ${{ price.shipping_cost }} | market: {{ price.market }} | sold_date: {{ price.sold_date }}</p>
       {% endfor %}
     </ol>
     <p>Item Price History: IN A GRAPH! (coming soon?)</p>
-    <button type="submit" class="btn btn-success">save</button>
   </form>
 {% endblock %}

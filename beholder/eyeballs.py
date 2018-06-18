@@ -1,5 +1,5 @@
 from beholder.keys import keys  # api keys
-from bottlenose import Amazon as AmazonAPI  # amazon api
+from mws import Products as AmazonProducts  # amazon api
 from wapy.api import Wapy  # walmart api
 from ebaysdk.finding import Connection as Finding  # ebay apis
 from ebaysdk.shopping import Connection as Shopping
@@ -187,6 +187,7 @@ class Ebay(Eye):
             self.market['item_paths'] = {
                 'name': kwargs['item']['Title'] if 'Title' in kwargs['item'] else 'None',
                 'item_id': kwargs['item']['ItemID'] if 'ItemID' in kwargs['item'] else 'None',
+                'product_url': kwargs['item']['ViewItemURL'],
                 'salePrice': kwargs['item']['ConvertedBuyItNowPrice']['value'] if 'ConvertedBuyItNowPrice' in kwargs['item'] else 'None',
                 'description': kwargs['item']['Description'] if 'Description' in kwargs['item'] else "None",
                 'images': kwargs['item']['PictureURL'] if 'PictureURL' in kwargs['item'] else 'None',
@@ -464,35 +465,32 @@ class Ebay(Eye):
 
 class Amazon(Eye):
     def __init__(self):
-        self.AmazonAPI = AmazonAPI(
-            keys.keys['amazon']['production']['AMAZON_ACCESS_KEY'],
-            keys.keys['amazon']['production']['AMAZON_SECRET_KEY'],
-            keys.keys['amazon']['production']['AMAZON_ASSOC_TAG'], )
-        self.taxonomy = sorted([
-            'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
-            'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
-            'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
-            'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
-            'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
-            'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
-            'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
-            'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
-            'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
-            'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
-            'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
-            'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
-            'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
-            'Blended', 'HealthPersonalCare', 'Classical'])
-        self.categories = [
-            {'name': category, 'id': category} for category in self.taxonomy]
         self.market = {
+            'AmazonAPI': AmazonProducts(
+                keys.keys['amazon']['production']['AMAZON_ACCESS_KEY'],
+                keys.keys['amazon']['production']['AMAZON_SECRET_KEY'],
+                keys.keys['amazon']['production']['AMAZON_ASSOC_TAG'], ),
+            'taxonomy': sorted([
+                'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
+                'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
+                'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
+                'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
+                'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
+                'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
+                'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
+                'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
+                'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
+                'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
+                'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
+                'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
+                'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
+                'Blended', 'HealthPersonalCare', 'Classical']),
             'name': 'amazon',
-            'categories': self.categories,
             'query_options': [
-                {'name': 'NewOnly', 'value': False}],
-            }
-        print('Amazon API initialized. Found ' + str(
-            len(self.categories)) + ' categories.')
+                {'name': 'NewOnly', 'value': False}], }
+        self.market['categories'] = [{'name': category, 'id': category} for category in self.market['taxonomy']]
+
+        print('Amazon API initialized. Found ' + str(len(self.market['categories'])) + ' categories.')
 
     def search(self, **kwargs):
         items = self.AmazonAPI.search(
@@ -718,7 +716,7 @@ class Target(Eye):
 eyeballs = {
     'walmart': Walmart(),
     'ebay': Ebay(),
-    # 'amazon': Amazon(),
+    'amazon': Amazon(),
     # 'bestbuy': BestBuy(),
     # 'target': Target(),
     }
