@@ -22,7 +22,7 @@
     <li><p>  {{ note }} </p></li>
   {% endfor %}
     </ol>
-    <p>Prices: </p>
+    <p>{{ item.data.prices.count}} prices found: </p>
       <u1>
       {% for price in item.data.prices.prices %}
       <li>

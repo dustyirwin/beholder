@@ -1,9 +1,12 @@
 from beholder.keys import keys
 import requests
+import re
 from ebaysdk.finding import Connection as Finding
 import datetime
-
+from bs4 import BeautifulSoup
+from wapy.api import Wapy
 kz = keys.keys
+
 
 # ebay section
 FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
@@ -73,79 +76,60 @@ for price in prices:
 
 
 # walmart section
-from wapy.api import Wapy
 wally = Wapy(keys.keys['walmart']['apiKey'])
 wally_item = wally.product_lookup('16932759')
 wally_item.response_handler.payload
 
 
-
-
 # amazon section
 kwargs = {
-    'keywords': 'lego batman',
+    'keywords': 'iphone 6s',
     'page': '1', }
-
 kwargs_url_string = ''
 
 for key, value in kwargs.items():
-    value = value.replace(' ', '%20')
-    kwargs_url_string += str(key + '=' + value + '&')
+    if key == 'keywords' or key == 'page':
+        value = value.replace(' ', '+')
+        kwargs_url_string += str(key + '=' + value + '&')
 
-kwargs_url_string
 
-amazon_search_results_url = 'https://www.amazon.com/s/ref=sr_pg_'+ kwargs['page'] +'?&' + kwargs_url_string
-
+amazon_search_url = 'https://www.amazon.com/s/?' + kwargs_url_string
 response = requests.get(amazon_search_url, headers={
     'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'})
+soup = BeautifulSoup(response.content, 'lxml')
 
-page_data = response.__dict__
-page_data
-len(page_data)
+results_ul = soup.find('ul', id='s-results-list-atf')
 
+search_results = soup.find_all('li', class_='s-result-item')
+search_results[2].find('span', class_='a-offscreen').get_text()
+search_results[2]
 
-next_page_url_ =
-'''
-<a title="Next Page" id="pagnNextLink" class="pagnNext" href="/s/ref=sr_pg_2?rh=n%3A2335752011%2Cn%
-3A7072561011%2Ck%3Aiphone+6s&amp;page=2&amp;keywords=iphone+6s&amp;ie=UTF8&amp;qid=1529292428">
-<span id="pagnNextString">Next Page</span><span class="srSprite pagnNextArrow"></span></a>
-'''
+search_results[3].find('span', class_="a-size-base").get_text()
 
+search_results[1].find('span', class_='a-offscreen').get_text()
 
-# for loop over search results in
+items = []
 
-sales_price_element =
+for elem in search_results:
 
+    if 'AdHolder' not in elem['class'] and elem.has_attr('data-asin'):
 
-name_element =
-'''
-<a class="a-link-normal s-access-detail-page  s-color-twister-title-link a-text-normal"
-title="Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)"
-href="https://www.amazon.com/Apple-iPhone-6S-16GB-Refurbished/dp/B01J8PBEUM/ref=sr_1_1?s=
-wireless&amp;ie=UTF8&amp;qid=1529292428&amp;sr=1-1&amp;keywords=iphone+6s"><h2 data-attribute=
-"Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)" data-max-rows="0"
-class="a-size-medium s-inline  s-access-title  a-text-normal">Apple iPhone 6S 16GB -
-GSM Unlocked - Rose Gold (Certified Refurbished)</h2></a>
-'''
+        item = {
+            'item_id': elem['data-asin'],
+            'product_url': elem.find('a')['href'],
+            'medium_image': elem.find('img')['src'],
+            'name': elem.find(title=True)['title'],
+            'customer_rating': elem.find('span', {'class': ['a-icon-alt']}).get_text(), }
+        try:
+            item['sale_price'] = elem.find('span', class_='a-offscreen').get_text()[1:]
+        except Exception:
+            item['sale_price'] = elem.find('span', class_="a-size-base").get_text()[1:]
 
-medium_image_element =
-"""
-<img src="https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US218_.jpg"
-srcset="https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US218_.jpg 1x,
-https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US327_FMwebp_QL65_.jpg 1.5x,
-https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US436_FMwebp_QL65_.jpg 2x,
-https://images-na.ssl-images-amazon.com/images/I/41jUosGQiDL._AC_US500_FMwebp_QL65_.jpg 2.2935x"
-width="218" height="218" alt="Apple iPhone 6S 16GB - GSM Unlocked - Rose Gold (Certified Refurbished)"
-class="s-access-image cfMarker" data-search-image-load="">
-"""
+        items.append(item)
+
+len(items)
+items
 
 
-for item in items:
 
-    item[item]['medium_image'] = 'mediumImagePath'
-    item[item]['price'] = 'pricePath'
-    item[item]['description'] = 'descriptionPath'
-    item[item]['upc'] = 'upcPath'
-    item[item]['name'] = 'namePath'
-    item[item]['rating'] = 'ratingPath'
-    item[item]['availability'] = 'availabilityPath'
+B06XNYLY5R
