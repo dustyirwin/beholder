@@ -3,14 +3,15 @@
 
   <h3><a href="{{ item.product_url }}" target='_blank'>{{ item.name }}</a></h3>
 
-  <img src="{{ item.data.mediumImage }}">
+  {% include 'search/images_carousel.html' %}
 
   <p>item_id: {{ item.item_id }}</p>
   <p>market: {{ item.data.market }}
 
   <p>sale_price: {{ item.data.salePrice }}</p>
   <p>upc: {{ item.data.upc }}</p>
-  <p>description: {{ item.data.description }}</p>
+  <p data-toggle="tooltip" data-placement="bottom" title="{{ item.data.description }}">
+    {{ item.data.description|truncatechars:400 }}</p>
 
   <form action="{% url 'inventory:itemDetails' %}" method="get">
     <button type="submit" class="btn btn-success">save</button> <button class="btn btn-outline-primary">list</button>

@@ -43,10 +43,10 @@
 
       {% if active == market.name %}
         <div class="tab-pane fade show active" id="nav-{{ market.name }}" role="tabpanel"
-          aria-labelledby="nav-{{ market.name }}-tab">
+          aria-labelledby="nav-{{ market.name }}:{{ market.category }}-tab">
       {% elif market.name in marketNames %}
         <div class="tab-pane fade show" id="nav-{{ market.name }}" role="tabpanel"
-          aria-labelledby="nav-{{ market.name }}-tab">
+          aria-labelledby="nav-{{ market.name }}:{{ market.category }}-tab">
       {% endif %}
 
           <div class="card-columns">
@@ -62,7 +62,7 @@
                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                     {{ item.name }}</h5></a>
                 <p class="card-text m-0 p-1" style="">
-                    ${{ item.sale_price }} {{ item.stock }} rating: {{ item.customer_rating }}
+                    ${{ item.sale_price }} | {{ item.customer_rating|truncatechars:15 }} | {{ item.stock }}
                 </p>
 
               </div>

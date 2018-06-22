@@ -11,7 +11,6 @@ import json
 import requests
 import re
 import isodate
-import xmltodict
 # import traceback
 
 
@@ -21,6 +20,7 @@ BEHOLDER v0.3 written by Dustin Irwin 2018
 
 
 class Eye:
+
     global eyeballs
     keys = keys.keys
     ItemData = ItemData
@@ -28,13 +28,13 @@ class Eye:
     def search(self, **kwargs):
         for key, value in kwargs.items():
             if 'CatId' in key:
-                eyeballs[key[:-5]].getItems(**kwargs)
+                eyeballs[key[:-5]].findItems(**kwargs)
 
-    def get_item(self, **kwargs):
+    def stare(self, **kwargs):
         if ItemData.objects.filter(item_id=kwargs['item_id']).exists():
             return ItemData.objects.get(item_id=kwargs['item_id'])
         else:
-            item = eyeballs[kwargs['market']].getItem(**kwargs)
+            item = eyeballs[kwargs['market']].getItemDetails(**kwargs)
             item['market'] = kwargs['market']
             ItemData(
                 name=item['name'],
@@ -43,14 +43,9 @@ class Eye:
             ).save()
             return ItemData.objects.get(item_id=kwargs['item_id'])
 
-    def get_prices(self, **kwargs):
-        pass
-
-    def get_items(self, **kwargs):
-        pass
-
 
 class Walmart(Eye):
+
     def __init__(self):
         self.market = {
             'name': 'walmart',
@@ -70,17 +65,14 @@ class Walmart(Eye):
                 {'name': 'Pets', 'id': '5440'}, {'name': 'Photo Center', 'id': '5426'},
                 {'name': 'Premium Beauty', 'id': '7924299'}, {'name': 'Seasonal', 'id': '1085632'},
                 {'name': 'Sports & Outdoors', 'id': '4125'}, {'name': 'Toys', 'id': '4171'},
-                {'name': 'Video Games', 'id': '2636'}, {'name': 'Walmart for Business', 'id': '6735581'} ],
-            'query_options': [
-                {'name': 'New', 'value': True},
-                {'name': 'FreeShip', 'value': True}, ],
-            'paths': {
-                'notes': [],
-                'prices': {}, }}
+                {'name': 'Video Games', 'id': '2636'}, {'name': 'Walmart for Business', 'id': '6735581'},
+                {'name': 'Trending', 'id': 'specialQuery'}, ],
+            'search_filters': [
+                {'name': 'FreeShip', 'value': True}, ], }
 
         print('Walmart api and class initialized.')
 
-    def getItems(self, **kwargs):
+    def findItems(self, **kwargs):
         getItems_params = {
             'ResponseGroup': 'full',
             'page': 1 if 'walmartPage' not in kwargs else int(kwargs['walmartPage']),
@@ -100,10 +92,13 @@ class Walmart(Eye):
 
         print(str(len(self.market['items'])) + ' items found on Walmart.')
 
-    def getItem(self, **kwargs):
-        item = self.WalmartAPI.product_lookup(kwargs['item_id']).response_handler.payload
-        item = {**item, **self.paths}
-        return json.loads(json.dumps(item, indent=4))
+    def getItemDetails(self, **kwargs):
+        item = self.market['WalmartAPI'].product_lookup(
+            kwargs['item_id']).response_handler.payload
+        item = {**item, **kwargs['item']}
+        self.market['item'] = {**item, **{
+            'notes': [],
+            'prices': {}, }}
 
     def getBestSellers(self, **kwargs):
         return self.WalmartAPI.bestseller_products(int(kwargs['walmartCatId']))
@@ -119,6 +114,7 @@ class Walmart(Eye):
 
 
 class Ebay(Eye):
+
     def __init__(self):
         self.market = {
             'name': 'ebay',
@@ -164,29 +160,33 @@ class Ebay(Eye):
                 {'name': 'Condition', 'value': ['New']},
                 {'name': 'ListingType', 'value': 'AuctionWithBIN'},
                 {'name': 'FreeShippingOnly', 'value': True},
-                {'name': 'LocatedIn', 'value': 'US'}, ], }
+                {'name': 'LocatedIn', 'value': 'US'}, ],
+            'search_filters': [
+                {'name': 'New', 'value': True},
+                {'name': 'BIN', 'value': True},
+                {'name': 'FreeShip', 'value': True},
+                {'name': 'InUS', 'value': True},
+                {'name': 'Hist', 'value': False}, ], }
 
         print('eBay api and class initialized.')
 
     def addPaths(self, **kwargs):
         if 'item_id' in kwargs:
-            self.market['item_paths'] = {
+            self.market['item'] = {**kwargs['item'], **{
                 'name': kwargs['item']['Title'] if 'Title' in kwargs['item'] else 'None',
                 'item_id': kwargs['item']['ItemID'] if 'ItemID' in kwargs['item'] else 'None',
-                'product_url': kwargs['item']['ViewItemURL'],
+                'product_url': kwargs['item']['ViewItemURL'] if 'ViewItemURL' in kwargs['item'] else kwargs['item']['ViewItemURLForNaturalSearch'],
                 'salePrice': kwargs['item']['ConvertedBuyItNowPrice']['value'] if 'ConvertedBuyItNowPrice' in kwargs['item'] else 'None',
                 'description': kwargs['item']['Description'] if 'Description' in kwargs['item'] else "None",
                 'images': kwargs['item']['PictureURL'] if 'PictureURL' in kwargs['item'] else 'None',
                 'notes': [],
-                'prices': {}, }
-
-            return self.market['item_paths']
+                'prices': {}, }}
 
         if 'keywords' in kwargs:
-            self.market['items_paths'] = {
+            items_paths = {
                 'name': kwargs['item']['title'],
                 'item_id': kwargs['item']['itemId'],
-                'time_left': isodate.parse_duration(kwargs['item']['sellingStatus']['timeLeft']).__str__(),
+                'customer_rating': isodate.parse_duration(kwargs['item']['sellingStatus']['timeLeft']).__str__(),
                 'sale_price': kwargs['item']['listingInfo']['buyItNowPrice']['value'] if kwargs['item'].get('buyItNowPrice') else kwargs['item']['sellingStatus']['currentPrice']['value'],
                 'product_url': kwargs['item']['viewItemURL'],
                 'medium_image': kwargs['item']['galleryURL'],
@@ -195,10 +195,10 @@ class Ebay(Eye):
                 'category_node': kwargs['item']['primaryCategory']['categoryId'],
                 'category_path': kwargs['item']['primaryCategory']['categoryName'], }
 
-            return self.market['items_paths']
+            return items_paths
 
-    def getItems(self, **kwargs):
-        self.market['getItems_params'] = {
+    def findItems(self, **kwargs):
+        self.market['findItems_params'] = {
             'descriptionSearch': True,
             'sortOrder': 'BestMatch',
             'outputSelector': ['GalleryURL', 'ConditionHistogram', 'PictureURLLarge'],
@@ -207,15 +207,27 @@ class Ebay(Eye):
                 'entriesPerPage': 24,
                 'pageNumber': 1 if 'ebayPage' not in kwargs else int(kwargs['ebayPage']), }}
 
-        if 'keywords' in kwargs and 'ebayCatId' not in kwargs:
-            return self.getItemsByKeywords(**kwargs)
+        if bool(kwargs['keywords']):
+            self.market['findItems_params']['keywords'] = kwargs['keywords']
 
-        if 'keywords' in kwargs:
-            self.market['getItems_params']['keywords'] = kwargs['keywords']
+        if bool(kwargs['ebayCatId']):
+            self.market['findItems_params']['categoryId'] = kwargs['ebayCatId']
 
-        if 'ebayCatId' in kwargs:
-            self.market['getItems_params']['categoryId'] = kwargs['ebayCatId']
-        response = self.market['FindingAPI'].execute('findItemsAdvanced', self.market['getItems_params']).dict()
+        try:
+            response = self.market['FindingAPI'].execute(
+                'findItemsAdvanced', self.market['findItems_params']).dict()
+
+            print('response: ', response)
+            if response['ack'] == 'Success' and response['searchResult']['_count'] == '0':
+                print('0 items found on eBay.')
+                self.market['items'] = []
+                return
+
+        except Exception as e:
+            print('Error getting items on ebay: ', e)
+            self.market['items'] = []
+            return
+
         items = response['searchResult']['item']
 
         for i, item in enumerate(items):
@@ -223,22 +235,21 @@ class Ebay(Eye):
             items[i] = {**item, **self.addPaths(**kwargs)}
 
         self.market['items'] = items
-        self.market['page'] = self.market['getItems_params']['paginationInput']['pageNumber']
-        self.market['category'] = self.market['getItems_params']['categoryId']
+        self.market['page'] = self.market['findItems_params']['paginationInput']['pageNumber']
+        self.market['category'] = self.market.get('categoryId') if self.market.get('categoryId') else None
 
         print(str(len(self.market['items'])) + ' items found on eBay.')
 
-    def getItemsByKeywords(self, **kwargs):
-        response = self.market['FindingAPI'].execute('findItemsByKeywords', self.market['getItems_params']).dict()
-        items = response['searchResult']['item']
-        for i, item in enumerate(items):
-            kwargs['item'] = item
-            items[i] = {**item, **self.addPaths(**kwargs)}
-
-        self.market['items'] = items
-        self.market['page'] = self.market['getItems_params']['paginationInput']['pageNumber']
-
-        return items
+    def getItemDetails(self, **kwargs):
+        item = self.market['ShoppingAPI'].execute(
+            'GetSingleItem', {
+                'itemID': kwargs['item_id'],
+                'includeSelector': 'TextDescription', }
+            ).dict()['Item']
+        item = {**item, **kwargs['item']}
+        self.market['item'] = {**item, **{
+                'notes': [],
+                'prices': {}, }}
 
     def getPriceHistories(self, **kwargs):
         item = self.ItemData.objects.get(item_id=kwargs['get_prices'])
@@ -285,15 +296,6 @@ class Ebay(Eye):
 
         item.data['prices']['count'] = len(item.data['prices']['prices'])
         item.save()
-
-    def getItem(self, **kwargs):
-        self.market['item'] = self.ShoppingAPI.execute(
-            'GetSingleItem', {
-                'itemID': kwargs['item_id'],
-                'includeSelector': 'TextDescription', }).dict()['Item']
-        self.market['item'] = {**self.market['item'], **self.addPaths(**kwargs)}
-
-        return self.market['item']
 
     def priceLot(self, **kwargs):
             totalSales = 0
@@ -459,8 +461,11 @@ class Ebay(Eye):
 
 
 class Amazon(Eye):
+
     def __init__(self):
         self.market = {
+            'headers': {
+                'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'},
             'taxonomy': sorted([
                 'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
                 'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
@@ -477,23 +482,26 @@ class Amazon(Eye):
                 'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
                 'Blended', 'HealthPersonalCare', 'Classical']),
             'name': 'amazon',
-            'query_options': [
-                {'name': 'NewOnly', 'value': False}], }
+            'search_filters': [
+                {'name': 'Prime', 'value': False},
+                {'name': 'Used', 'value': False},
+            ], }
         self.market['categories'] = [{'name': category, 'id': category} for category in self.market['taxonomy']]
 
-        print('Amazon classes initialized.')
+        print('Amazon class initialized.')
 
-    def getItems(self, **kwargs):
+    def findItems(self, **kwargs):
         kwargs_url_string = ''
+        kwargs['page'] = kwargs['amazonPage'] if 'amazonPage' in kwargs else '1'
 
         for key, value in kwargs.items():
+
             if key == 'keywords' or key == 'page':
                 value = value.replace(' ', '+')
                 kwargs_url_string += str(key + '=' + value + '&')
 
         amazon_search_url = 'https://www.amazon.com/s/?' + kwargs_url_string
-        response = requests.get(amazon_search_url, headers={
-            'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'})
+        response = requests.get(amazon_search_url, headers=self.market['headers'])
         soup = BeautifulSoup(response.content, 'lxml')
         search_results = soup.find_all('li', class_='s-result-item')
         items = []
@@ -506,12 +514,17 @@ class Amazon(Eye):
                     'item_id': elem['data-asin'],
                     'product_url': elem.find('a')['href'],
                     'medium_image': elem.find('img')['src'],
+                    'images': [elem.find('img')['src'], ],
                     'name': elem.find(title=True)['title'],
-                    'customer_rating': elem.find('span', {'class': ['a-icon-alt']}).get_text(), }
+                    'stock': 'Prime' if elem.find('i', class_='a-icon-prime') else 'No Prime',
+                    'customer_rating': elem.find('span', {'class': ['a-icon-alt']}).get_text() if elem.find('span', {'class': ['a-icon-alt']}) else None, }
                 try:
                     item['sale_price'] = elem.find('span', class_='a-offscreen').get_text()[1:]
                 except Exception:
-                    item['sale_price'] = elem.find('span', class_="a-size-base").get_text()[1:]
+                    try:
+                        item['sale_price'] = elem.find('span', class_="a-size-base").get_text()[1:]
+                    except Exception:
+                        pass
 
                 items.append(item)
 
@@ -519,13 +532,32 @@ class Amazon(Eye):
         self.market['items'] = items
         print(str(len(items)) + ' items found on amazon.')
 
-    def scrapePrimePrice(self, **kwargs):
+    def getItemDetails(self, **kwargs):
+        amazon_search_url = 'https://www.amazon.com/dp/' + kwargs['item_id']
+        response = requests.get(amazon_search_url, headers=self.market['headers'])
+        soup = BeautifulSoup(response.content, 'lxml')
+        item = {
+            'description': soup.find('ul', class_='a-spacing-none'),
+        }
+
+        item = {**item, **{
+            'item_id': item.find('a-data-asin'),
+            'name': item.find(title=True),
+            'images': item.find_all('img'),
+            'keywords': kwargs['keywords'],
+            }}
+        self.getPrimePrices(item)
+        self.market['item'] = item
+
+    def getPrimePrices(self, **kwargs):
         priceList = []
 
-        primeURL = 'https://www.amazon.com/gp/offer-listing/' + kwargs.get(
-            'item_id') + '/ref=olp_f_primeEligible?ie=UTF8&f_primeEligible'
+        primeURL = 'https://www.amazon.com/gp/offer-listing/'
+        + kwargs['item_id']
+        + '/ref=olp_f_primeEligible?ie=UTF8&f_primeEligible'
         + '=true&f_used=true&f_usedAcceptable=true&f_usedGood=true&f'
         + '_usedLikeNew=true&f_usedVeryGood=true'
+
         response = requests.get(primeURL, headers={
             'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/'
             + '537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'})
@@ -538,54 +570,8 @@ class Amazon(Eye):
             price = re.search(primeRE, str(_))
             priceList.append(float(price.group(0).replace(',', '')))
 
-        if kwargs['ItemData']['amazon'].objects.filter(
-                item_id=kwargs.get('item_id')).exists():
-            item = kwargs['ItemData']['amazon'].objects.get(
-                item_id=kwargs.get('item_id'))
-        else:
-            _data = self.amazon.ItemLookup(
-                ItemId=kwargs.get('item_id'),
-                ResponseGroup='Medium, EditorialReview')
-            _data = xmltodict.parse(_data)
-            _data = json.loads(json.dumps(_data))[
-                'ItemLookupResponse']['Items']['Item']
-            _data = {**_data, **{
-                'name': _data['ItemAttributes']['Title'],
-                'keywords': kwargs.get('keywords'),
-                'itemType': '',
-                'priced': False,
-                'purchased': False,
-                'created': datetime.datetime.now().__str__(),
-                'lastModified': datetime.datetime.now().__str__(),
-                'selected': 0,
-                'financial': {
-                    'historical': [],
-                    'current': {
-                        'primePrices': {
-                            'lowPrime': 0.0,
-                            'avgPrime': 0.0,
-                            },
-                        'listPrice': 0.0,
-                        'FBAFee': 0.0,
-                        'refFee': 0.0,
-                        'TTP': 2,
-                        'qty': 1,
-                        'shipping': 1.0,
-                        'net': 1.0,
-                        'Weight': 1.0,
-                        'datetimeStamp': datetime.datetime.now().replace(
-                            microsecond=0).__str__(),
-                        }, }
-                    }}
-
-            item = kwargs['ItemData']['amazon'](
-                name=_data['name'],
-                data=_data,
-                item_id=kwargs.get('item_id')
-            ).save()
-
         if len(priceList) > 0:
-            item = kwargs['ItemData']['amazon'].objects.get(
+            item = ItemData.objects.get(
                 item_id=kwargs.get('item_id'))
             item.data['financial']['historical'].append(
                 item.data['financial']['current'])
@@ -603,7 +589,7 @@ class Amazon(Eye):
 
         return item
 
-    def calculateFBAFees(self, **kwargs):
+    def calcFBAFees(self, **kwargs):
             valueNames = ['qty', 'TTP', 'Weight', 'Length', 'Width', 'Height']
             values = {}
             item = kwargs['ItemData']['amazon'].objects.get(

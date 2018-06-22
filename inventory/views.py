@@ -31,7 +31,7 @@ class ItemDetails(DetailView):
             return ItemData.objects.get(item_id=kwargs['get_prices'])
 
         elif 'item_id' in kwargs and 'market' in kwargs:
-            return eyeballs[kwargs['market']].get_item(**kwargs)
+            return eyeballs[kwargs['market']].stare(**kwargs)
 
         else:
             return get_object_or_404(ItemData.objects.filter(item_id=kwargs['item_id']))
