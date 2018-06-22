@@ -7,7 +7,6 @@ from ebaysdk.shopping import Connection as Shopping
 from inventory.models import ItemData  # item database
 from bs4 import BeautifulSoup
 import datetime
-import json
 import requests
 import re
 import isodate
@@ -42,6 +41,33 @@ class Eye:
                 data=item,
             ).save()
             return ItemData.objects.get(item_id=kwargs['item_id'])
+
+
+class Center(Eye):
+
+    def __init__(self):
+        #  initialize outer eyeballs?
+        pass
+
+    def findItems():
+        # re-write common functions here.. e.g. getItems, getItemDetails, addPaths
+        pass
+
+    def getItemDetails():
+        # re-write common functions here.. e.g. getItems, getItemDetails, addPaths
+        pass
+
+    def listItem():
+        # write function to list an item on a marketplace
+        pass
+
+    def cancelListing():
+        # function to cancel existing listing on a marketplace
+        pass
+
+    def updatePrices():
+        # function to update market prices of items listed on a marketplace
+        pass
 
 
 class Walmart(Eye):
@@ -212,12 +238,12 @@ class Ebay(Eye):
 
         if bool(kwargs['ebayCatId']):
             self.market['findItems_params']['categoryId'] = kwargs['ebayCatId']
+            self.market['findItems_params']['category'] = kwargs['ebayCatId']
 
         try:
             response = self.market['FindingAPI'].execute(
                 'findItemsAdvanced', self.market['findItems_params']).dict()
 
-            print('response: ', response)
             if response['ack'] == 'Success' and response['searchResult']['_count'] == '0':
                 print('0 items found on eBay.')
                 self.market['items'] = []
@@ -529,6 +555,8 @@ class Amazon(Eye):
                 items.append(item)
 
         self.market['name'] = 'amazon'
+        self.market['page'] = kwargs['page']
+        self.market['category'] = kwargs['amazonCatId'] if bool(kwargs['amazonCatId']) else None
         self.market['items'] = items
         print(str(len(items)) + ' items found on amazon.')
 
@@ -678,8 +706,11 @@ class Amazon(Eye):
 
 class BestBuy(Eye):
         def __init__(self):
-            self.msg = 'New class for Alibaba wholesale marketplace!'
-            self.categories = ['stuff']
+            self.market = {
+                'name': 'bestbuy',
+                'BestBuyAPI': 'api_here',
+                'categories': ['stuff'],
+            }
 
         def customFunc():
             pass

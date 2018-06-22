@@ -9,8 +9,11 @@ kz = keys.keys
 
 
 # ebay section
+kwargs = {
+    'keywords': 'baby stroller',
+    'page': '1', }
 FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
-search_params = {
+hist_search_params = {
     'keywords': kwargs['keywords'],
     'descriptionSearch': True,
     'sortOrder': 'BestMatch',
@@ -23,7 +26,22 @@ search_params = {
     'paginationInput': {
         'entriesPerPage': 25,
         'pageNumber': 2, }}
-response = FindingAPI.execute('findCompletedItems', search_params).dict()
+findItemsAdvanced_params = {
+    'keywords': kwargs['keywords'],
+    'descriptionSearch': True,
+    'sortOrder': 'BestMatch',
+    'outputSelector': ['AspectHistogram', 'CategoryHistogram'],
+    'itemFilter': [
+        {'name': 'SoldItemsOnly', 'value': True},
+        {'name': 'ListingType', 'value': 'AuctionWithBIN'},
+        {'name': 'Condition', 'value': ['New']},
+        {'name': 'LocatedIn', 'value': 'US'}, ],
+    'paginationInput': {
+        'entriesPerPage': 25,
+        'pageNumber': 2, }}
+response = FindingAPI.execute('findCompletedItems', hist_search_params).dict()
+response = FindingAPI.execute('findItemsAdvanced', findItemsAdvanced_params).dict()
+response
 len(response['searchResult']['item'])
 response['searchResult']['item'][0]
 
@@ -83,7 +101,7 @@ wally_item.response_handler.payload
 
 # amazon section
 kwargs = {
-    'keywords': 'iphone 6s',
+    'keywords': 'baby stroller',
     'page': '1', }
 kwargs_url_string = ''
 
@@ -93,7 +111,7 @@ for key, value in kwargs.items():
         kwargs_url_string += str(key + '=' + value + '&')
 
 
-amazon_search_url = 'https://www.amazon.com/s/?' + kwargs_url_string
+amazon_search_url = 'https://www.amazon.com/dp/' + kwargs_url_string
 response = requests.get(amazon_search_url, headers={
     'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'})
 soup = BeautifulSoup(response.content, 'lxml')
@@ -101,18 +119,21 @@ soup = BeautifulSoup(response.content, 'lxml')
 results_ul = soup.find('ul', id='s-results-list-atf')
 
 search_results = soup.find_all('li', class_='s-result-item')
-search_results[2].find('span', class_='a-offscreen').get_text()
-search_results[2]
 
-search_results[3].find('span', class_="a-size-base").get_text()
+search_results[3].find('i', class_='a-icon-prime')
 
-search_results[1].find('span', class_='a-offscreen').get_text()
+search_results[3].find_all('i')[0]['class']
 
+search_results[2].find(title=True) == None
+
+
+type(name)
+name
 items = []
 
-for elem in search_results:
+for i, elem in enumerate(search_results):
 
-    if 'AdHolder' not in elem['class'] and elem.has_attr('data-asin'):
+    if 'AdHolder' not in elem['class'] and elem.has_attr('data-asin') and elem.find(title=True) != None:
 
         item = {
             'item_id': elem['data-asin'],
@@ -129,7 +150,6 @@ for elem in search_results:
 
 len(items)
 items
-
 
 
 B06XNYLY5R

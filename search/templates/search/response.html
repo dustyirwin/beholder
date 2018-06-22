@@ -14,7 +14,7 @@
             <a class="nav-item nav-link active" id="nav-{{ market.name }}-tab" data-toggle="tab"
               href="#nav-{{ market.name }}" role="tab" aria-controls="nav-{{ market.name }}"
               aria-selected="true">
-              {{ market.name }}</a>
+              {{ market.name }}:{{ market.category }}:{{ market.page }}</a>
 
           {% include "search/next.html" %}
 
@@ -25,7 +25,7 @@
             <a class="nav-item nav-link" id="nav-{{ market.name }}-tab" data-toggle="tab"
               href="#nav-{{ market.name }}" role="tab" aria-controls="nav-{{ market.name }}"
               aria-selected="true">
-              {{ market.name }}</a>
+              {{ market.name }}:{{ market.category }}:{{ market.page }}</a>
 
           {% include "search/next.html" %}
 
@@ -43,10 +43,12 @@
 
       {% if active == market.name %}
         <div class="tab-pane fade show active" id="nav-{{ market.name }}" role="tabpanel"
-          aria-labelledby="nav-{{ market.name }}:{{ market.category }}-tab">
+          aria-labelledby="nav-{{ market.name }}-tab">
+
       {% elif market.name in marketNames %}
         <div class="tab-pane fade show" id="nav-{{ market.name }}" role="tabpanel"
-          aria-labelledby="nav-{{ market.name }}:{{ market.category }}-tab">
+          aria-labelledby="nav-{{ market.name }}-tab">
+
       {% endif %}
 
           <div class="card-columns">
