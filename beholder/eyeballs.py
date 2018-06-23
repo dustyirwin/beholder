@@ -104,7 +104,7 @@ class Walmart(Eye):
             'page': 1 if 'walmartPage' not in kwargs else int(kwargs['walmartPage']),
             'sort': 'bestseller',
             'numItems': 25,
-            'categoryId' if 'walmartCatId' in kwargs else None: kwargs['walmartCatId'] if 'walmartCatId' in kwargs else None, }
+            'categoryId': kwargs['walmartCatId'] if bool(kwargs['walmartCatId']) else None, }
 
         try:
             self.market['items'] = self.market['WalmartAPI'].search(kwargs['keywords'], **getItems_params)
@@ -114,7 +114,7 @@ class Walmart(Eye):
             self.market['items'] = []
 
         self.market['page'] = getItems_params['page']
-        self.market['category'] = kwargs['walmartCatId']
+        self.market['category'] = getItems_params['categoryId']
 
         print(str(len(self.market['items'])) + ' items found on Walmart.')
 
@@ -262,7 +262,7 @@ class Ebay(Eye):
 
         self.market['items'] = items
         self.market['page'] = self.market['findItems_params']['paginationInput']['pageNumber']
-        self.market['category'] = self.market.get('categoryId') if self.market.get('categoryId') else None
+        self.market['category'] = kwargs['ebayCatId'] if bool(kwargs['ebayCatId']) else None
 
         print(str(len(self.market['items'])) + ' items found on eBay.')
 
@@ -543,7 +543,7 @@ class Amazon(Eye):
                     'images': [elem.find('img')['src'], ],
                     'name': elem.find(title=True)['title'],
                     'stock': 'Prime' if elem.find('i', class_='a-icon-prime') else 'No Prime',
-                    'customer_rating': elem.find('span', {'class': ['a-icon-alt']}).get_text() if elem.find('span', {'class': ['a-icon-alt']}) else None, }
+                    'customer_rating': elem.find('i', class_='a-icon-star').span.get_text() if elem.find('i', class_='a-icon-star') else None, }
                 try:
                     item['sale_price'] = elem.find('span', class_='a-offscreen').get_text()[1:]
                 except Exception:
