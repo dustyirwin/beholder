@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
-from beholder.eyeballs import eyeballs
+from beholder.eyeballs import Ebay
 from .models import ItemData
 
 
@@ -27,11 +27,8 @@ class ItemDetails(DetailView):
 
         if 'get_prices' in kwargs and 'query' in kwargs:
             kwargs['keywords'] = kwargs['query']
-            eyeballs['ebay'].getPriceHistories(**kwargs)
+            Ebay.getPriceHistories(**kwargs)
             return ItemData.objects.get(item_id=kwargs['get_prices'])
-
-        elif 'item_id' in kwargs and 'market' in kwargs:
-            return eyeballs[kwargs['market']].stare(**kwargs)
 
         else:
             return get_object_or_404(ItemData.objects.filter(item_id=kwargs['item_id']))

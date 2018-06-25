@@ -22,11 +22,11 @@
     </nav>
     <div class="collapse" id="options">
 
-  {% for market in markets %}
+  {% for market in markets %}  <!-- category dropdowns -->
 
-      <div class="input-group mb-0"> <!-- category dropdown -->
+      <div class="input-group mb-0">
         <div class="input-group-prepend">
-          <label class="input-group-text" for="{{ market }}Categories">{{ market.name }}</label>
+          <label class="input-group-text" for="{{ market.name }}Categories">{{ market.name }}</label>
         </div>
         <select name="{{ market.name }}CatId" class="custom-select" id="{{ market.name }}Categories">
           <option selected value=""></option>

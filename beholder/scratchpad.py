@@ -111,7 +111,8 @@ for key, value in kwargs.items():
         kwargs_url_string += str(key + '=' + value + '&')
 
 
-amazon_search_url = 'https://www.amazon.com/dp/' + kwargs_url_string
+
+amazon_search_url = 'https://www.amazon.com/dp/B06XNYLY5R'
 response = requests.get(amazon_search_url, headers={
     'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'})
 soup = BeautifulSoup(response.content, 'lxml')
@@ -153,3 +154,20 @@ items
 
 
 B06XNYLY5R
+
+
+class Wally:
+
+    def method2():
+        print('method2')
+
+
+class Eye(Wally):
+
+    def method1():
+        print('method1')
+        super().method2()
+
+
+eye = Eye()
+eye.method1()

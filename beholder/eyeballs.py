@@ -1,10 +1,11 @@
 from beholder.keys import keys  # api keys
-# from mws import Products as AmazonProducts  # amazon api
+# from mws import Products as amazonProducts  # amazon api
 from wapy.api import Wapy  # walmart api
 from ebaysdk.finding import Connection as Finding  # ebay apis
 from ebaysdk.shopping import Connection as Shopping
 # from ebaysdk.trading import Connection as Trading
 from inventory.models import ItemData  # item database
+from search.models import SessionData  # session data
 from bs4 import BeautifulSoup
 import datetime
 import requests
@@ -20,111 +21,181 @@ BEHOLDER v0.3 written by Dustin Irwin 2018
 
 class Eye:
 
-    global eyeballs
-    keys = keys.keys
-    ItemData = ItemData
-
-    def search(self, **kwargs):
-        for key, value in kwargs.items():
-            if 'CatId' in key:
-                eyeballs[key[:-5]].findItems(**kwargs)
-
-    def stare(self, **kwargs):
-        if ItemData.objects.filter(item_id=kwargs['item_id']).exists():
-            return ItemData.objects.get(item_id=kwargs['item_id'])
-        else:
-            item = eyeballs[kwargs['market']].getItemDetails(**kwargs)
-            item['market'] = kwargs['market']
-            ItemData(
-                name=item['name'],
-                item_id=kwargs['item_id'],
-                data=item,
-            ).save()
-            return ItemData.objects.get(item_id=kwargs['item_id'])
-
-
-class Center(Eye):
-
     def __init__(self):
-        #  initialize outer eyeballs?
-        pass
-
-    def findItems():
-        # re-write common functions here.. e.g. getItems, getItemDetails, addPaths
-        pass
-
-    def getItemDetails():
-        # re-write common functions here.. e.g. getItems, getItemDetails, addPaths
-        pass
-
-    def listItem():
-        # write function to list an item on a marketplace
-        pass
-
-    def cancelListing():
-        # function to cancel existing listing on a marketplace
-        pass
-
-    def updatePrices():
-        # function to update market prices of items listed on a marketplace
-        pass
+        if SessionData.objects.filter(user='dusty').exists():
+            self.session = SessionData.objects.get(user='dusty')
+        else:
+            self.session = SessionData(
+                session_id='testing',
+                user='dusty',
+                data={'markets': [
+                        {
+                            'name': 'walmart',
+                            'categories': [
+                                {'name': 'Arts, Crafts & Sewing', 'id': '1334134'}, {'name': 'Auto & Tires', 'id': '91083'},
+                                {'name': 'Baby', 'id': '5427'}, {'name': 'Beauty', 'id': '1085666'}, {'name': 'Books', 'id': '3920'},
+                                {'name': 'Cell Phones', 'id': '1105910'}, {'name': 'Clothing', 'id': '5438'},
+                                {'name': 'Electronics', 'id': '3944'}, {'name': 'Food', 'id': '976759'},
+                                {'name': 'Gifts & Registry', 'id': '1094765'}, {'name': 'Health', 'id': '976760'},
+                                {'name': 'Home', 'id': '4044'}, {'name': 'Home Improvement', 'id': '1072864'},
+                                {'name': 'Household Essentials', 'id': '1115193'}, {'name': 'Industrial & Scientific', 'id': '6197502'},
+                                {'name': 'Jewelry', 'id': '3891'}, {'name': 'Movies & TV Shows', 'id': '4096'},
+                                {'name': 'Music on CD or Vinyl', 'id': '4104'}, {'name': 'Musical Instruments', 'id': '7796869'},
+                                {'name': 'Office', 'id': '1229749'}, {'name': 'Party & Occasions', 'id': '2637'},
+                                {'name': 'Patio & Garden', 'id': '5428'}, {'name': 'Personal Care', 'id': '1005862'},
+                                {'name': 'Pets', 'id': '5440'}, {'name': 'Photo Center', 'id': '5426'},
+                                {'name': 'Premium Beauty', 'id': '7924299'}, {'name': 'Seasonal', 'id': '1085632'},
+                                {'name': 'Sports & Outdoors', 'id': '4125'}, {'name': 'Toys', 'id': '4171'},
+                                {'name': 'Video Games', 'id': '2636'}, {'name': 'Walmart for Business', 'id': '6735581'},
+                                {'name': 'Trending', 'id': 'specialQuery'}, ],
+                            'search_filters': [
+                                {'name': 'Best Sellers', 'value': False},
+                                {'name': 'Clearance', 'value': False},
+                                {'name': 'Special Buy', 'value': False},
+                                {'name': 'Trending', 'value': False},
+                                {'name': 'FreeShip', 'value': True}, ], },
+                        {
+                            'name': 'ebay',
+                            'categories': [
+                                {'name': 'Antiques', 'id': '20081'},{'name': 'Art', 'id': '550'},
+                                {'name': 'Baby', 'id': '2984'},{'name': 'Books', 'id': '267'},
+                                {'name': 'Business & Industrial', 'id': '12576'},{'name': 'Cell Phones & Accessories', 'id': '15032'},
+                                {'name': 'Clothing,  Shoes & Accessories', 'id': '11450'},{'name': 'Coins & Paper Money', 'id': '11116'},
+                                {'name': 'Collectibles', 'id': '1'},{'name': 'Camera & Photo', 'id': '625'},
+                                {'name': 'Computers/Tablets & Networking', 'id': '58058'},{'name': 'Consumer Electronics', 'id': '293'},
+                                {'name': 'Crafts', 'id': '14339'},{'name': 'Dolls & Bears', 'id': '237'},
+                                {'name': 'DVDs & Movies', 'id': '11232'},{'name': 'Entertainment Memorabilia', 'id': '45100'},
+                                {'name': 'Everything Else', 'id': '99'},{'name': 'Gift Cards & Coupons', 'id': '172008'},
+                                {'name': 'Health & Beauty', 'id': '26395'},{'name': 'Home & Garden', 'id': '11700'},
+                                {'name': 'Jewelry & Watches', 'id': '281'},{'name': 'Music', 'id': '11233'},
+                                {'name': 'Musical Instruments & Gear', 'id': '619'},{'name': 'Pet Supplies', 'id': '1281'},{'name': 'Pottery & Glass', 'id': '870'},
+                                {'name': 'Real Estate', 'id': '10542'},{'name': 'Specialty Services', 'id': '316'},{'name': 'Sporting Goods', 'id': '888'},
+                                {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},{'name': 'Stamps', 'id': '260'},
+                                {'name': 'Tickets & Experiences', 'id': '1305'},{'name': 'Toys & Hobbies', 'id': '220'},
+                                {'name': 'Travel', 'id': '3252'},{'name': 'Video Games & Consoles', 'id': '1249'}, ],
+                            'search_filters': [
+                                {'name': 'New', 'value': True},
+                                {'name': 'BIN', 'value': True},
+                                {'name': 'FreeShip', 'value': True},
+                                {'name': 'InUS', 'value': True},
+                                {'name': 'Hist', 'value': False}, ], },
+                        {
+                            'name': 'amazon',
+                            'categories': [
+                                {'name': 'Apparel', 'id': 'Apparel'},
+                                {'name': 'Appliances', 'id': 'Appliances'},
+                                {'name': 'ArtsAndCrafts', 'id': 'ArtsAndCrafts'},
+                                {'name': 'Automotive', 'id': 'Automotive'},
+                                {'name': 'Baby', 'id': 'Baby'},
+                                {'name': 'Beauty', 'id': 'Beauty'},
+                                {'name': 'Blended', 'id': 'Blended'},
+                                {'name': 'Books', 'id': 'Books'},
+                                {'name': 'Classical', 'id': 'Classical'},
+                                {'name': 'Collectibles', 'id': 'Collectibles'},
+                                {'name': 'DVD', 'id': 'DVD'},
+                                {'name': 'DigitalMusic', 'id': 'DigitalMusic'},
+                                {'name': 'Electronics', 'id': 'Electronics'},
+                                {'name': 'Fashion', 'id': 'Fashion'},
+                                {'name': 'FashionBaby', 'id': 'FashionBaby'},
+                                {'name': 'FashionBoys', 'id': 'FashionBoys'},
+                                {'name': 'FashionGirls', 'id': 'FashionGirls'},
+                                {'name': 'FashionMen', 'id': 'FashionMen'},
+                                {'name': 'FashionWomen', 'id': 'FashionWomen'},
+                                {'name': 'GiftCards', 'id': 'GiftCards'},
+                                {'name': 'GourmetFood', 'id': 'GourmetFood'},
+                                {'name': 'Grocery', 'id': 'Grocery'},
+                                {'name': 'Handmade', 'id': 'Handmade'},
+                                {'name': 'HealthPersonalCare', 'id': 'HealthPersonalCare'},
+                                {'name': 'HomeAndBusinessServices', 'id': 'HomeAndBusinessServices'},
+                                {'name': 'HomeGarden', 'id': 'HomeGarden'},
+                                {'name': 'Industrial', 'id': 'Industrial'},
+                                {'name': 'Jewelry', 'id': 'Jewelry'},
+                                {'name': 'KindleStore', 'id': 'KindleStore'},
+                                {'name': 'Kitchen', 'id': 'Kitchen'},
+                                {'name': 'LawnAndGarden', 'id': 'LawnAndGarden'},
+                                {'name': 'Luggage', 'id': 'Luggage'},
+                                {'name': 'MP3Downloads', 'id': 'MP3Downloads'},
+                                {'name': 'Magazines', 'id': 'Magazines'},
+                                {'name': 'Marketplace', 'id': 'Marketplace'},
+                                {'name': 'Miscellaneous', 'id': 'Miscellaneous'},
+                                {'name': 'MobileApps', 'id': 'MobileApps'},
+                                {'name': 'Movies', 'id': 'Movies'},
+                                {'name': 'Music', 'id': 'Music'},
+                                {'name': 'MusicTracks', 'id': 'MusicTracks'},
+                                {'name': 'MusicalInstruments', 'id': 'MusicalInstruments'},
+                                {'name': 'OfficeProducts', 'id': 'OfficeProducts'},
+                                {'name': 'OutdoorLiving', 'id': 'OutdoorLiving'},
+                                {'name': 'PCHardware', 'id': 'PCHardware'},
+                                {'name': 'Pantry', 'id': 'Pantry'},
+                                {'name': 'PetSupplies', 'id': 'PetSupplies'},
+                                {'name': 'Photo', 'id': 'Photo'},
+                                {'name': 'Shoes', 'id': 'Shoes'},
+                                {'name': 'Software', 'id': 'Software'},
+                                {'name': 'SportingGoods', 'id': 'SportingGoods'},
+                                {'name': 'Tools', 'id': 'Tools'},
+                                {'name': 'Toys', 'id': 'Toys'},
+                                {'name': 'UnboxVideo', 'id': 'UnboxVideo'},
+                                {'name': 'VHS', 'id': 'VHS'},
+                                {'name': 'Vehicles', 'id': 'Vehicles'},
+                                {'name': 'Video', 'id': 'Video'},
+                                {'name': 'VideoGames', 'id': 'VideoGames'},
+                                {'name': 'Watches', 'id': 'Watches'},
+                                {'name': 'Wine', 'id': 'Wine'},
+                                {'name': 'Wireless', 'id': 'Wireless'},
+                        {'name': 'WirelessAccessories', 'id': 'WirelessAccessories'}, ],
+                            'search_filters': [
+                                {'name': 'Prime', 'value': False},
+                                {'name': 'Used', 'value': False}, ], }, ]}
+            ).save()
 
 
 class Walmart(Eye):
 
     def __init__(self):
-        self.market = {
-            'name': 'walmart',
-            'WalmartAPI': Wapy(keys.keys['walmart']['apiKey']),
-            'categories': [
-                {'name': 'Arts, Crafts & Sewing', 'id': '1334134'}, {'name': 'Auto & Tires', 'id': '91083'},
-                {'name': 'Baby', 'id': '5427'}, {'name': 'Beauty', 'id': '1085666'}, {'name': 'Books', 'id': '3920'},
-                {'name': 'Cell Phones', 'id': '1105910'}, {'name': 'Clothing', 'id': '5438'},
-                {'name': 'Electronics', 'id': '3944'}, {'name': 'Food', 'id': '976759'},
-                {'name': 'Gifts & Registry', 'id': '1094765'}, {'name': 'Health', 'id': '976760'},
-                {'name': 'Home', 'id': '4044'}, {'name': 'Home Improvement', 'id': '1072864'},
-                {'name': 'Household Essentials', 'id': '1115193'}, {'name': 'Industrial & Scientific', 'id': '6197502'},
-                {'name': 'Jewelry', 'id': '3891'}, {'name': 'Movies & TV Shows', 'id': '4096'},
-                {'name': 'Music on CD or Vinyl', 'id': '4104'}, {'name': 'Musical Instruments', 'id': '7796869'},
-                {'name': 'Office', 'id': '1229749'}, {'name': 'Party & Occasions', 'id': '2637'},
-                {'name': 'Patio & Garden', 'id': '5428'}, {'name': 'Personal Care', 'id': '1005862'},
-                {'name': 'Pets', 'id': '5440'}, {'name': 'Photo Center', 'id': '5426'},
-                {'name': 'Premium Beauty', 'id': '7924299'}, {'name': 'Seasonal', 'id': '1085632'},
-                {'name': 'Sports & Outdoors', 'id': '4125'}, {'name': 'Toys', 'id': '4171'},
-                {'name': 'Video Games', 'id': '2636'}, {'name': 'Walmart for Business', 'id': '6735581'},
-                {'name': 'Trending', 'id': 'specialQuery'}, ],
-            'search_filters': [
-                {'name': 'FreeShip', 'value': True}, ], }
-
-        print('Walmart api and class initialized.')
+        self.walmart = Wapy(keys.keys['walmart']['apiKey'])
+        super().__init__()
 
     def findItems(self, **kwargs):
-        getItems_params = {
+        findItems_params = {
             'ResponseGroup': 'full',
-            'page': 1 if 'walmartPage' not in kwargs else int(kwargs['walmartPage']),
+            'categoryId': kwargs['walmartCatId'] if bool(kwargs['walmartCatId']) else None,
+            'page': int(kwargs['walmartPage']) if 'walmartPage' in kwargs else 1,
             'sort': 'bestseller',
-            'numItems': 25,
-            'categoryId': kwargs['walmartCatId'] if bool(kwargs['walmartCatId']) else None, }
+            'numItems': 25}
 
         try:
-            self.market['items'] = self.market['WalmartAPI'].search(kwargs['keywords'], **getItems_params)
+            items = self.walmart.search(kwargs['keywords'], **findItems_params)
+            items = [{
+                    'item_id': item.item_id,
+                    'name': item.name,
+                    'sale_price': item.sale_price,
+                    'upc': item.upc,
+                    'description': item.short_description,
+                    'stock': item.stock,
+                    'medium_image': item.medium_image,
+                    'images': item.images,
+                    'customer_rating': item.customer_rating,
+                    'model_number': item.model_number,
+                    'category_node': item.category_node,
+                    'category_path': item.category_path,
+                    'brand_name': item.brand_name,
+                    'product_url': item.product_url} for item in items]
 
         except Exception as e:
-            print('Error retrieving items!: ', e)
-            self.market['items'] = []
+            print('Error retrieving items on walmart: ', e)
+            items = []
 
-        self.market['page'] = getItems_params['page']
-        self.market['category'] = getItems_params['categoryId']
+        self.session.data['walmart'] = {
+            'items': items,
+            'page': findItems_params['page'],
+            'category': findItems_params['categoryId']}
 
-        print(str(len(self.market['items'])) + ' items found on Walmart.')
+        self.session.save()
 
-    def getItemDetails(self, **kwargs):
-        item = self.market['WalmartAPI'].product_lookup(
-            kwargs['item_id']).response_handler.payload
-        item = {**item, **kwargs['item']}
-        self.market['item'] = {**item, **{
-            'notes': [],
-            'prices': {}, }}
+        print(str(len(self.session.data['walmart']['items'])) + ' items found on walmart.')
+
+    def getItemDetails(self, item={}, **kwargs):
+        return {**self.WalmartAPI.product_lookup(kwargs['item_id']).response_handler.payload, **item}
 
     def getBestSellers(self, **kwargs):
         return self.WalmartAPI.bestseller_products(int(kwargs['walmartCatId']))
@@ -142,140 +213,60 @@ class Walmart(Eye):
 class Ebay(Eye):
 
     def __init__(self):
-        self.market = {
-            'name': 'ebay',
-            'FindingAPI': Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None),
-            'ShoppingAPI': Shopping(appid=keys.keys['ebay']['production']['appid'], config_file=None),
-            'taxonomy': '',
-            'categories': [
-                {'name': 'Antiques', 'id': '20081'},
-                {'name': 'Art', 'id': '550'},
-                {'name': 'Baby', 'id': '2984'},
-                {'name': 'Books', 'id': '267'},
-                {'name': 'Business & Industrial', 'id': '12576'},
-                {'name': 'Cell Phones & Accessories', 'id': '15032'},
-                {'name': 'Clothing,  Shoes & Accessories', 'id': '11450'},
-                {'name': 'Coins & Paper Money', 'id': '11116'},
-                {'name': 'Collectibles', 'id': '1'},
-                {'name': 'Camera & Photo', 'id': '625'},
-                {'name': 'Computers/Tablets & Networking', 'id': '58058'},
-                {'name': 'Consumer Electronics', 'id': '293'},
-                {'name': 'Crafts', 'id': '14339'},
-                {'name': 'Dolls & Bears', 'id': '237'},
-                {'name': 'DVDs & Movies', 'id': '11232'},
-                {'name': 'Entertainment Memorabilia', 'id': '45100'},
-                {'name': 'Everything Else', 'id': '99'},
-                {'name': 'Gift Cards & Coupons', 'id': '172008'},
-                {'name': 'Health & Beauty', 'id': '26395'},
-                {'name': 'Home & Garden', 'id': '11700'},
-                {'name': 'Jewelry & Watches', 'id': '281'},
-                {'name': 'Music', 'id': '11233'},
-                {'name': 'Musical Instruments & Gear', 'id': '619'},
-                {'name': 'Pet Supplies', 'id': '1281'},
-                {'name': 'Pottery & Glass', 'id': '870'},
-                {'name': 'Real Estate', 'id': '10542'},
-                {'name': 'Specialty Services', 'id': '316'},
-                {'name': 'Sporting Goods', 'id': '888'},
-                {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},
-                {'name': 'Stamps', 'id': '260'},
-                {'name': 'Tickets & Experiences', 'id': '1305'},
-                {'name': 'Toys & Hobbies', 'id': '220'},
-                {'name': 'Travel', 'id': '3252'},
-                {'name': 'Video Games & Consoles', 'id': '1249'}, ],
-            'query_options': [
+        self.FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
+        self.ShoppingAPI = Shopping(appid=keys.keys['ebay']['production']['appid'], config_file=None)
+        super().__init__()
+
+    def findItems(self, **kwargs):
+        findItems_params = {
+            'descriptionSearch': True,
+            'sortOrder': 'BestMatch',
+            'outputSelector': ['GalleryURL', 'ConditionHistogram', 'PictureURLLarge'],
+            'itemFilter': [
                 {'name': 'Condition', 'value': ['New']},
                 {'name': 'ListingType', 'value': 'AuctionWithBIN'},
                 {'name': 'FreeShippingOnly', 'value': True},
                 {'name': 'LocatedIn', 'value': 'US'}, ],
-            'search_filters': [
-                {'name': 'New', 'value': True},
-                {'name': 'BIN', 'value': True},
-                {'name': 'FreeShip', 'value': True},
-                {'name': 'InUS', 'value': True},
-                {'name': 'Hist', 'value': False}, ], }
-
-        print('eBay api and class initialized.')
-
-    def addPaths(self, **kwargs):
-        if 'item_id' in kwargs:
-            self.market['item'] = {**kwargs['item'], **{
-                'name': kwargs['item']['Title'] if 'Title' in kwargs['item'] else 'None',
-                'item_id': kwargs['item']['ItemID'] if 'ItemID' in kwargs['item'] else 'None',
-                'product_url': kwargs['item']['ViewItemURL'] if 'ViewItemURL' in kwargs['item'] else kwargs['item']['ViewItemURLForNaturalSearch'],
-                'salePrice': kwargs['item']['ConvertedBuyItNowPrice']['value'] if 'ConvertedBuyItNowPrice' in kwargs['item'] else 'None',
-                'description': kwargs['item']['Description'] if 'Description' in kwargs['item'] else "None",
-                'images': kwargs['item']['PictureURL'] if 'PictureURL' in kwargs['item'] else 'None',
-                'notes': [],
-                'prices': {}, }}
-
-        if 'keywords' in kwargs:
-            items_paths = {
-                'name': kwargs['item']['title'],
-                'item_id': kwargs['item']['itemId'],
-                'customer_rating': isodate.parse_duration(kwargs['item']['sellingStatus']['timeLeft']).__str__(),
-                'sale_price': kwargs['item']['listingInfo']['buyItNowPrice']['value'] if kwargs['item'].get('buyItNowPrice') else kwargs['item']['sellingStatus']['currentPrice']['value'],
-                'product_url': kwargs['item']['viewItemURL'],
-                'medium_image': kwargs['item']['galleryURL'],
-                'images': [kwargs['item']['pictureURLLarge'] if 'pictureURLLarge' in kwargs['item'] else None],
-                'stock': kwargs['item']['sellingStatus']['sellingState'],
-                'category_node': kwargs['item']['primaryCategory']['categoryId'],
-                'category_path': kwargs['item']['primaryCategory']['categoryName'], }
-
-            return items_paths
-
-    def findItems(self, **kwargs):
-        self.market['findItems_params'] = {
-            'descriptionSearch': True,
-            'sortOrder': 'BestMatch',
-            'outputSelector': ['GalleryURL', 'ConditionHistogram', 'PictureURLLarge'],
-            'itemFilter': self.market['query_options'],
             'paginationInput': {
                 'entriesPerPage': 24,
                 'pageNumber': 1 if 'ebayPage' not in kwargs else int(kwargs['ebayPage']), }}
 
         if bool(kwargs['keywords']):
-            self.market['findItems_params']['keywords'] = kwargs['keywords']
+            findItems_params['keywords'] = kwargs['keywords']
 
         if bool(kwargs['ebayCatId']):
-            self.market['findItems_params']['categoryId'] = kwargs['ebayCatId']
-            self.market['findItems_params']['category'] = kwargs['ebayCatId']
+            findItems_params['categoryId'] = kwargs['ebayCatId']
 
         try:
-            response = self.market['FindingAPI'].execute(
-                'findItemsAdvanced', self.market['findItems_params']).dict()
-
-            if response['ack'] == 'Success' and response['searchResult']['_count'] == '0':
-                print('0 items found on eBay.')
-                self.market['items'] = []
-                return
+            items = self.FindingAPI.execute('findItemsAdvanced', findItems_params).dict()['searchResult']['item']
+            items = [{
+                'name': item['title'],
+                'item_id': item['itemId'],
+                'customer_rating': isodate.parse_duration(item['sellingStatus']['timeLeft']).__str__(),
+                'sale_price': item['listingInfo']['buyItNowPrice']['value'] if item.get('buyItNowPrice') else item['sellingStatus']['currentPrice']['value'],
+                'product_url': item['viewItemURL'],
+                'medium_image': item['galleryURL'],
+                'images': [item['pictureURLLarge'] if 'pictureURLLarge' in item else None],
+                'stock': item['sellingStatus']['sellingState'],
+                'category_node': item['primaryCategory']['categoryId'],
+                'category_path': item['primaryCategory']['categoryName'], } for item in items]
 
         except Exception as e:
-            print('Error getting items on ebay: ', e)
-            self.market['items'] = []
-            return
+            print('Error getting items on eBay: ', e)
+            items = []
 
-        items = response['searchResult']['item']
+        self.session.data['ebay'] = {
+            'items': items,
+            'page': findItems_params['paginationInput']['pageNumber'],
+            'category': findItems_params['categoryId'] if 'categoryId' in findItems_params else None}
 
-        for i, item in enumerate(items):
-            kwargs['item'] = item
-            items[i] = {**item, **self.addPaths(**kwargs)}
+        self.session.save()
 
-        self.market['items'] = items
-        self.market['page'] = self.market['findItems_params']['paginationInput']['pageNumber']
-        self.market['category'] = kwargs['ebayCatId'] if bool(kwargs['ebayCatId']) else None
+        print(str(len(self.session.data['ebay']['items'])) + ' items found on ebay.')
 
-        print(str(len(self.market['items'])) + ' items found on eBay.')
-
-    def getItemDetails(self, **kwargs):
-        item = self.market['ShoppingAPI'].execute(
-            'GetSingleItem', {
-                'itemID': kwargs['item_id'],
-                'includeSelector': 'TextDescription', }
-            ).dict()['Item']
-        item = {**item, **kwargs['item']}
-        self.market['item'] = {**item, **{
-                'notes': [],
-                'prices': {}, }}
+    def getItemDetails(self, item={}, **kwargs):
+        return {**self.ShoppingAPI.execute(
+            'GetSingleItem', {'itemID': kwargs['item_id']}).dict()['Item'], **item}
 
     def getPriceHistories(self, **kwargs):
         item = self.ItemData.objects.get(item_id=kwargs['get_prices'])
@@ -293,7 +284,7 @@ class Ebay(Eye):
                 'paginationInput': {
                     'entriesPerPage': 25,
                     'pageNumber': page, }}
-            response = self.market['FindingAPI'].execute('findCompletedItems', self.market['priceHistories_params']).dict()
+            response = self.FindingAPI.execute('findCompletedItems', self.market['priceHistories_params']).dict()
 
             if response['ack'] == 'Success' and response['searchResult']['_count'] == '0':
                 item.data['prices']['prices'] = []
@@ -305,14 +296,16 @@ class Ebay(Eye):
                 for _item in items:
 
                     price = {
-                        'name': _item['title'],
-                        'small_image': _item['galleryURL'],
-                        'product_url': _item['viewItemURL'],
-                        'item_id': _item['itemId'],
+                        'name': item['title'],
+                        'item_id': item['itemId'],
+                        'small_image': item['galleryURL'],
+                        'product_url': item['viewItemURL'],
                         'market': 'ebay',
-                        'sold_for': _item['listingInfo']['buyItNowPrice']['value'],
-                        'shipping_cost': _item['shippingInfo']['shippingServiceCost']['value'],
-                        'sold_date': _item['listingInfo']['endTime'], }
+                        'sold_for': item['listingInfo']['buyItNowPrice']['value'],
+                        'shipping_cost': item['shippingInfo']['shippingServiceCost']['value'],
+                        'sold_date': item['listingInfo']['endTime'],
+                        'notes': [],
+                        'prices': {}, }
 
                     prices.append(price)
 
@@ -489,34 +482,11 @@ class Ebay(Eye):
 class Amazon(Eye):
 
     def __init__(self):
-        self.market = {
-            'headers': {
-                'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'},
-            'taxonomy': sorted([
-                'Wine', 'Wireless', 'ArtsAndCrafts', 'Miscellaneous',
-                'Electronics', 'Jewelry', 'MobileApps', 'Photo', 'Shoes',
-                'KindleStore', 'Automotive', 'Vehicles', 'Pantry',
-                'MusicalInstruments', 'DigitalMusic', 'GiftCards', 'FashionBaby',
-                'FashionGirls', 'GourmetFood', 'HomeGarden', 'MusicTracks',
-                'UnboxVideo', 'FashionWomen', 'VideoGames', 'FashionMen',
-                'Kitchen', 'Video', 'Software', 'Beauty', 'Grocery',
-                'FashionBoys', 'Industrial', 'PetSupplies', 'OfficeProducts',
-                'Magazines', 'Watches', 'Luggage', 'OutdoorLiving', 'Toys',
-                'SportingGoods', 'PCHardware', 'Movies', 'Books', 'Collectibles',
-                'Handmade', 'VHS', 'MP3Downloads', 'HomeAndBusinessServices',
-                'Fashion', 'Tools', 'Baby', 'Apparel', 'Marketplace', 'DVD',
-                'Appliances', 'Music', 'LawnAndGarden', 'WirelessAccessories',
-                'Blended', 'HealthPersonalCare', 'Classical']),
-            'name': 'amazon',
-            'search_filters': [
-                {'name': 'Prime', 'value': False},
-                {'name': 'Used', 'value': False},
-            ], }
-        self.market['categories'] = [{'name': category, 'id': category} for category in self.market['taxonomy']]
-
-        print('Amazon class initialized.')
+        super().__init__()
 
     def findItems(self, **kwargs):
+        headers = {
+            'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'}
         kwargs_url_string = ''
         kwargs['page'] = kwargs['amazonPage'] if 'amazonPage' in kwargs else '1'
 
@@ -527,7 +497,7 @@ class Amazon(Eye):
                 kwargs_url_string += str(key + '=' + value + '&')
 
         amazon_search_url = 'https://www.amazon.com/s/?' + kwargs_url_string
-        response = requests.get(amazon_search_url, headers=self.market['headers'])
+        response = requests.get(amazon_search_url, headers=headers)
         soup = BeautifulSoup(response.content, 'lxml')
         search_results = soup.find_all('li', class_='s-result-item')
         items = []
@@ -540,7 +510,7 @@ class Amazon(Eye):
                     'item_id': elem['data-asin'],
                     'product_url': elem.find('a')['href'],
                     'medium_image': elem.find('img')['src'],
-                    'images': [elem.find('img')['src'], ],
+                    'images': [elem.find('img')['src']],
                     'name': elem.find(title=True)['title'],
                     'stock': 'Prime' if elem.find('i', class_='a-icon-prime') else 'No Prime',
                     'customer_rating': elem.find('i', class_='a-icon-star').span.get_text() if elem.find('i', class_='a-icon-star') else None, }
@@ -554,28 +524,31 @@ class Amazon(Eye):
 
                 items.append(item)
 
-        self.market['name'] = 'amazon'
-        self.market['page'] = kwargs['page']
-        self.market['category'] = kwargs['amazonCatId'] if bool(kwargs['amazonCatId']) else None
-        self.market['items'] = items
-        print(str(len(items)) + ' items found on amazon.')
+        self.session.data['amazon'] = {
+            'items': items,
+            'page': kwargs['page'],
+            'category': kwargs['amazonCatId'] if 'amazonCatId' in kwargs else None}
 
-    def getItemDetails(self, **kwargs):
+        self.session.save()
+
+        print(str(len(self.session.data['amazon']['items'])) + ' items found on amazon.')
+
+    def getItemDetails(self, item={}, **kwargs):
         amazon_search_url = 'https://www.amazon.com/dp/' + kwargs['item_id']
         response = requests.get(amazon_search_url, headers=self.market['headers'])
         soup = BeautifulSoup(response.content, 'lxml')
-        item = {
-            'description': soup.find('ul', class_='a-spacing-none'),
-        }
+        _item = {
+            'description': soup.find('ul', class_='a-spacing-none'), }
+        item = {**item, **_item, **{
 
-        item = {**item, **{
-            'item_id': item.find('a-data-asin'),
-            'name': item.find(title=True),
-            'images': item.find_all('img'),
-            'keywords': kwargs['keywords'],
-            }}
-        self.getPrimePrices(item)
-        self.market['item'] = item
+            'keywords': kwargs['keywords'], }}
+
+        item = ItemData(
+            item_id=item['item_id'],
+            name=item['name'],
+            data=item, ).save()
+
+        return item
 
     def getPrimePrices(self, **kwargs):
         priceList = []
@@ -727,11 +700,9 @@ class Target(Eye):
             pass
 
 
-#  instantiate market objects into eyeballs dict
-eyeballs = {
-    'walmart': Walmart(),
-    'ebay': Ebay(),
-    'amazon': Amazon(),
-    # 'bestbuy': BestBuy(),
-    # 'target': Target(),
-    }
+# instantiate eyes into a dict
+def eyeballs():
+    return {
+        'walmart': Walmart(),
+        'ebay': Ebay(),
+        'amazon': Amazon(), }

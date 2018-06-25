@@ -23,10 +23,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <form action="{% url 'inventory:itemDetails' %}" method="get">
+        <form action="" method="get">
           <button type="submit" class="btn btn-success">Capture</button>
-          <input type="hidden" name="item" value={{ item }}>
-          <input type="hidden" name="item_id" value="{{ item.item_id }}">
+          <input type="hidden" name="capture" value="{{ item.item_id }}">
           <input type="hidden" name="market" value="{{ market.name }}"></form>
       </div>
     </div>

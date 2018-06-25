@@ -1,45 +1,41 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from inventory.models import ItemData
+from search.models import SessionData
 from beholder.eyeballs import eyeballs
 # import traceback
 
-# create meta data for html page context
-markets = [eyeballs[market].market for market in eyeballs.keys()]
-
-specialQueries = {
-    'Best Sellers': eyeballs['walmart'].getBestSellers,
-    'Clearance': eyeballs['walmart'].getClearance,
-    'Special Buy': eyeballs['walmart'].getSpecialBuy,
-    'Trending': eyeballs['walmart'].getTrending, }
-
+# load session data
+session = SessionData.objects.get(user='dusty')
+# instantiate eyeballs into dict
+Eyes = eyeballs()
 
 def query(request):
-    global markets
-    return render(
-        request, 'search/query.html', context={"markets": markets})
+    return render(request, 'search/query.html', context={"markets": session.data['markets']})
 
 
 def response(request):
-    global markets
-    global specialQueries
-    kwargs = request.GET.dict()
+    kwargs = {
+        **{key[:-5]+'Page': '1' for key, value in request.GET.dict().items() if 'CatId' in key},
+        **request.GET.dict()}
+
+    if 'capture' in kwargs and 'market' in kwargs:
+        item = Eyes[kwargs['market']].getItemDetails(**kwargs)
+        items = session.data[kwargs['market']]['items']
+        for _item in items:
+            if _item['item_id'] == kwargs['capture']:
+                ItemData(
+                    item_id=kwargs['capture'],
+                    name=_item['name'],
+                    data={**item, **_item}
+                    ).save()
+                return redirect('inventory:itemDetails', item_id=kwargs['capture'])
 
     #  query marketplace for context data
-    for sqk in specialQueries.keys():
+    for _, market in Eyes.items():
+        market.findItems(**kwargs)
 
-        if sqk in kwargs['keywords']:
-            specialQueries[kwargs["keywords"]](**kwargs)
-
-    for key, value in kwargs.items():
-
-        if 'CatId' in key:
-            eyeballs[key[:-5]].search(**kwargs)
-            break
-
-    pages = {key[:-5]+"Page": 1 for key in request.GET.dict().keys() if 'CatId' in key}
-    kwargs = {**pages, **kwargs}
-    context = {**{'markets': markets}, **kwargs}
-    context["marketNames"] = [market['name'] for market in context["markets"]]
-    context["active"] = context['markets'][0]['name'] if 'active' not in kwargs else kwargs['active']
-    context['kwargs'] = kwargs
+    context = {'markets': session.data['markets']}
+    context['marketNames'] = [market['name'] for market in session.data['markets']]
+    context['active'] = 'walmart' if 'active' not in kwargs else kwargs['active']
 
     return render(request, 'search/response.html', context)
