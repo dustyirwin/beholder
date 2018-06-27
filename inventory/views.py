@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
 from beholder.eyeballs import Ebay
+from beholder.eyeballs import Eyes
+from beholder.eyeballs import session
 from .models import ItemData
 
 
@@ -30,5 +32,7 @@ class ItemDetails(DetailView):
             Ebay.getPriceHistories(**kwargs)
             return ItemData.objects.get(item_id=kwargs['get_prices'])
 
+        elif 'capture' in session.data.keys():
+            return get_object_or_404(ItemData.objects.filter(item_id=session.data['capture']['item_id']))
         else:
             return get_object_or_404(ItemData.objects.filter(item_id=kwargs['item_id']))

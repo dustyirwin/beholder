@@ -72,10 +72,10 @@ class Walmart(Eye):
             items = self.walmart.search(kwargs['keywords'], **findItems_params)
             items = [{
                     'item_id': item.item_id,
-                    'name': item.name,
+                    'name': item.name.replace('"', '\"'),
                     'sale_price': item.sale_price,
                     'upc': item.upc,
-                    'description': item.short_description,
+                    'description': item.short_description.replace('"', '\"'),
                     'stock': item.stock,
                     'medium_image': item.medium_image,
                     'images': item.images,
@@ -101,8 +101,9 @@ class Walmart(Eye):
 
         print(str(len(session.data['markets']['walmart']['items'])) + ' walmart items added to session.')
 
-    def getItemDetails(self, item={}, **kwargs):
-        return {**self.WalmartAPI.product_lookup(kwargs['item_id']).response_handler.payload, **item}
+    def getItemDetails(self, **kwargs):
+        item = self.walmart.product_lookup(kwargs['item_id']).response_handler.payload
+        item['name'] = item['name'].replace('"', '\"')
 
     def getBestSellers(self, **kwargs):
         return self.WalmartAPI.bestseller_products(int(kwargs['walmartCatId']))
@@ -415,6 +416,8 @@ class Amazon(Eye):
 
     def __init__(self, session={}):
         super().__init__()
+        self.headers = {
+            'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'}
         self.market_data = {
             'name': 'amazon',
             'categories': [
@@ -456,8 +459,6 @@ class Amazon(Eye):
         session.save()
 
     def findItems(self, **kwargs):
-        headers = {
-            'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'}
         kwargs_url_string = ''
         kwargs['page'] = kwargs['amazonPage'] if 'amazonPage' in kwargs else '1'
 
@@ -468,7 +469,7 @@ class Amazon(Eye):
                 kwargs_url_string += str(key + '=' + value + '&')
 
         amazon_search_url = 'https://www.amazon.com/s/?' + kwargs_url_string
-        response = requests.get(amazon_search_url, headers=headers)
+        response = requests.get(amazon_search_url, headers=self.headers)
         soup = BeautifulSoup(response.content, 'lxml')
         search_results = soup.find_all('li', class_='s-result-item')
         items = []
@@ -482,7 +483,7 @@ class Amazon(Eye):
                     'product_url': elem.find('a')['href'],
                     'medium_image': elem.find('img')['src'],
                     'images': [elem.find('img')['src']],
-                    'name': elem.find(title=True)['title'],
+                    'name': elem.find(title=True)['title'].replace('"', '\"'),
                     'stock': 'Prime' if elem.find('i', class_='a-icon-prime') else 'No Prime',
                     'customer_rating': elem.find('i', class_='a-icon-star').span.get_text() if elem.find('i', class_='a-icon-star') else None, }
 
@@ -510,7 +511,7 @@ class Amazon(Eye):
 
     def getItemDetails(self, item={}, **kwargs):
         amazon_search_url = 'https://www.amazon.com/dp/' + kwargs['item_id']
-        response = requests.get(amazon_search_url, headers=self.market['headers'])
+        response = requests.get(amazon_search_url, headers=self.headers)
         soup = BeautifulSoup(response.content, 'lxml')
         _item = {
             'description': soup.find('ul', class_='a-spacing-none'), }

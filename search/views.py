@@ -17,16 +17,24 @@ def response(request):
         **request.GET.dict()}
 
     if 'capture' in kwargs and 'market' in kwargs:
-        item = Eyes[kwargs['market']].getItemDetails(**kwargs)
-        items = session.data[kwargs['market']]['items']
-        for _item in items:
-            if _item['item_id'] == kwargs['capture']:
-                ItemData(
-                    item_id=kwargs['capture'],
-                    name=_item['name'],
-                    data={**item, **_item}
-                    ).save()
-                return redirect('inventory:itemDetails', item_id=kwargs['capture'])
+
+        for item in session.data['markets'][kwargs['market']]['items']:
+
+            if str(kwargs['capture']) == str(item['item_id']):
+                if ItemData.objects.filter(item_id=kwargs['capture']).exists():
+                    session.data['capture'] = kwargs['capture']
+                    session.save()
+                    return redirect('inventory:itemDetails')
+                else:
+                    data = {**Eyes[kwargs['market']].getItemDetails(item_id=kwargs['capture']), **item}
+                    data['market'] = kwargs['market']
+                    ItemData(
+                        item_id=kwargs['capture'],
+                        name=item['name'],
+                        data=data, ).save()
+                    session.data['capture'] = {'item_id': kwargs['capture'], 'market': kwargs['market']}
+                    session.save()
+                    return redirect('inventory:itemDetails')
 
     #  query marketplace for context data
     for _, market in Eyes.items():
