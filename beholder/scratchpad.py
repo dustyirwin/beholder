@@ -147,27 +147,5 @@ for i, elem in enumerate(search_results):
         except Exception:
             item['sale_price'] = elem.find('span', class_="a-size-base").get_text()[1:]
 
-        items.append(item)
-
-len(items)
-items
-
 
 B06XNYLY5R
-
-
-class Wally:
-
-    def method2():
-        print('method2')
-
-
-class Eye(Wally):
-
-    def method1():
-        print('method1')
-        super().method2()
-
-
-eye = Eye()
-eye.method1()

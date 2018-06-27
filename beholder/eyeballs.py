@@ -16,144 +16,49 @@ import isodate
 
 '''
 BEHOLDER v0.3 written by Dustin Irwin 2018
+documentation:
+    rules:
+        1. All plural objects (e.g. a variable name that ends with a 's') should be an iterable
+        2. Use the simplest representation of a function/data object possible
 '''
 
 
 class Eye:
 
     def __init__(self):
-        if SessionData.objects.filter(user='dusty').exists():
-            self.session = SessionData.objects.get(user='dusty')
-        else:
-            self.session = SessionData(
-                session_id='testing',
-                user='dusty',
-                data={'markets': [
-                        {
-                            'name': 'walmart',
-                            'categories': [
-                                {'name': 'Arts, Crafts & Sewing', 'id': '1334134'}, {'name': 'Auto & Tires', 'id': '91083'},
-                                {'name': 'Baby', 'id': '5427'}, {'name': 'Beauty', 'id': '1085666'}, {'name': 'Books', 'id': '3920'},
-                                {'name': 'Cell Phones', 'id': '1105910'}, {'name': 'Clothing', 'id': '5438'},
-                                {'name': 'Electronics', 'id': '3944'}, {'name': 'Food', 'id': '976759'},
-                                {'name': 'Gifts & Registry', 'id': '1094765'}, {'name': 'Health', 'id': '976760'},
-                                {'name': 'Home', 'id': '4044'}, {'name': 'Home Improvement', 'id': '1072864'},
-                                {'name': 'Household Essentials', 'id': '1115193'}, {'name': 'Industrial & Scientific', 'id': '6197502'},
-                                {'name': 'Jewelry', 'id': '3891'}, {'name': 'Movies & TV Shows', 'id': '4096'},
-                                {'name': 'Music on CD or Vinyl', 'id': '4104'}, {'name': 'Musical Instruments', 'id': '7796869'},
-                                {'name': 'Office', 'id': '1229749'}, {'name': 'Party & Occasions', 'id': '2637'},
-                                {'name': 'Patio & Garden', 'id': '5428'}, {'name': 'Personal Care', 'id': '1005862'},
-                                {'name': 'Pets', 'id': '5440'}, {'name': 'Photo Center', 'id': '5426'},
-                                {'name': 'Premium Beauty', 'id': '7924299'}, {'name': 'Seasonal', 'id': '1085632'},
-                                {'name': 'Sports & Outdoors', 'id': '4125'}, {'name': 'Toys', 'id': '4171'},
-                                {'name': 'Video Games', 'id': '2636'}, {'name': 'Walmart for Business', 'id': '6735581'},
-                                {'name': 'Trending', 'id': 'specialQuery'}, ],
-                            'search_filters': [
-                                {'name': 'Best Sellers', 'value': False},
-                                {'name': 'Clearance', 'value': False},
-                                {'name': 'Special Buy', 'value': False},
-                                {'name': 'Trending', 'value': False},
-                                {'name': 'FreeShip', 'value': True}, ], },
-                        {
-                            'name': 'ebay',
-                            'categories': [
-                                {'name': 'Antiques', 'id': '20081'},{'name': 'Art', 'id': '550'},
-                                {'name': 'Baby', 'id': '2984'},{'name': 'Books', 'id': '267'},
-                                {'name': 'Business & Industrial', 'id': '12576'},{'name': 'Cell Phones & Accessories', 'id': '15032'},
-                                {'name': 'Clothing,  Shoes & Accessories', 'id': '11450'},{'name': 'Coins & Paper Money', 'id': '11116'},
-                                {'name': 'Collectibles', 'id': '1'},{'name': 'Camera & Photo', 'id': '625'},
-                                {'name': 'Computers/Tablets & Networking', 'id': '58058'},{'name': 'Consumer Electronics', 'id': '293'},
-                                {'name': 'Crafts', 'id': '14339'},{'name': 'Dolls & Bears', 'id': '237'},
-                                {'name': 'DVDs & Movies', 'id': '11232'},{'name': 'Entertainment Memorabilia', 'id': '45100'},
-                                {'name': 'Everything Else', 'id': '99'},{'name': 'Gift Cards & Coupons', 'id': '172008'},
-                                {'name': 'Health & Beauty', 'id': '26395'},{'name': 'Home & Garden', 'id': '11700'},
-                                {'name': 'Jewelry & Watches', 'id': '281'},{'name': 'Music', 'id': '11233'},
-                                {'name': 'Musical Instruments & Gear', 'id': '619'},{'name': 'Pet Supplies', 'id': '1281'},{'name': 'Pottery & Glass', 'id': '870'},
-                                {'name': 'Real Estate', 'id': '10542'},{'name': 'Specialty Services', 'id': '316'},{'name': 'Sporting Goods', 'id': '888'},
-                                {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},{'name': 'Stamps', 'id': '260'},
-                                {'name': 'Tickets & Experiences', 'id': '1305'},{'name': 'Toys & Hobbies', 'id': '220'},
-                                {'name': 'Travel', 'id': '3252'},{'name': 'Video Games & Consoles', 'id': '1249'}, ],
-                            'search_filters': [
-                                {'name': 'New', 'value': True},
-                                {'name': 'BIN', 'value': True},
-                                {'name': 'FreeShip', 'value': True},
-                                {'name': 'InUS', 'value': True},
-                                {'name': 'Hist', 'value': False}, ], },
-                        {
-                            'name': 'amazon',
-                            'categories': [
-                                {'name': 'Apparel', 'id': 'Apparel'},
-                                {'name': 'Appliances', 'id': 'Appliances'},
-                                {'name': 'ArtsAndCrafts', 'id': 'ArtsAndCrafts'},
-                                {'name': 'Automotive', 'id': 'Automotive'},
-                                {'name': 'Baby', 'id': 'Baby'},
-                                {'name': 'Beauty', 'id': 'Beauty'},
-                                {'name': 'Blended', 'id': 'Blended'},
-                                {'name': 'Books', 'id': 'Books'},
-                                {'name': 'Classical', 'id': 'Classical'},
-                                {'name': 'Collectibles', 'id': 'Collectibles'},
-                                {'name': 'DVD', 'id': 'DVD'},
-                                {'name': 'DigitalMusic', 'id': 'DigitalMusic'},
-                                {'name': 'Electronics', 'id': 'Electronics'},
-                                {'name': 'Fashion', 'id': 'Fashion'},
-                                {'name': 'FashionBaby', 'id': 'FashionBaby'},
-                                {'name': 'FashionBoys', 'id': 'FashionBoys'},
-                                {'name': 'FashionGirls', 'id': 'FashionGirls'},
-                                {'name': 'FashionMen', 'id': 'FashionMen'},
-                                {'name': 'FashionWomen', 'id': 'FashionWomen'},
-                                {'name': 'GiftCards', 'id': 'GiftCards'},
-                                {'name': 'GourmetFood', 'id': 'GourmetFood'},
-                                {'name': 'Grocery', 'id': 'Grocery'},
-                                {'name': 'Handmade', 'id': 'Handmade'},
-                                {'name': 'HealthPersonalCare', 'id': 'HealthPersonalCare'},
-                                {'name': 'HomeAndBusinessServices', 'id': 'HomeAndBusinessServices'},
-                                {'name': 'HomeGarden', 'id': 'HomeGarden'},
-                                {'name': 'Industrial', 'id': 'Industrial'},
-                                {'name': 'Jewelry', 'id': 'Jewelry'},
-                                {'name': 'KindleStore', 'id': 'KindleStore'},
-                                {'name': 'Kitchen', 'id': 'Kitchen'},
-                                {'name': 'LawnAndGarden', 'id': 'LawnAndGarden'},
-                                {'name': 'Luggage', 'id': 'Luggage'},
-                                {'name': 'MP3Downloads', 'id': 'MP3Downloads'},
-                                {'name': 'Magazines', 'id': 'Magazines'},
-                                {'name': 'Marketplace', 'id': 'Marketplace'},
-                                {'name': 'Miscellaneous', 'id': 'Miscellaneous'},
-                                {'name': 'MobileApps', 'id': 'MobileApps'},
-                                {'name': 'Movies', 'id': 'Movies'},
-                                {'name': 'Music', 'id': 'Music'},
-                                {'name': 'MusicTracks', 'id': 'MusicTracks'},
-                                {'name': 'MusicalInstruments', 'id': 'MusicalInstruments'},
-                                {'name': 'OfficeProducts', 'id': 'OfficeProducts'},
-                                {'name': 'OutdoorLiving', 'id': 'OutdoorLiving'},
-                                {'name': 'PCHardware', 'id': 'PCHardware'},
-                                {'name': 'Pantry', 'id': 'Pantry'},
-                                {'name': 'PetSupplies', 'id': 'PetSupplies'},
-                                {'name': 'Photo', 'id': 'Photo'},
-                                {'name': 'Shoes', 'id': 'Shoes'},
-                                {'name': 'Software', 'id': 'Software'},
-                                {'name': 'SportingGoods', 'id': 'SportingGoods'},
-                                {'name': 'Tools', 'id': 'Tools'},
-                                {'name': 'Toys', 'id': 'Toys'},
-                                {'name': 'UnboxVideo', 'id': 'UnboxVideo'},
-                                {'name': 'VHS', 'id': 'VHS'},
-                                {'name': 'Vehicles', 'id': 'Vehicles'},
-                                {'name': 'Video', 'id': 'Video'},
-                                {'name': 'VideoGames', 'id': 'VideoGames'},
-                                {'name': 'Watches', 'id': 'Watches'},
-                                {'name': 'Wine', 'id': 'Wine'},
-                                {'name': 'Wireless', 'id': 'Wireless'},
-                        {'name': 'WirelessAccessories', 'id': 'WirelessAccessories'}, ],
-                            'search_filters': [
-                                {'name': 'Prime', 'value': False},
-                                {'name': 'Used', 'value': False}, ], }, ]}
-            ).save()
+        pass
 
 
 class Walmart(Eye):
 
-    def __init__(self):
+    def __init__(self, session={}):
         self.walmart = Wapy(keys.keys['walmart']['apiKey'])
-        super().__init__()
+        session.data['markets']['walmart'] = {
+            'name': 'walmart',
+            'categories': [
+                {'name': 'Arts, Crafts & Sewing', 'id': '1334134'}, {'name': 'Auto & Tires', 'id': '91083'},
+                {'name': 'Baby', 'id': '5427'}, {'name': 'Beauty', 'id': '1085666'}, {'name': 'Books', 'id': '3920'},
+                {'name': 'Cell Phones', 'id': '1105910'}, {'name': 'Clothing', 'id': '5438'},
+                {'name': 'Electronics', 'id': '3944'}, {'name': 'Food', 'id': '976759'},
+                {'name': 'Gifts & Registry', 'id': '1094765'}, {'name': 'Health', 'id': '976760'},
+                {'name': 'Home', 'id': '4044'}, {'name': 'Home Improvement', 'id': '1072864'},
+                {'name': 'Household Essentials', 'id': '1115193'}, {'name': 'Industrial & Scientific', 'id': '6197502'},
+                {'name': 'Jewelry', 'id': '3891'}, {'name': 'Movies & TV Shows', 'id': '4096'},
+                {'name': 'Music on CD or Vinyl', 'id': '4104'}, {'name': 'Musical Instruments', 'id': '7796869'},
+                {'name': 'Office', 'id': '1229749'}, {'name': 'Party & Occasions', 'id': '2637'},
+                {'name': 'Patio & Garden', 'id': '5428'}, {'name': 'Personal Care', 'id': '1005862'},
+                {'name': 'Pets', 'id': '5440'}, {'name': 'Photo Center', 'id': '5426'},
+                {'name': 'Premium Beauty', 'id': '7924299'}, {'name': 'Seasonal', 'id': '1085632'},
+                {'name': 'Sports & Outdoors', 'id': '4125'}, {'name': 'Toys', 'id': '4171'},
+                {'name': 'Video Games', 'id': '2636'}, {'name': 'Walmart for Business', 'id': '6735581'},
+                {'name': 'Trending', 'id': 'specialQuery'}, ],
+            'search_filters': [
+                {'name': 'Best Sellers', 'value': False},
+                {'name': 'Clearance', 'value': False},
+                {'name': 'Special Buy', 'value': False},
+                {'name': 'Trending', 'value': False},
+                {'name': 'FreeShip', 'value': True}, ], }
+        session.save()
 
     def findItems(self, **kwargs):
         findItems_params = {
@@ -185,14 +90,16 @@ class Walmart(Eye):
             print('Error retrieving items on walmart: ', e)
             items = []
 
-        self.session.data['walmart'] = {
+        response = {
             'items': items,
-            'page': findItems_params['page'],
-            'category': findItems_params['categoryId']}
+            'page': str(findItems_params['page']),
+            'category': str(findItems_params['categoryId']),
+            'keywords': kwargs['keywords'], }
 
-        self.session.save()
+        session.data['markets']['walmart'] = {**session.data['markets']['walmart'], **response}
+        session.save()
 
-        print(str(len(self.session.data['walmart']['items'])) + ' items found on walmart.')
+        print(str(len(session.data['markets']['walmart']['items'])) + ' walmart items added to session.')
 
     def getItemDetails(self, item={}, **kwargs):
         return {**self.WalmartAPI.product_lookup(kwargs['item_id']).response_handler.payload, **item}
@@ -212,10 +119,35 @@ class Walmart(Eye):
 
 class Ebay(Eye):
 
-    def __init__(self):
+    def __init__(self, session={}):
         self.FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
         self.ShoppingAPI = Shopping(appid=keys.keys['ebay']['production']['appid'], config_file=None)
-        super().__init__()
+        session.data['markets']['ebay'] = {
+            'name': 'ebay',
+            'categories': [
+                {'name': 'Antiques', 'id': '20081'},{'name': 'Art', 'id': '550'},
+                {'name': 'Baby', 'id': '2984'},{'name': 'Books', 'id': '267'},
+                {'name': 'Business & Industrial', 'id': '12576'},{'name': 'Cell Phones & Accessories', 'id': '15032'},
+                {'name': 'Clothing,  Shoes & Accessories', 'id': '11450'},{'name': 'Coins & Paper Money', 'id': '11116'},
+                {'name': 'Collectibles', 'id': '1'},{'name': 'Camera & Photo', 'id': '625'},
+                {'name': 'Computers/Tablets & Networking', 'id': '58058'},{'name': 'Consumer Electronics', 'id': '293'},
+                {'name': 'Crafts', 'id': '14339'},{'name': 'Dolls & Bears', 'id': '237'},
+                {'name': 'DVDs & Movies', 'id': '11232'},{'name': 'Entertainment Memorabilia', 'id': '45100'},
+                {'name': 'Everything Else', 'id': '99'},{'name': 'Gift Cards & Coupons', 'id': '172008'},
+                {'name': 'Health & Beauty', 'id': '26395'},{'name': 'Home & Garden', 'id': '11700'},
+                {'name': 'Jewelry & Watches', 'id': '281'},{'name': 'Music', 'id': '11233'},
+                {'name': 'Musical Instruments & Gear', 'id': '619'},{'name': 'Pet Supplies', 'id': '1281'},{'name': 'Pottery & Glass', 'id': '870'},
+                {'name': 'Real Estate', 'id': '10542'},{'name': 'Specialty Services', 'id': '316'},{'name': 'Sporting Goods', 'id': '888'},
+                {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},{'name': 'Stamps', 'id': '260'},
+                {'name': 'Tickets & Experiences', 'id': '1305'},{'name': 'Toys & Hobbies', 'id': '220'},
+                {'name': 'Travel', 'id': '3252'},{'name': 'Video Games & Consoles', 'id': '1249'}, ],
+            'search_filters': [
+                {'name': 'New', 'value': True},
+                {'name': 'BIN', 'value': True},
+                {'name': 'FreeShip', 'value': True},
+                {'name': 'InUS', 'value': True},
+                {'name': 'Hist', 'value': False}, ], }
+        session.save()
 
     def findItems(self, **kwargs):
         findItems_params = {
@@ -255,14 +187,14 @@ class Ebay(Eye):
             print('Error getting items on eBay: ', e)
             items = []
 
-        self.session.data['ebay'] = {
+        response = {
             'items': items,
             'page': findItems_params['paginationInput']['pageNumber'],
             'category': findItems_params['categoryId'] if 'categoryId' in findItems_params else None}
+        session.data['markets']['ebay'] = {**session.data['markets']['ebay'], **response}
+        session.save()
 
-        self.session.save()
-
-        print(str(len(self.session.data['ebay']['items'])) + ' items found on ebay.')
+        print(str(len(session.data['markets']['ebay']['items'])) + ' ebay items added to session.')
 
     def getItemDetails(self, item={}, **kwargs):
         return {**self.ShoppingAPI.execute(
@@ -481,8 +413,47 @@ class Ebay(Eye):
 
 class Amazon(Eye):
 
-    def __init__(self):
+    def __init__(self, session={}):
         super().__init__()
+        self.market_data = {
+            'name': 'amazon',
+            'categories': [
+                {'name': 'Apparel', 'id': 'Apparel'},{'name': 'Appliances', 'id': 'Appliances'},
+                {'name': 'ArtsAndCrafts', 'id': 'ArtsAndCrafts'},{'name': 'Automotive', 'id': 'Automotive'},
+                {'name': 'Baby', 'id': 'Baby'},{'name': 'Beauty', 'id': 'Beauty'},
+                {'name': 'Blended', 'id': 'Blended'},{'name': 'Books', 'id': 'Books'},
+                {'name': 'Classical', 'id': 'Classical'},{'name': 'Collectibles', 'id': 'Collectibles'},
+                {'name': 'DVD', 'id': 'DVD'},{'name': 'DigitalMusic', 'id': 'DigitalMusic'},
+                {'name': 'Electronics', 'id': 'Electronics'},{'name': 'Fashion', 'id': 'Fashion'},
+                {'name': 'FashionBaby', 'id': 'FashionBaby'},{'name': 'FashionBoys', 'id': 'FashionBoys'},
+                {'name': 'FashionGirls', 'id': 'FashionGirls'},{'name': 'FashionMen', 'id': 'FashionMen'},
+                {'name': 'FashionWomen', 'id': 'FashionWomen'},{'name': 'GiftCards', 'id': 'GiftCards'},
+                {'name': 'GourmetFood', 'id': 'GourmetFood'},{'name': 'Grocery', 'id': 'Grocery'},
+                {'name': 'Handmade', 'id': 'Handmade'},{'name': 'HealthPersonalCare', 'id': 'HealthPersonalCare'},
+                {'name': 'HomeAndBusinessServices', 'id': 'HomeAndBusinessServices'},{'name': 'HomeGarden', 'id': 'HomeGarden'},
+                {'name': 'Industrial', 'id': 'Industrial'},{'name': 'Jewelry', 'id': 'Jewelry'},
+                {'name': 'KindleStore', 'id': 'KindleStore'},{'name': 'Kitchen', 'id': 'Kitchen'},
+                {'name': 'LawnAndGarden', 'id': 'LawnAndGarden'},{'name': 'Luggage', 'id': 'Luggage'},
+                {'name': 'MP3Downloads', 'id': 'MP3Downloads'},{'name': 'Magazines', 'id': 'Magazines'},
+                {'name': 'Marketplace', 'id': 'Marketplace'},{'name': 'Miscellaneous', 'id': 'Miscellaneous'},
+                {'name': 'MobileApps', 'id': 'MobileApps'},{'name': 'Movies', 'id': 'Movies'},
+                {'name': 'Music', 'id': 'Music'},{'name': 'MusicTracks', 'id': 'MusicTracks'},
+                {'name': 'MusicalInstruments', 'id': 'MusicalInstruments'},{'name': 'OfficeProducts', 'id': 'OfficeProducts'},
+                {'name': 'OutdoorLiving', 'id': 'OutdoorLiving'},{'name': 'PCHardware', 'id': 'PCHardware'},
+                {'name': 'Pantry', 'id': 'Pantry'},{'name': 'PetSupplies', 'id': 'PetSupplies'},
+                {'name': 'Photo', 'id': 'Photo'},{'name': 'Shoes', 'id': 'Shoes'},
+                {'name': 'Software', 'id': 'Software'},{'name': 'SportingGoods', 'id': 'SportingGoods'},
+                {'name': 'Tools', 'id': 'Tools'},{'name': 'Toys', 'id': 'Toys'},
+                {'name': 'UnboxVideo', 'id': 'UnboxVideo'},{'name': 'VHS', 'id': 'VHS'},
+                {'name': 'Vehicles', 'id': 'Vehicles'},{'name': 'Video', 'id': 'Video'},
+                {'name': 'VideoGames', 'id': 'VideoGames'},{'name': 'Watches', 'id': 'Watches'},
+                {'name': 'Wine', 'id': 'Wine'},{'name': 'Wireless', 'id': 'Wireless'},
+                {'name': 'WirelessAccessories', 'id': 'WirelessAccessories'}, ],
+            'search_filters': [
+                {'name': 'Prime', 'value': False},
+                {'name': 'Used', 'value': False}, ], }
+        session.data['markets']['amazon'] = self.market_data
+        session.save()
 
     def findItems(self, **kwargs):
         headers = {
@@ -514,24 +485,28 @@ class Amazon(Eye):
                     'name': elem.find(title=True)['title'],
                     'stock': 'Prime' if elem.find('i', class_='a-icon-prime') else 'No Prime',
                     'customer_rating': elem.find('i', class_='a-icon-star').span.get_text() if elem.find('i', class_='a-icon-star') else None, }
+
                 try:
                     item['sale_price'] = elem.find('span', class_='a-offscreen').get_text()[1:]
+
                 except Exception:
+
                     try:
                         item['sale_price'] = elem.find('span', class_="a-size-base").get_text()[1:]
+
                     except Exception:
                         pass
 
                 items.append(item)
 
-        self.session.data['amazon'] = {
+        response = {
             'items': items,
             'page': kwargs['page'],
-            'category': kwargs['amazonCatId'] if 'amazonCatId' in kwargs else None}
+            'category': kwargs['amazonCatId'] if bool(kwargs['amazonCatId']) else None}
+        session.data['markets']['amazon'] = {**session.data['markets']['amazon'], **response}
+        session.save()
 
-        self.session.save()
-
-        print(str(len(self.session.data['amazon']['items'])) + ' items found on amazon.')
+        print(str(len(session.data['markets']['amazon']['items'])) + ' amazon items added to session.')
 
     def getItemDetails(self, item={}, **kwargs):
         amazon_search_url = 'https://www.amazon.com/dp/' + kwargs['item_id']
@@ -700,9 +675,25 @@ class Target(Eye):
             pass
 
 
-# instantiate eyes into a dict
-def eyeballs():
-    return {
-        'walmart': Walmart(),
-        'ebay': Ebay(),
-        'amazon': Amazon(), }
+# todo validate user login and grab (or create new) session
+
+# load session object
+
+
+if SessionData.objects.filter(user='dusty').exists():
+    session = SessionData.objects.get(user='dusty')
+else:
+    session = SessionData(
+        session_id='testing',
+        user='dusty',
+        data={
+            'markets': {},
+            'active': 'walmart',
+            'market_names': ['walmart', 'ebay', 'amazon'], }
+    ).save()
+
+# instantiate eyes into a dict using session data
+Eyes = {
+    'walmart': Walmart(session),
+    'ebay': Ebay(session),
+    'amazon': Amazon(session), }

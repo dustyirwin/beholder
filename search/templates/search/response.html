@@ -1,6 +1,13 @@
 {% extends "search/query.html" %}
 
 {% block response %}
+  <!-- Diagnostics:
+    markets.0.name:
+      {% for market in markets %}
+        market: {{market.name }} item: {{ market.items.0.name }}
+        {% endfor %}
+    market_names: {{ market_names }} -->
+
   <!-- Tabs -->
   <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -18,7 +25,7 @@
 
           {% include "search/next.html" %}
 
-        {% elif market.name in marketNames %}
+        {% elif market.name in market_names %}
 
           {% include "search/prev.html" %}
 
@@ -41,17 +48,11 @@
 
     {% for market in markets %}
 
-      {% if active == market.name %}
-        <div class="tab-pane fade show active" id="nav-{{ market.name }}" role="tabpanel"
-          aria-labelledby="nav-{{ market.name }}-tab">
+    <div id="nav-{{ market.name }}" role="tabpanel" aria-labelledby="nav-{{ market.name }}-tab"
+{% if active == market.name %} class="tab-pane fade show active">
+{% elif market.name in market_names %} class="tab-pane fade show">{% endif %}
 
-      {% elif market.name in marketNames %}
-        <div class="tab-pane fade show" id="nav-{{ market.name }}" role="tabpanel"
-          aria-labelledby="nav-{{ market.name }}-tab">
-
-      {% endif %}
-
-          <div class="card-columns">
+      <div class="card-columns">
 
           <!-- Cards -->
           {% for item in market.items %}

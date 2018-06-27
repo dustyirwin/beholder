@@ -1,16 +1,14 @@
 from django.shortcuts import render, redirect
 from inventory.models import ItemData
-from search.models import SessionData
-from beholder.eyeballs import eyeballs
+from beholder.eyeballs import Eyes
+from beholder.eyeballs import session
 # import traceback
 
-# load session data
-session = SessionData.objects.get(user='dusty')
-# instantiate eyeballs into dict
-Eyes = eyeballs()
 
 def query(request):
-    return render(request, 'search/query.html', context={"markets": session.data['markets']})
+    return render(
+        request, 'search/query.html', context={
+            'markets': [market for name, market in session.data['markets'].items()]})
 
 
 def response(request):
@@ -34,8 +32,8 @@ def response(request):
     for _, market in Eyes.items():
         market.findItems(**kwargs)
 
-    context = {'markets': session.data['markets']}
-    context['marketNames'] = [market['name'] for market in session.data['markets']]
-    context['active'] = 'walmart' if 'active' not in kwargs else kwargs['active']
+    context = {'markets': [market for name, market in session.data['markets'].items()]}
+    context['market_names'] = session.data['market_names']
+    context['active'] = session.data['active'] if 'active' not in kwargs else kwargs['active']
 
-    return render(request, 'search/response.html', context)
+    return render(request, 'search/response.html', context=context)
