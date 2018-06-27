@@ -101,10 +101,9 @@ class Walmart(Eye):
 
         print(str(len(session.data['markets']['walmart']['items'])) + ' walmart items added to session.')
 
-    def getItemDetails(self, **kwargs):
-        item = self.walmart.product_lookup(kwargs['item_id']).response_handler.payload
-        item['name'] = item['name']
-        return item
+    def getItemDetails(self, _item={}, **kwargs):
+        return {**self.walmart.product_lookup(
+            kwargs['item_id']).response_handler.payload, **_item}
 
     def getBestSellers(self, **kwargs):
         return self.WalmartAPI.bestseller_products(int(kwargs['walmartCatId']))
@@ -193,14 +192,16 @@ class Ebay(Eye):
             'items': items,
             'page': findItems_params['paginationInput']['pageNumber'],
             'category': findItems_params['categoryId'] if 'categoryId' in findItems_params else None}
-        session.data['markets']['ebay'] = {**session.data['markets']['ebay'], **response}
+        items = session.data['markets']['ebay'] = {**session.data['markets']['ebay'], **response}
         session.save()
+
+        return items
 
         print(str(len(session.data['markets']['ebay']['items'])) + ' ebay items added to session.')
 
-    def getItemDetails(self, item={}, **kwargs):
+    def getItemDetails(self, _item={}, **kwargs):
         return {**self.ShoppingAPI.execute(
-            'GetSingleItem', {'itemID': kwargs['item_id']}).dict()['Item'], **item}
+            'GetSingleItem', {'itemID': kwargs['item_id']}).dict()['Item'], **_item}
 
     def getPriceHistories(self, **kwargs):
         item = self.ItemData.objects.get(item_id=kwargs['get_prices'])
@@ -459,7 +460,7 @@ class Amazon(Eye):
         session.data['markets']['amazon'] = self.market_data
         session.save()
 
-    def findItems(self, **kwargs):
+    def findItems(self, _item={}, **kwargs):
         kwargs_url_string = ''
         kwargs['page'] = kwargs['amazonPage'] if 'amazonPage' in kwargs else '1'
 
@@ -522,7 +523,7 @@ class Amazon(Eye):
             name=item['name'],
             data=_item).save()
 
-        return item
+        return {item, _item}
 
     def getPrimePrices(self, **kwargs):
         priceList = []

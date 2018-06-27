@@ -26,12 +26,12 @@ def response(request):
                     session.save()
                     return redirect('inventory:itemDetails')
                 else:
-                    data = {**Eyes[kwargs['market']].getItemDetails(item_id=kwargs['capture']), **item}
-                    data['market'] = kwargs['market']
+                    item = Eyes[kwargs['market']].getItemDetails(item, item_id=kwargs['capture'])
+                    item['market'] = kwargs['market']
                     ItemData(
                         item_id=kwargs['capture'],
                         name=item['name'],
-                        data=data, ).save()
+                        data=item).save()
                     session.data['capture'] = {'item_id': kwargs['capture'], 'market': kwargs['market']}
                     session.save()
                     return redirect('inventory:itemDetails')
