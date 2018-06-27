@@ -22,7 +22,7 @@ def response(request):
 
             if str(kwargs['capture']) == str(item['item_id']):
                 if ItemData.objects.filter(item_id=kwargs['capture']).exists():
-                    session.data['capture'] = kwargs['capture']
+                    session.data['capture'] = {'item_id': kwargs['capture'], 'market': kwargs['market']}
                     session.save()
                     return redirect('inventory:itemDetails')
                 else:

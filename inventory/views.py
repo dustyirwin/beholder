@@ -33,6 +33,6 @@ class ItemDetails(DetailView):
             return ItemData.objects.get(item_id=kwargs['get_prices'])
 
         elif 'capture' in session.data.keys():
-            return get_object_or_404(ItemData.objects.filter(item_id=session.data['capture']['item_id']))
+            return ItemData.objects.get(item_id=session.data['capture']['item_id']).data
         else:
-            return get_object_or_404(ItemData.objects.filter(item_id=kwargs['item_id']))
+            return get_object_or_404(ItemData.objects.filter(item_id=kwargs['item_id'])[0].data)

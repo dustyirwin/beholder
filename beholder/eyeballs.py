@@ -16,10 +16,10 @@ import isodate
 
 '''
 BEHOLDER v0.3 written by Dustin Irwin 2018
-documentation:
-    rules:
-        1. All plural objects (e.g. a variable name that ends with a 's') should be an iterable
-        2. Use the simplest representation of a function/data object possible
+Rules:
+    1. Plurally named objects (e.g. a variable name that ends with a 's') should be an iterable
+    2. Use the simplest representation of a function/data object possible
+    3. Database object attributes: object.name(str), object.item_id(str), object.data(dict)
 '''
 
 
@@ -72,10 +72,10 @@ class Walmart(Eye):
             items = self.walmart.search(kwargs['keywords'], **findItems_params)
             items = [{
                     'item_id': item.item_id,
-                    'name': item.name.replace('"', '\"'),
+                    'name': item.name,
                     'sale_price': item.sale_price,
                     'upc': item.upc,
-                    'description': item.short_description.replace('"', '\"'),
+                    'description': item.short_description,
                     'stock': item.stock,
                     'medium_image': item.medium_image,
                     'images': item.images,
@@ -103,7 +103,8 @@ class Walmart(Eye):
 
     def getItemDetails(self, **kwargs):
         item = self.walmart.product_lookup(kwargs['item_id']).response_handler.payload
-        item['name'] = item['name'].replace('"', '\"')
+        item['name'] = item['name']
+        return item
 
     def getBestSellers(self, **kwargs):
         return self.WalmartAPI.bestseller_products(int(kwargs['walmartCatId']))
@@ -515,14 +516,11 @@ class Amazon(Eye):
         soup = BeautifulSoup(response.content, 'lxml')
         _item = {
             'description': soup.find('ul', class_='a-spacing-none'), }
-        item = {**item, **_item, **{
-
-            'keywords': kwargs['keywords'], }}
 
         item = ItemData(
             item_id=item['item_id'],
             name=item['name'],
-            data=item, ).save()
+            data=_item).save()
 
         return item
 
