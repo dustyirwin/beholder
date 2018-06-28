@@ -1,12 +1,11 @@
 {% extends "search/query.html" %}
 
 {% block response %}
-  <!-- Diagnostics:
-    markets.0.name:
+  <-- Diagnostics:
+    markets[...].keys():
       {% for market in markets %}
-        market: {{market.name }} item: {{ market.items.0.name }}
-        {% endfor %}
-    market_names: {{ market_names }} -->
+        {{ market.keys }}
+      {% endfor %} -->
 
   <!-- Tabs -->
   <nav>
@@ -55,7 +54,7 @@
       <div class="card-columns">
 
           <!-- Cards -->
-          {% for item in market.items %}
+          {% for item in market.items %}<!-- market['items'] is a dict key, not market.items()-->
 
             <div class="card">
               <img class="card-img-top" src="{{ item.medium_image }}" alt="Card image cap"

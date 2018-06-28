@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
-from beholder.eyeballs import Ebay
 from beholder.eyeballs import Eyes
 from beholder.eyeballs import session
 from .models import ItemData
@@ -29,7 +28,7 @@ class ItemDetails(DetailView):
 
         if 'get_prices' in kwargs and 'query' in kwargs:
             kwargs['keywords'] = kwargs['query']
-            Ebay.getPriceHistories(**kwargs)
+            Eyes['ebay'].getItemPriceHistories(**kwargs)
             return ItemData.objects.get(item_id=kwargs['get_prices'])
 
         elif 'capture' in session.data.keys():

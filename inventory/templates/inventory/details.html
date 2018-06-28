@@ -1,15 +1,19 @@
 {% extends "login/header.html" %}
 {% block content %}
+  <-- DIAGNOSTICS
+    item.keys(): {{ item.keys }}-->
 
+
+<div class=container>
   <h3><a href="{{ item.product_url }}" target='_blank'>{{ item.name }}</a></h3>
 
   {% include 'search/images_carousel.html' %}
 
   <p>item_id: {{ item.item_id }}</p>
-  <p>market: {{ item.data.market }}
+  <p>market: {{ item.market }}
 
-  <p>sale_price: {{ item.data.salePrice }}</p>
-  <p>upc: {{ item.data.upc }}</p>
+  <p>sale_price: {{ item.salePrice }}</p>
+  <p>upc: {{ item.upc }}</p>
   <p data-toggle="tooltip" data-placement="bottom" title="{{ item.data.description }}">
     {{ item.data.description|truncatechars:400 }}</p>
 
@@ -17,21 +21,23 @@
     <button type="submit" class="btn btn-success">save</button> <button class="btn btn-outline-primary">list</button>
     <input type="hidden" name="get_prices" value="{{ item.item_id }}">
 
-    <p>query string for ebay historical data: </p><input type="text" name="query" value="{{ item.prices.query }}">
+    <p>query string for ebay historical data: </p>
+    <input type="text" name="query" value="{{ item.prices.ebay_hist.query }}">
     <ol>
-  {% for note in item.data.notes %}
+  {% for note in item.notes %}
     <li><p>  {{ note }} </p></li>
   {% endfor %}
     </ol>
-    <p>{{ item.data.prices.count}} prices found: </p>
+    <p>{{ item.prices.ebay_hist.count}} prices found: </p>
       <u1>
-      {% for price in item.prices.prices %}
+      {% for item_id, record in item.prices.ebay_hist.records.items %}
       <li>
-        <img src={{ price.small_image }} height=40px width=auto align='left'><p align='left'><a href="{{ price.product_url }}" target='_blank'>({{ price.market }}){{ price.name|truncatechars:35 }}</a> sold for ${{ price.sold_for }} + ${{ price.shipping_cost }} ship. on {{ price.sold_date|truncatechars:13 }}</p>
+        <img src={{ record.small_image }} height=40px width=auto align='left'><p align='left'><a href="{{ record.product_url }}" target='_blank'>({{ record.market }}){{ record.name|truncatechars:35 }}</a> sold for ${{ record.sold_for }} + ${{ record.shipping_cost }} ship. on {{ record.sold_date|truncatechars:13 }}</p>
       </li>
       {% endfor %}
     </ul>
     <p>add new note: </p><input type="text" name="note"></p>
   </form>
   <p>Notes:</p>
+</div>
 {% endblock %}

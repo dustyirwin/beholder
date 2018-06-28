@@ -4,7 +4,7 @@ from wapy.api import Wapy  # walmart api
 from ebaysdk.finding import Connection as Finding  # ebay apis
 from ebaysdk.shopping import Connection as Shopping
 # from ebaysdk.trading import Connection as Trading
-from inventory.models import ItemData  # item database
+from inventory.models import ItemData # item database
 from search.models import SessionData  # session data
 from bs4 import BeautifulSoup
 import datetime
@@ -68,7 +68,7 @@ class Walmart(Eye):
             'sort': 'bestseller',
             'numItems': 25}
 
-        try:
+        try:  # try to get response items from walmart api
             items = self.walmart.search(kwargs['keywords'], **findItems_params)
             items = [{
                     'item_id': item.item_id,
@@ -102,8 +102,7 @@ class Walmart(Eye):
         print(str(len(session.data['markets']['walmart']['items'])) + ' walmart items added to session.')
 
     def getItemDetails(self, _item={}, **kwargs):
-        return {**self.walmart.product_lookup(
-            kwargs['item_id']).response_handler.payload, **_item}
+        return {**self.walmart.product_lookup(kwargs['item_id']).response_handler.payload, **_item}
 
     def getBestSellers(self, **kwargs):
         return self.WalmartAPI.bestseller_products(int(kwargs['walmartCatId']))
@@ -123,6 +122,7 @@ class Ebay(Eye):
     def __init__(self, session={}):
         self.FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
         self.ShoppingAPI = Shopping(appid=keys.keys['ebay']['production']['appid'], config_file=None)
+        self.Items = ItemData
         session.data['markets']['ebay'] = {
             'name': 'ebay',
             'categories': [
@@ -195,61 +195,62 @@ class Ebay(Eye):
         items = session.data['markets']['ebay'] = {**session.data['markets']['ebay'], **response}
         session.save()
 
-        return items
-
         print(str(len(session.data['markets']['ebay']['items'])) + ' ebay items added to session.')
+        return items
 
     def getItemDetails(self, _item={}, **kwargs):
         return {**self.ShoppingAPI.execute(
             'GetSingleItem', {'itemID': kwargs['item_id']}).dict()['Item'], **_item}
 
-    def getPriceHistories(self, **kwargs):
-        item = self.ItemData.objects.get(item_id=kwargs['get_prices'])
-        item.data['prices']['query'] = kwargs['query']
-        prices = []
+    def getItemPriceHistories(self, **kwargs):
+        item = self.Items.objects.get(item_id=kwargs['get_prices'])
+        item.data['prices'] = {}
+        item.data['prices']['ebay_hist'] = {
+            'query': kwargs['query'],
+            'market': 'ebay_historical',
+            'records': {}}
 
-        for page in range(1, 4):
+        for page in range(1, 4):  # process top (25/page) * 4pages most relevant items
 
-            self.market['priceHistories_params'] = {
-                'keywords': kwargs['keywords'] if kwargs.get('keywords') else 'happy tree friends',
+            priceHistories_params = {
+                'keywords': kwargs['keywords'] if kwargs.get('keywords') else None,
                 'descriptionSearch': True,
                 'sortOrder': 'BestMatch',
-                'outputSelector': ['CategoryHistogram', 'AspectHistogram', 'SellerInfo', ],
-                'itemFilter': self.market['query_options'],
+                'outputSelector': ['CategoryHistogram', 'AspectHistogram', 'SellerInfo', 'GalleryInfo'],
+                'itemFilter': [
+                    {'name': 'Condition', 'value': ['New']},
+                    {'name': 'LocatedIn', 'value': 'US'}, ],
                 'paginationInput': {
                     'entriesPerPage': 25,
                     'pageNumber': page, }}
-            response = self.FindingAPI.execute('findCompletedItems', self.market['priceHistories_params']).dict()
+            response = self.FindingAPI.execute('findCompletedItems', priceHistories_params).dict()
 
             if response['ack'] == 'Success' and response['searchResult']['_count'] == '0':
-                item.data['prices']['prices'] = []
+                print('No prices found on eBay historical for query: '+ kwargs['query'])
                 break
 
             else:
                 items = response['searchResult']['item']
-
                 for _item in items:
 
-                    price = {
-                        'name': item['title'],
-                        'item_id': item['itemId'],
-                        'small_image': item['galleryURL'],
-                        'product_url': item['viewItemURL'],
+                    price_data = {
+                        'name': _item['title'],
+                        'item_id': _item['itemId'],
+                        'small_image': _item['galleryURL'] if 'galleryURL' in _item else None,
+                        'product_url': _item['viewItemURL'],
                         'market': 'ebay',
-                        'sold_for': item['listingInfo']['buyItNowPrice']['value'],
-                        'shipping_cost': item['shippingInfo']['shippingServiceCost']['value'],
-                        'sold_date': item['listingInfo']['endTime'],
-                        'notes': [],
-                        'prices': {}, }
+                        'sold_for': float(_item['listingInfo']['buyItNowPrice']['value'] if 'buyItNowPrice' in _item['listingInfo'] else None),
+                        'shipping_cost': float(_item['shippingInfo']['shippingServiceCost']['value'] if 'shippingServiceCost' in _item['shippingInfo'] else None),
+                        'sold_date': _item['listingInfo']['endTime'], }
 
-                    prices.append(price)
+                    item.data['prices']['ebay_hist']['records'][price_data['item_id']] = price_data
 
                 if int(response['searchResult']['_count']) < 25:
-                    item.data['prices']['prices'] = prices
                     break
 
-        item.data['prices']['count'] = len(item.data['prices']['prices'])
+        item.data['prices']['ebay_hist']['count'] = len(item.data['prices']['ebay_hist']['records'].keys())
         item.save()
+        print('found '+str(item.data['prices']['ebay_hist']['count'])+' prices for query: '+kwargs['query']+' on ebay.')
 
     def priceLot(self, **kwargs):
             totalSales = 0
@@ -511,19 +512,14 @@ class Amazon(Eye):
 
         print(str(len(session.data['markets']['amazon']['items'])) + ' amazon items added to session.')
 
-    def getItemDetails(self, item={}, **kwargs):
+    def getItemDetails(self, _item={}, **kwargs):
         amazon_search_url = 'https://www.amazon.com/dp/' + kwargs['item_id']
         response = requests.get(amazon_search_url, headers=self.headers)
         soup = BeautifulSoup(response.content, 'lxml')
-        _item = {
+        item = {
             'description': soup.find('ul', class_='a-spacing-none'), }
 
-        item = ItemData(
-            item_id=item['item_id'],
-            name=item['name'],
-            data=_item).save()
-
-        return {item, _item}
+        return {**item, **_item}
 
     def getPrimePrices(self, **kwargs):
         priceList = []
@@ -678,8 +674,6 @@ class Target(Eye):
 # todo validate user login and grab (or create new) session
 
 # load session object
-
-
 if SessionData.objects.filter(user='dusty').exists():
     session = SessionData.objects.get(user='dusty')
 else:
@@ -691,6 +685,8 @@ else:
             'active': 'walmart',
             'market_names': ['walmart', 'ebay', 'amazon'], }
     ).save()
+
+Items = ItemData
 
 # instantiate eyes into a dict using session data
 Eyes = {
