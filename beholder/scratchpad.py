@@ -2,6 +2,7 @@ from beholder.keys import keys
 import requests
 import re
 from ebaysdk.finding import Connection as Finding
+from ebaysdk.shopping import Connection as Shopping
 import datetime
 from bs4 import BeautifulSoup
 from wapy.api import Wapy
@@ -13,6 +14,7 @@ kwargs = {
     'keywords': 'baby stroller',
     'page': '1', }
 FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
+ShoppingAPI = Shopping(appid=keys.keys['ebay']['production']['appid'], config_file=None)
 hist_search_params = {
     'keywords': kwargs['keywords'],
     'descriptionSearch': True,
@@ -32,13 +34,13 @@ findItemsAdvanced_params = {
     'sortOrder': 'BestMatch',
     'outputSelector': ['AspectHistogram', 'CategoryHistogram'],
     'itemFilter': [
-        {'name': 'SoldItemsOnly', 'value': True},
         {'name': 'ListingType', 'value': 'AuctionWithBIN'},
         {'name': 'Condition', 'value': ['New']},
         {'name': 'LocatedIn', 'value': 'US'}, ],
     'paginationInput': {
         'entriesPerPage': 25,
         'pageNumber': 2, }}
+response = ShoppingAPI.execute('FindPopularItems', {'keywords': 'super mario bros'})
 response = FindingAPI.execute('findCompletedItems', hist_search_params).dict()
 response = FindingAPI.execute('findItemsAdvanced', findItemsAdvanced_params).dict()
 response

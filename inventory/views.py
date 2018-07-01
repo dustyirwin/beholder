@@ -1,17 +1,19 @@
-from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, DetailView
-from beholder.eyeballs import Eyes
-from beholder.eyeballs import session
+from django.shortcuts import get_object_or_404, render, redirect
+from django.views.generic import DetailView
 from .models import ItemData
+from beholder.eyeballs import session
+from beholder.eyeballs import Eyes
 
 
-class ItemList(ListView):
-    template_name = 'inventory/home.html'
-    context_object_name = 'items'
-    ordering = ['id']
+def itemsList(request):
+    kwargs = request.GET.dict()
 
-    def get_object(self):
-        return ItemData.objects.all()
+    if 'item_id' in kwargs:
+        return redirect('inventory:ItemDetails')
+    else:
+        session.data['Inventory'] = {obj.item_id: obj.data for obj in ItemData.objects.all()[:19]}
+        session.save()
+        return render(request, 'inventory/home.html', context={'session': session.data})
 
 
 class ItemDetails(DetailView):
@@ -32,6 +34,6 @@ class ItemDetails(DetailView):
             return ItemData.objects.get(item_id=kwargs['get_prices'])
 
         elif 'capture' in session.data.keys():
-            return ItemData.objects.get(item_id=session.data['capture']['item_id']).data
+            return {**ItemData.objects.get(item_id=session.data['capture']['item_id']).data, **kwargs}
         else:
-            return get_object_or_404(ItemData.objects.filter(item_id=kwargs['item_id'])[0].data)
+            return get_object_or_404(ItemData.objects.filter(item_id=kwargs['item_id']))

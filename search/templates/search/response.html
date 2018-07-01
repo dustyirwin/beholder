@@ -1,19 +1,19 @@
 {% extends "search/query.html" %}
 
-{% block response %}
+{% block page_content %}
   <-- Diagnostics:
-    markets[...].keys():
-      {% for market in markets %}
-        {{ market.keys }}
+      {% for name, market in session.market_data.items %}
+        market name: {{ name }} keys: {{ market.keys }}
+        market.objects.0.name: {{ market.objects.0.name }}
       {% endfor %} -->
 
   <!-- Tabs -->
   <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
 
-      {% for market in markets %}
+      {% for name, market in session.market_data.items %}
 
-        {% if active == market.name %}
+        {% if session.active == market.name %}
 
           {% include "search/prev.html" %}
 
@@ -24,7 +24,7 @@
 
           {% include "search/next.html" %}
 
-        {% elif market.name in market_names %}
+        {% elif market.name in session.market_names %}
 
           {% include "search/prev.html" %}
 
@@ -45,16 +45,16 @@
   <!-- Tab Panels -->
   <div class="tab-content" id="nav-tabContent">
 
-    {% for market in markets %}
+    {% for name, market in session.market_data.items %}
 
     <div id="nav-{{ market.name }}" role="tabpanel" aria-labelledby="nav-{{ market.name }}-tab"
-{% if active == market.name %} class="tab-pane fade show active">
-{% elif market.name in market_names %} class="tab-pane fade show">{% endif %}
+{% if session.active == market.name %} class="tab-pane fade show active">
+{% elif market.name in session.market_names %} class="tab-pane fade show">{% endif %}
 
       <div class="card-columns">
 
           <!-- Cards -->
-          {% for item in market.items %}<!-- market['items'] is a dict key, not market.items()-->
+          {% for item in market.objects %}
 
             <div class="card">
               <img class="card-img-top" src="{{ item.medium_image }}" alt="Card image cap"

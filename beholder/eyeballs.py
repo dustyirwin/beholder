@@ -4,14 +4,15 @@ from wapy.api import Wapy  # walmart api
 from ebaysdk.finding import Connection as Finding  # ebay apis
 from ebaysdk.shopping import Connection as Shopping
 # from ebaysdk.trading import Connection as Trading
-from inventory.models import ItemData # item database
-from search.models import SessionData  # session data
+from inventory.models import ItemData  # item database
+from inventory.models import SessionData  # session data
 from bs4 import BeautifulSoup
 import datetime
 import requests
 import re
 import isodate
-# import traceback
+import pprint
+import traceback
 
 
 '''
@@ -20,7 +21,112 @@ Rules:
     1. Plurally named objects (e.g. a variable name that ends with a 's') should be an iterable
     2. Use the simplest representation of a function/data object possible
     3. Database object attributes: object.name(str), object.item_id(str), object.data(dict)
+
+Debug:
+pp = pprint.PrettyPrinter(indent=2)
+pp.pprint(items)
 '''
+
+# load session for user
+if SessionData.objects.filter(user='dusty').exists():
+    session = SessionData.objects.get(user='dusty')
+else:
+    session = SessionData(
+        user='dusty',
+        session_id='testing...',
+        data={
+            'active': 'walmart',
+            'market_names': ['walmart', 'ebay', 'amazon'],
+            'market_data': {
+                'walmart': {
+                    'name': 'walmart',
+                    'categories': [
+                        {'name': 'Arts, Crafts & Sewing', 'id': '1334134'}, {'name': 'Auto & Tires', 'id': '91083'},
+                        {'name': 'Baby', 'id': '5427'}, {'name': 'Beauty', 'id': '1085666'}, {'name': 'Books', 'id': '3920'},
+                        {'name': 'Cell Phones', 'id': '1105910'}, {'name': 'Clothing', 'id': '5438'},
+                        {'name': 'Electronics', 'id': '3944'}, {'name': 'Food', 'id': '976759'},
+                        {'name': 'Gifts & Registry', 'id': '1094765'}, {'name': 'Health', 'id': '976760'},
+                        {'name': 'Home', 'id': '4044'}, {'name': 'Home Improvement', 'id': '1072864'},
+                        {'name': 'Household Essentials', 'id': '1115193'}, {'name': 'Industrial & Scientific', 'id': '6197502'},
+                        {'name': 'Jewelry', 'id': '3891'}, {'name': 'Movies & TV Shows', 'id': '4096'},
+                        {'name': 'Music on CD or Vinyl', 'id': '4104'}, {'name': 'Musical Instruments', 'id': '7796869'},
+                        {'name': 'Office', 'id': '1229749'}, {'name': 'Party & Occasions', 'id': '2637'},
+                        {'name': 'Patio & Garden', 'id': '5428'}, {'name': 'Personal Care', 'id': '1005862'},
+                        {'name': 'Pets', 'id': '5440'}, {'name': 'Photo Center', 'id': '5426'},
+                        {'name': 'Premium Beauty', 'id': '7924299'}, {'name': 'Seasonal', 'id': '1085632'},
+                        {'name': 'Sports & Outdoors', 'id': '4125'}, {'name': 'Toys', 'id': '4171'},
+                        {'name': 'Video Games', 'id': '2636'}, {'name': 'Walmart for Business', 'id': '6735581'},
+                        {'name': 'Trending', 'id': 'specialQuery'}, ],
+                    'search_filters': [
+                        {'name': 'Best Sellers', 'value': False},
+                        {'name': 'Clearance', 'value': False},
+                        {'name': 'Special Buy', 'value': False},
+                        {'name': 'Trending', 'value': False},
+                        {'name': 'FreeShip', 'value': True}, ], },
+                'ebay': {
+                    'name': 'ebay',
+                    'categories': [
+                        {'name': 'Antiques', 'id': '20081'},{'name': 'Art', 'id': '550'},
+                        {'name': 'Baby', 'id': '2984'},{'name': 'Books', 'id': '267'},
+                        {'name': 'Business & Industrial', 'id': '12576'},{'name': 'Cell Phones & Accessories', 'id': '15032'},
+                        {'name': 'Clothing,  Shoes & Accessories', 'id': '11450'},{'name': 'Coins & Paper Money', 'id': '11116'},
+                        {'name': 'Collectibles', 'id': '1'},{'name': 'Camera & Photo', 'id': '625'},
+                        {'name': 'Computers/Tablets & Networking', 'id': '58058'},{'name': 'Consumer Electronics', 'id': '293'},
+                        {'name': 'Crafts', 'id': '14339'},{'name': 'Dolls & Bears', 'id': '237'},
+                        {'name': 'DVDs & Movies', 'id': '11232'},{'name': 'Entertainment Memorabilia', 'id': '45100'},
+                        {'name': 'Everything Else', 'id': '99'},{'name': 'Gift Cards & Coupons', 'id': '172008'},
+                        {'name': 'Health & Beauty', 'id': '26395'},{'name': 'Home & Garden', 'id': '11700'},
+                        {'name': 'Jewelry & Watches', 'id': '281'},{'name': 'Music', 'id': '11233'},
+                        {'name': 'Musical Instruments & Gear', 'id': '619'},{'name': 'Pet Supplies', 'id': '1281'},{'name': 'Pottery & Glass', 'id': '870'},
+                        {'name': 'Real Estate', 'id': '10542'},{'name': 'Specialty Services', 'id': '316'},{'name': 'Sporting Goods', 'id': '888'},
+                        {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},{'name': 'Stamps', 'id': '260'},
+                        {'name': 'Tickets & Experiences', 'id': '1305'},{'name': 'Toys & Hobbies', 'id': '220'},
+                        {'name': 'Travel', 'id': '3252'},{'name': 'Video Games & Consoles', 'id': '1249'}, ],
+                    'search_filters': [
+                        {'name': 'New', 'value': True},
+                        {'name': 'BIN', 'value': True},
+                        {'name': 'FreeShip', 'value': True},
+                        {'name': 'InUS', 'value': True},
+                        {'name': 'Hist', 'value': False}, ], },
+                'amazon': {
+                    'name': 'amazon',
+                    'categories': [
+                        {'name': 'Apparel', 'id': 'Apparel'},{'name': 'Appliances', 'id': 'Appliances'},
+                        {'name': 'ArtsAndCrafts', 'id': 'ArtsAndCrafts'},{'name': 'Automotive', 'id': 'Automotive'},
+                        {'name': 'Baby', 'id': 'Baby'},{'name': 'Beauty', 'id': 'Beauty'},
+                        {'name': 'Blended', 'id': 'Blended'},{'name': 'Books', 'id': 'Books'},
+                        {'name': 'Classical', 'id': 'Classical'},{'name': 'Collectibles', 'id': 'Collectibles'},
+                        {'name': 'DVD', 'id': 'DVD'},{'name': 'DigitalMusic', 'id': 'DigitalMusic'},
+                        {'name': 'Electronics', 'id': 'Electronics'},{'name': 'Fashion', 'id': 'Fashion'},
+                        {'name': 'FashionBaby', 'id': 'FashionBaby'},{'name': 'FashionBoys', 'id': 'FashionBoys'},
+                        {'name': 'FashionGirls', 'id': 'FashionGirls'},{'name': 'FashionMen', 'id': 'FashionMen'},
+                        {'name': 'FashionWomen', 'id': 'FashionWomen'},{'name': 'GiftCards', 'id': 'GiftCards'},
+                        {'name': 'GourmetFood', 'id': 'GourmetFood'},{'name': 'Grocery', 'id': 'Grocery'},
+                        {'name': 'Handmade', 'id': 'Handmade'},{'name': 'HealthPersonalCare', 'id': 'HealthPersonalCare'},
+                        {'name': 'HomeAndBusinessServices', 'id': 'HomeAndBusinessServices'},{'name': 'HomeGarden', 'id': 'HomeGarden'},
+                        {'name': 'Industrial', 'id': 'Industrial'},{'name': 'Jewelry', 'id': 'Jewelry'},
+                        {'name': 'KindleStore', 'id': 'KindleStore'},{'name': 'Kitchen', 'id': 'Kitchen'},
+                        {'name': 'LawnAndGarden', 'id': 'LawnAndGarden'},{'name': 'Luggage', 'id': 'Luggage'},
+                        {'name': 'MP3Downloads', 'id': 'MP3Downloads'},{'name': 'Magazines', 'id': 'Magazines'},
+                        {'name': 'Marketplace', 'id': 'Marketplace'},{'name': 'Miscellaneous', 'id': 'Miscellaneous'},
+                        {'name': 'MobileApps', 'id': 'MobileApps'},{'name': 'Movies', 'id': 'Movies'},
+                        {'name': 'Music', 'id': 'Music'},{'name': 'MusicTracks', 'id': 'MusicTracks'},
+                        {'name': 'MusicalInstruments', 'id': 'MusicalInstruments'},{'name': 'OfficeProducts', 'id': 'OfficeProducts'},
+                        {'name': 'OutdoorLiving', 'id': 'OutdoorLiving'},{'name': 'PCHardware', 'id': 'PCHardware'},
+                        {'name': 'Pantry', 'id': 'Pantry'},{'name': 'PetSupplies', 'id': 'PetSupplies'},
+                        {'name': 'Photo', 'id': 'Photo'},{'name': 'Shoes', 'id': 'Shoes'},
+                        {'name': 'Software', 'id': 'Software'},{'name': 'SportingGoods', 'id': 'SportingGoods'},
+                        {'name': 'Tools', 'id': 'Tools'},{'name': 'Toys', 'id': 'Toys'},
+                        {'name': 'UnboxVideo', 'id': 'UnboxVideo'},{'name': 'VHS', 'id': 'VHS'},
+                        {'name': 'Vehicles', 'id': 'Vehicles'},{'name': 'Video', 'id': 'Video'},
+                        {'name': 'VideoGames', 'id': 'VideoGames'},{'name': 'Watches', 'id': 'Watches'},
+                        {'name': 'Wine', 'id': 'Wine'},{'name': 'Wireless', 'id': 'Wireless'},
+                        {'name': 'WirelessAccessories', 'id': 'WirelessAccessories'}, ],
+                    'search_filters': [
+                        {'name': 'Prime', 'value': False},
+                        {'name': 'Used', 'value': False}, ], }, }}
+    ).save()
+
 
 
 class Eye:
@@ -31,34 +137,9 @@ class Eye:
 
 class Walmart(Eye):
 
-    def __init__(self, session={}):
+    def __init__(self):
+        super().__init__()
         self.walmart = Wapy(keys.keys['walmart']['apiKey'])
-        session.data['markets']['walmart'] = {
-            'name': 'walmart',
-            'categories': [
-                {'name': 'Arts, Crafts & Sewing', 'id': '1334134'}, {'name': 'Auto & Tires', 'id': '91083'},
-                {'name': 'Baby', 'id': '5427'}, {'name': 'Beauty', 'id': '1085666'}, {'name': 'Books', 'id': '3920'},
-                {'name': 'Cell Phones', 'id': '1105910'}, {'name': 'Clothing', 'id': '5438'},
-                {'name': 'Electronics', 'id': '3944'}, {'name': 'Food', 'id': '976759'},
-                {'name': 'Gifts & Registry', 'id': '1094765'}, {'name': 'Health', 'id': '976760'},
-                {'name': 'Home', 'id': '4044'}, {'name': 'Home Improvement', 'id': '1072864'},
-                {'name': 'Household Essentials', 'id': '1115193'}, {'name': 'Industrial & Scientific', 'id': '6197502'},
-                {'name': 'Jewelry', 'id': '3891'}, {'name': 'Movies & TV Shows', 'id': '4096'},
-                {'name': 'Music on CD or Vinyl', 'id': '4104'}, {'name': 'Musical Instruments', 'id': '7796869'},
-                {'name': 'Office', 'id': '1229749'}, {'name': 'Party & Occasions', 'id': '2637'},
-                {'name': 'Patio & Garden', 'id': '5428'}, {'name': 'Personal Care', 'id': '1005862'},
-                {'name': 'Pets', 'id': '5440'}, {'name': 'Photo Center', 'id': '5426'},
-                {'name': 'Premium Beauty', 'id': '7924299'}, {'name': 'Seasonal', 'id': '1085632'},
-                {'name': 'Sports & Outdoors', 'id': '4125'}, {'name': 'Toys', 'id': '4171'},
-                {'name': 'Video Games', 'id': '2636'}, {'name': 'Walmart for Business', 'id': '6735581'},
-                {'name': 'Trending', 'id': 'specialQuery'}, ],
-            'search_filters': [
-                {'name': 'Best Sellers', 'value': False},
-                {'name': 'Clearance', 'value': False},
-                {'name': 'Special Buy', 'value': False},
-                {'name': 'Trending', 'value': False},
-                {'name': 'FreeShip', 'value': True}, ], }
-        session.save()
 
     def findItems(self, **kwargs):
         findItems_params = {
@@ -69,8 +150,8 @@ class Walmart(Eye):
             'numItems': 25}
 
         try:  # try to get response items from walmart api
-            items = self.walmart.search(kwargs['keywords'], **findItems_params)
-            items = [{
+            objects = self.walmart.search(kwargs['keywords'], **findItems_params)
+            objects = [{
                     'item_id': item.item_id,
                     'name': item.name,
                     'sale_price': item.sale_price,
@@ -84,22 +165,22 @@ class Walmart(Eye):
                     'category_node': item.category_node,
                     'category_path': item.category_path,
                     'brand_name': item.brand_name,
-                    'product_url': item.product_url} for item in items]
+                    'product_url': item.product_url} for item in objects]
 
         except Exception as e:
             print('Error retrieving items on walmart: ', e)
-            items = []
+            objects = []
 
         response = {
-            'items': items,
+            'objects': objects,
             'page': str(findItems_params['page']),
             'category': str(findItems_params['categoryId']),
             'keywords': kwargs['keywords'], }
 
-        session.data['markets']['walmart'] = {**session.data['markets']['walmart'], **response}
+        session.data['market_data']['walmart'] = {**session.data['market_data']['walmart'], **response}
         session.save()
 
-        print(str(len(session.data['markets']['walmart']['items'])) + ' walmart items added to session.')
+        print(str(len(session.data['market_data']['walmart']['objects'])) + ' walmart items added to session.')
 
     def getItemDetails(self, _item={}, **kwargs):
         return {**self.walmart.product_lookup(kwargs['item_id']).response_handler.payload, **_item}
@@ -119,36 +200,11 @@ class Walmart(Eye):
 
 class Ebay(Eye):
 
-    def __init__(self, session={}):
+    def __init__(self):
         self.FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
         self.ShoppingAPI = Shopping(appid=keys.keys['ebay']['production']['appid'], config_file=None)
+        super().__init__()
         self.Items = ItemData
-        session.data['markets']['ebay'] = {
-            'name': 'ebay',
-            'categories': [
-                {'name': 'Antiques', 'id': '20081'},{'name': 'Art', 'id': '550'},
-                {'name': 'Baby', 'id': '2984'},{'name': 'Books', 'id': '267'},
-                {'name': 'Business & Industrial', 'id': '12576'},{'name': 'Cell Phones & Accessories', 'id': '15032'},
-                {'name': 'Clothing,  Shoes & Accessories', 'id': '11450'},{'name': 'Coins & Paper Money', 'id': '11116'},
-                {'name': 'Collectibles', 'id': '1'},{'name': 'Camera & Photo', 'id': '625'},
-                {'name': 'Computers/Tablets & Networking', 'id': '58058'},{'name': 'Consumer Electronics', 'id': '293'},
-                {'name': 'Crafts', 'id': '14339'},{'name': 'Dolls & Bears', 'id': '237'},
-                {'name': 'DVDs & Movies', 'id': '11232'},{'name': 'Entertainment Memorabilia', 'id': '45100'},
-                {'name': 'Everything Else', 'id': '99'},{'name': 'Gift Cards & Coupons', 'id': '172008'},
-                {'name': 'Health & Beauty', 'id': '26395'},{'name': 'Home & Garden', 'id': '11700'},
-                {'name': 'Jewelry & Watches', 'id': '281'},{'name': 'Music', 'id': '11233'},
-                {'name': 'Musical Instruments & Gear', 'id': '619'},{'name': 'Pet Supplies', 'id': '1281'},{'name': 'Pottery & Glass', 'id': '870'},
-                {'name': 'Real Estate', 'id': '10542'},{'name': 'Specialty Services', 'id': '316'},{'name': 'Sporting Goods', 'id': '888'},
-                {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},{'name': 'Stamps', 'id': '260'},
-                {'name': 'Tickets & Experiences', 'id': '1305'},{'name': 'Toys & Hobbies', 'id': '220'},
-                {'name': 'Travel', 'id': '3252'},{'name': 'Video Games & Consoles', 'id': '1249'}, ],
-            'search_filters': [
-                {'name': 'New', 'value': True},
-                {'name': 'BIN', 'value': True},
-                {'name': 'FreeShip', 'value': True},
-                {'name': 'InUS', 'value': True},
-                {'name': 'Hist', 'value': False}, ], }
-        session.save()
 
     def findItems(self, **kwargs):
         findItems_params = {
@@ -156,10 +212,10 @@ class Ebay(Eye):
             'sortOrder': 'BestMatch',
             'outputSelector': ['GalleryURL', 'ConditionHistogram', 'PictureURLLarge'],
             'itemFilter': [
-                {'name': 'Condition', 'value': ['New']},
-                {'name': 'ListingType', 'value': 'AuctionWithBIN'},
-                {'name': 'FreeShippingOnly', 'value': True},
-                {'name': 'LocatedIn', 'value': 'US'}, ],
+                {'name': 'Condition', 'value': kwargs['Condition'] if 'Condition' in kwargs else ['New']},
+                {'name': 'ListingType', 'value': kwargs['ListingType'] if 'ListingType' in kwargs else 'AuctionWithBIN' },
+                {'name': 'FreeShippingOnly', 'value': kwargs['FreeShippingOnly'] if 'FreeShippingOnly' in kwargs else True},
+                {'name': 'LocatedIn', 'value': kwargs['LocatedIn'] if 'LocatedIn' in kwargs else 'US'}, ],
             'paginationInput': {
                 'entriesPerPage': 24,
                 'pageNumber': 1 if 'ebayPage' not in kwargs else int(kwargs['ebayPage']), }}
@@ -171,36 +227,44 @@ class Ebay(Eye):
             findItems_params['categoryId'] = kwargs['ebayCatId']
 
         try:
-            items = self.FindingAPI.execute('findItemsAdvanced', findItems_params).dict()['searchResult']['item']
-            items = [{
+            objects = self.FindingAPI.execute('findItemsAdvanced', findItems_params).dict()
+            objects = objects['searchResult']['item']
+            objects = [{
                 'name': item['title'],
+                'listing_type': item['listingInfo']['listingType'] if 'listingType' in item['listingInfo'] else None,
+                'bids': item['sellingStatus']['bidCount'] if 'bidCount' in item['sellingStatus'] else None,
+                'watch_count': item['listingInfo']['watchCount'] if 'watchCount' in item['listingInfo'] else None,
+                'top_rated': True if 'topRatedListing' in item else False,
+                'buy_it_now': True if 'buyItNowPrice' in item['listingInfo'] else False,
                 'item_id': item['itemId'],
                 'customer_rating': isodate.parse_duration(item['sellingStatus']['timeLeft']).__str__(),
                 'sale_price': item['listingInfo']['buyItNowPrice']['value'] if item.get('buyItNowPrice') else item['sellingStatus']['currentPrice']['value'],
                 'product_url': item['viewItemURL'],
                 'medium_image': item['galleryURL'],
-                'images': [item['pictureURLLarge'] if 'pictureURLLarge' in item else None],
+                'images': [item['pictureURLLarge']],
                 'stock': item['sellingStatus']['sellingState'],
                 'category_node': item['primaryCategory']['categoryId'],
-                'category_path': item['primaryCategory']['categoryName'], } for item in items]
+                'category_path': item['primaryCategory']['categoryName'], } for item in objects]
 
-        except Exception as e:
-            print('Error getting items on eBay: ', e)
-            items = []
+        except Exception:
+            print('Error getting items on eBay: ', traceback.format_exc)
+            objects = []
 
         response = {
-            'items': items,
+            'objects': objects,
             'page': findItems_params['paginationInput']['pageNumber'],
             'category': findItems_params['categoryId'] if 'categoryId' in findItems_params else None}
-        items = session.data['markets']['ebay'] = {**session.data['markets']['ebay'], **response}
+        session.data['market_data']['ebay'] = {**session.data['market_data']['ebay'], **response}
         session.save()
 
-        print(str(len(session.data['markets']['ebay']['items'])) + ' ebay items added to session.')
-        return items
+        print(str(len(session.data['market_data']['ebay']['objects'])) + ' ebay objects added to session.')
 
     def getItemDetails(self, _item={}, **kwargs):
         return {**self.ShoppingAPI.execute(
-            'GetSingleItem', {'itemID': kwargs['item_id']}).dict()['Item'], **_item}
+            'GetSingleItem', {
+                'itemID': kwargs['item_id'],
+                'outputSelector': ['Description']
+                                }).dict()['Item'], **_item}
 
     def getItemPriceHistories(self, **kwargs):
         item = self.Items.objects.get(item_id=kwargs['get_prices'])
@@ -230,8 +294,10 @@ class Ebay(Eye):
                 break
 
             else:
-                items = response['searchResult']['item']
-                for _item in items:
+                objects = response['searchResult']['item']
+                pp = pprint.PrettyPrinter(indent=2)
+                pp.pprint(objects)
+                for _item in objects:
 
                     price_data = {
                         'name': _item['title'],
@@ -239,8 +305,8 @@ class Ebay(Eye):
                         'small_image': _item['galleryURL'] if 'galleryURL' in _item else None,
                         'product_url': _item['viewItemURL'],
                         'market': 'ebay',
-                        'sold_for': float(_item['listingInfo']['buyItNowPrice']['value'] if 'buyItNowPrice' in _item['listingInfo'] else None),
-                        'shipping_cost': float(_item['shippingInfo']['shippingServiceCost']['value'] if 'shippingServiceCost' in _item['shippingInfo'] else None),
+                        'sale_price': _item['sellingStatus']['currentPrice']['value'],
+                        'shipping_cost': _item['shippingInfo']['shippingServiceCost']['value'] if 'shippingServiceCost' in _item['shippingInfo'] else None,
                         'sold_date': _item['listingInfo']['endTime'], }
 
                     item.data['prices']['ebay_hist']['records'][price_data['item_id']] = price_data
@@ -417,7 +483,7 @@ class Ebay(Eye):
 
 class Amazon(Eye):
 
-    def __init__(self, session={}):
+    def __init__(self):
         super().__init__()
         self.headers = {
             'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'}
@@ -458,8 +524,6 @@ class Amazon(Eye):
             'search_filters': [
                 {'name': 'Prime', 'value': False},
                 {'name': 'Used', 'value': False}, ], }
-        session.data['markets']['amazon'] = self.market_data
-        session.save()
 
     def findItems(self, _item={}, **kwargs):
         kwargs_url_string = ''
@@ -475,13 +539,13 @@ class Amazon(Eye):
         response = requests.get(amazon_search_url, headers=self.headers)
         soup = BeautifulSoup(response.content, 'lxml')
         search_results = soup.find_all('li', class_='s-result-item')
-        items = []
+        objects = []
 
         for elem in search_results:
 
             if 'AdHolder' not in elem['class'] and elem.has_attr('data-asin') and elem.find(title=True) != None:
 
-                item = {
+                obj = {
                     'item_id': elem['data-asin'],
                     'product_url': elem.find('a')['href'],
                     'medium_image': elem.find('img')['src'],
@@ -491,33 +555,33 @@ class Amazon(Eye):
                     'customer_rating': elem.find('i', class_='a-icon-star').span.get_text() if elem.find('i', class_='a-icon-star') else None, }
 
                 try:
-                    item['sale_price'] = elem.find('span', class_='a-offscreen').get_text()[1:]
+                    obj['sale_price'] = elem.find('span', class_='a-offscreen').get_text()[1:]
 
                 except Exception:
 
                     try:
-                        item['sale_price'] = elem.find('span', class_="a-size-base").get_text()[1:]
+                        obj['sale_price'] = elem.find('span', class_="a-size-base").get_text()[1:]
 
                     except Exception:
                         pass
 
-                items.append(item)
+                objects.append(obj)
 
         response = {
-            'items': items,
+            'objects': objects,
             'page': kwargs['page'],
             'category': kwargs['amazonCatId'] if bool(kwargs['amazonCatId']) else None}
-        session.data['markets']['amazon'] = {**session.data['markets']['amazon'], **response}
+        session.data['market_data']['amazon'] = {**session.data['market_data']['amazon'], **response}
         session.save()
 
-        print(str(len(session.data['markets']['amazon']['items'])) + ' amazon items added to session.')
+        print(str(len(session.data['market_data']['amazon']['objects'])) + ' amazon items added to session.')
 
     def getItemDetails(self, _item={}, **kwargs):
         amazon_search_url = 'https://www.amazon.com/dp/' + kwargs['item_id']
         response = requests.get(amazon_search_url, headers=self.headers)
         soup = BeautifulSoup(response.content, 'lxml')
         item = {
-            'description': soup.find('ul', class_='a-spacing-none'), }
+            'description': soup.find('ul', class_='a-spacing-none').get_text(), }
 
         return {**item, **_item}
 
@@ -556,6 +620,7 @@ class Amazon(Eye):
                 'datetimeStamp'] = datetime.datetime.now().date().__str__()
             item.save()
             print('item_id: ' + kwargs.get('item_id') + ' scraped.')
+
         else:
             print('Failed to scrape item_id: '+kwargs.get('item_id'))
 
@@ -571,12 +636,14 @@ class Amazon(Eye):
                 item.data['financial']['current']['listPrice'] = values[
                     'listPrice'] = item.data[
                         'financial']['current']['primePrices']['lowPrime']
+
             else:
                 item.data['financial']['current']['listPrice'] = values[
                     'listPrice'] = float(kwargs.get('listPrice'))
 
             if 'itemType' not in kwargs:
                 item.data['itemType'] = values['itemType'] = 'game'
+
             else:
                 item.data['itemType'] = values['itemType'] = kwargs.get(
                     'itemType')
@@ -584,10 +651,11 @@ class Amazon(Eye):
             item.save()
 
             for value in valueNames:
+
                 if value in kwargs:
-                    item.data['financial']['current'][value] = kwargs.get(
-                        value)
+                    item.data['financial']['current'][value] = kwargs.get(value)
                     values[value] = kwargs.get(value)
+
                 else:
                     try:
                         values[value] = float(item.data['ItemAttributes'][
@@ -618,29 +686,21 @@ class Amazon(Eye):
                     'TTP': 5}, }
 
             for itemType in feeSchedules.keys():
+
                 if values['itemType'] == itemType:
-                    item.data['financial']['current'][
-                        'itemType'] = values['itemType']
+                    item.data['financial']['current']['itemType'] = values['itemType']
                     item.data['financial']['current']['varFee'] = 1.80
-                    item.data['financial']['current'][
-                        'TTP'] = feeSchedules[itemType]['TTP']
-                    item.data['financial']['current'][
-                        'refFee'] = round(feeSchedules[itemType]['refFee'])
-                    item.data['financial']['current'][
-                        'FBAFee'] = round(feeSchedules[itemType]['FBAFee'], 2)
-                    item.data['financial']['current'][
-                        'sellFee'] = round(feeSchedules[itemType][
-                            'refFee'] + 1.80, 2)
-                    item.data['financial']['current'][
-                        'FBAShip'] = round(float(values['Weight']) * 0.35, 2)
+                    item.data['financial']['current']['TTP'] = feeSchedules[itemType]['TTP']
+                    item.data['financial']['current']['refFee'] = round(feeSchedules[itemType]['refFee'])
+                    item.data['financial']['current']['FBAFee'] = round(feeSchedules[itemType]['FBAFee'], 2)
+                    item.data['financial']['current']['sellFee'] = round(feeSchedules[itemType]['refFee'] + 1.80, 2)
+                    item.data['financial']['current']['FBAShip'] = round(float(values['Weight']) * 0.35, 2)
                     item.save()
-                    item.data['financial']['current'][
-                        'net'] = values['net'] = round(float(item.data[
-                            'financial']['current']['listPrice'])
-                                 - item.data['financial']['current']['FBAFee']
-                                 - item.data['financial']['current']['sellFee']
-                                 - item.data[
-                                    'financial']['current']['FBAShip'], 2)
+                    item.data['financial']['current']['net'] = values['net'] = round(float(item.data[
+                        'financial']['current']['listPrice'])
+                             - item.data['financial']['current']['FBAFee']
+                             - item.data['financial']['current']['sellFee']
+                             - item.data['financial']['current']['FBAShip'], 2)
                     item.data['financial']['current']['laborRate'] = round(
                         values['net'] / (int(values['TTP']) / 60), 2)
                     item.save()
@@ -671,25 +731,8 @@ class Target(Eye):
             pass
 
 
-# todo validate user login and grab (or create new) session
-
-# load session object
-if SessionData.objects.filter(user='dusty').exists():
-    session = SessionData.objects.get(user='dusty')
-else:
-    session = SessionData(
-        session_id='testing',
-        user='dusty',
-        data={
-            'markets': {},
-            'active': 'walmart',
-            'market_names': ['walmart', 'ebay', 'amazon'], }
-    ).save()
-
-Items = ItemData
-
 # instantiate eyes into a dict using session data
 Eyes = {
-    'walmart': Walmart(session),
-    'ebay': Ebay(session),
-    'amazon': Amazon(session), }
+    'walmart': Walmart(),
+    'ebay': Ebay(),
+    'amazon': Amazon(), }

@@ -1,14 +1,14 @@
 from django.shortcuts import render, redirect
 from inventory.models import ItemData
-from beholder.eyeballs import Eyes
 from beholder.eyeballs import session
+from beholder.eyeballs import Eyes
 # import traceback
+
+session = session
 
 
 def query(request):
-    return render(
-        request, 'search/query.html', context={
-            'markets': [market for name, market in session.data['markets'].items()]})
+    return render(request, 'search/query.html', context={'session': session.data})
 
 
 def response(request):
@@ -18,13 +18,15 @@ def response(request):
 
     if 'capture' in kwargs and 'market' in kwargs:
 
-        for item in session.data['markets'][kwargs['market']]['items']:
+        for item in session.data['market_data'][kwargs['market']]['objects']:
 
             if str(kwargs['capture']) == str(item['item_id']):
+
                 if ItemData.objects.filter(item_id=kwargs['capture']).exists():
                     session.data['capture'] = {'item_id': kwargs['capture'], 'market': kwargs['market']}
                     session.save()
-                    return redirect('inventory:itemDetails')
+                    return redirect('inventory:ItemDetails')
+
                 else:
                     item = Eyes[kwargs['market']].getItemDetails(item, item_id=kwargs['capture'])
                     item['market'] = kwargs['market']
@@ -34,14 +36,12 @@ def response(request):
                         data=item).save()
                     session.data['capture'] = {'item_id': kwargs['capture'], 'market': kwargs['market']}
                     session.save()
-                    return redirect('inventory:itemDetails')
+                    return redirect('inventory:ItemDetails')
 
     #  query marketplace for context data
     for _, market in Eyes.items():
         market.findItems(**kwargs)
 
-    context = {'markets': [market for name, market in session.data['markets'].items()]}
-    context['market_names'] = session.data['market_names']
-    context['active'] = session.data['active'] if 'active' not in kwargs else kwargs['active']
+    session.data['active'] = session.data['active'] if 'active' not in kwargs else kwargs['active']
 
-    return render(request, 'search/response.html', context=context)
+    return render(request, 'search/response.html', context={'session': session.data})

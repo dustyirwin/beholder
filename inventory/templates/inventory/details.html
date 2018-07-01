@@ -1,5 +1,5 @@
-{% extends "login/header.html" %}
-{% block content %}
+{% extends "search/query.html" %}
+{% block page_content %}
   <-- DIAGNOSTICS
     item.keys(): {{ item.keys }}-->
 
@@ -10,14 +10,14 @@
   {% include 'search/images_carousel.html' %}
 
   <p>item_id: {{ item.item_id }}</p>
-  <p>market: {{ item.market }}
+  <p>market: <b>{{ item.market }}</b></p>
 
   <p>sale_price: {{ item.salePrice }}</p>
   <p>upc: {{ item.upc }}</p>
   <p data-toggle="tooltip" data-placement="bottom" title="{{ item.data.description }}">
     {{ item.data.description|truncatechars:400 }}</p>
 
-  <form action="{% url 'inventory:itemDetails' %}" method="get">
+  <form action="{% url 'inventory:ItemDetails' %}" method="get">
     <button type="submit" class="btn btn-success">save</button> <button class="btn btn-outline-primary">list</button>
     <input type="hidden" name="get_prices" value="{{ item.item_id }}">
 
@@ -32,7 +32,7 @@
       <u1>
       {% for item_id, record in item.prices.ebay_hist.records.items %}
       <li>
-        <img src={{ record.small_image }} height=40px width=auto align='left'><p align='left'><a href="{{ record.product_url }}" target='_blank'>({{ record.market }}){{ record.name|truncatechars:35 }}</a> sold for ${{ record.sold_for }} + ${{ record.shipping_cost }} ship. on {{ record.sold_date|truncatechars:13 }}</p>
+        <img src={{ record.small_image }} height=40px width=auto align='left'><p align='left'><a href="{{ record.product_url }}" target='_blank'>({{ record.market }}){{ record.name|truncatechars:35 }}</a> sold for ${{ record.sale_price }} + ${{ record.shipping_cost }} ship. on {{ record.sold_date|truncatechars:13 }}</p>
       </li>
       {% endfor %}
     </ul>
