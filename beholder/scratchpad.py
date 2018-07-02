@@ -151,3 +151,11 @@ for i, elem in enumerate(search_results):
 
 
 B06XNYLY5R
+
+
+a = 34.501234324
+
+import numpy as np
+
+
+c = [9,4,6,3,7,4,2,5,5,6,3,2,7,2,8,6,6]

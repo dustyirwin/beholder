@@ -11,6 +11,7 @@ import datetime
 import requests
 import re
 import isodate
+import numpy as np
 import pprint
 import traceback
 
@@ -303,8 +304,8 @@ class Ebay(Eye):
                         'item_id': _item['itemId'],
                         'small_image': _item['galleryURL'] if 'galleryURL' in _item else None,
                         'product_url': _item['viewItemURL'],
-                        'sale_price': _item['sellingStatus']['currentPrice']['value'],
-                        'shipping_cost': _item['shippingInfo']['shippingServiceCost']['value'] if 'shippingServiceCost' in _item['shippingInfo'] else None,
+                        'sale_price': float(_item['sellingStatus']['currentPrice']['value']),
+                        'shipping_cost': float(_item['shippingInfo']['shippingServiceCost']['value']) if 'shippingServiceCost' in _item['shippingInfo'] else None,
                         'sold_date': _item['listingInfo']['endTime'], }
 
                     item.data['prices']['ebay_hist']['records'][price_data['item_id']] = price_data
@@ -313,6 +314,11 @@ class Ebay(Eye):
                     break
 
         item.data['prices']['ebay_hist']['count'] = len(item.data['prices']['ebay_hist']['records'].keys())
+        item.data['prices']['high'] = max([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()])
+        item.data['prices']['low'] = min([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()])
+        item.data['prices']['mean'] = (sum([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()]) / float(item.data['prices']['ebay_hist']['count'])).__round__(2)
+        item.data['prices']['std_dev'] = np.std([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()]).round(2)
+        print(item.data['prices']['std_dev'])
         item.save()
         print('found '+str(item.data['prices']['ebay_hist']['count'])+' prices for query: '+kwargs['query']+' on ebay.')
 
