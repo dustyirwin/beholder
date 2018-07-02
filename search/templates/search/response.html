@@ -2,10 +2,8 @@
 
 {% block page_content %}
   <-- Diagnostics:
-      {% for name, market in session.market_data.items %}
-        market name: {{ name }} keys: {{ market.keys }}
-        market.objects.0.name: {{ market.objects.0.name }}
-      {% endfor %} -->
+        market name: {{ session.market_data.walmart.name }} keys: {{ session.market_data.walmart.keys }}
+        market.objects.0.name: {{ session.market_data.walmart.objects.0.name }} -->
 
   <!-- Tabs -->
   <nav>

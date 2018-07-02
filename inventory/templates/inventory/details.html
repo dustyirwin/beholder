@@ -1,36 +1,33 @@
 {% extends "search/query.html" %}
 {% block page_content %}
-  <-- DIAGNOSTICS
-    item.keys(): {{ item.keys }}-->
+  <-- DIAGNOSTICS:
+    session.item.keys(): {{ session.item.keys }}-->
 
 
 <div class=container>
-  <h3><a href="{{ item.product_url }}" target='_blank'>{{ item.name }}</a></h3>
+  <h3><a href="{{ session.item.product_url }}" target='_blank'>{{ session.item.name }}</a></h3>
 
-  {% include 'search/images_carousel.html' %}
+  {% include 'search/images_carousel.html' with item=session.item %}
 
-  <p>item_id: {{ item.item_id }}</p>
-  <p>market: <b>{{ item.market }}</b></p>
+  <p>item_id: {{ session.item.item_id }}</p>
+  <p>market: <b>{{ session.item.market }}</b></p>
+  <p>sale_price: {{ session.item.sale_price }}</p>
+  <p data-toggle="tooltip" data-placement="bottom" title="{{ session.item.description }}">
+    {{ session.item.description|truncatechars:400 }}</p>
 
-  <p>sale_price: {{ item.salePrice }}</p>
-  <p>upc: {{ item.upc }}</p>
-  <p data-toggle="tooltip" data-placement="bottom" title="{{ item.data.description }}">
-    {{ item.data.description|truncatechars:400 }}</p>
-
-  <form action="{% url 'inventory:ItemDetails' %}" method="get">
+  <form action="{% url 'inventory:itemDetails' %}" method="get">
     <button type="submit" class="btn btn-success">save</button> <button class="btn btn-outline-primary">list</button>
-    <input type="hidden" name="get_prices" value="{{ item.item_id }}">
+    <input type="hidden" name="get_prices" value="{{ session.item.item_id }}">
 
-    <p>query string for ebay historical data: </p>
-    <input type="text" name="query" value="{{ item.prices.ebay_hist.query }}">
+    <p>query string for ebay historical data: </p><input type="text" name="query" value="{{ session.item.prices.ebay_hist.query }}">
     <ol>
-  {% for note in item.notes %}
+  {% for note in session.item.notes %}
     <li><p>  {{ note }} </p></li>
   {% endfor %}
     </ol>
-    <p>{{ item.prices.ebay_hist.count}} prices found: </p>
+    <p>{{ session.item.prices.ebay_hist.count}} prices found: </p>
       <u1>
-      {% for item_id, record in item.prices.ebay_hist.records.items %}
+      {% for item_id, record in session.item.prices.ebay_hist.records.items %}
       <li>
         <img src={{ record.small_image }} height=40px width=auto align='left'><p align='left'><a href="{{ record.product_url }}" target='_blank'>({{ record.market }}){{ record.name|truncatechars:35 }}</a> sold for ${{ record.sale_price }} + ${{ record.shipping_cost }} ship. on {{ record.sold_date|truncatechars:13 }}</p>
       </li>

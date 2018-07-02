@@ -23,9 +23,9 @@ def response(request):
             if str(kwargs['capture']) == str(item['item_id']):
 
                 if ItemData.objects.filter(item_id=kwargs['capture']).exists():
-                    session.data['capture'] = {'item_id': kwargs['capture'], 'market': kwargs['market']}
+                    session.data['item'] = {'item_id': kwargs['capture'], 'market': kwargs['market']}
                     session.save()
-                    return redirect('inventory:ItemDetails')
+                    return redirect('inventory:itemDetails')
 
                 else:
                     item = Eyes[kwargs['market']].getItemDetails(item, item_id=kwargs['capture'])
@@ -36,7 +36,7 @@ def response(request):
                         data=item).save()
                     session.data['capture'] = {'item_id': kwargs['capture'], 'market': kwargs['market']}
                     session.save()
-                    return redirect('inventory:ItemDetails')
+                    return redirect('inventory:itemDetails')
 
     #  query marketplace for context data
     for _, market in Eyes.items():
