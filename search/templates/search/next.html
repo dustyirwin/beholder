@@ -1,6 +1,6 @@
 <a class='page-link' href='{% url "search:response" %}?
 active={{ market.name }}&
-{% for key, value in kwargs.items %}
+{% for key, value in session.kwargs.items %}
 {% if key == market.name|add:"Page" %}
 {{ key }}={{ value|add:1 }}&
 {% elif key != "active" %}

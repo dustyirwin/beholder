@@ -30,6 +30,8 @@ def response(request):
                 else:
                     item = Eyes[kwargs['market']].getItemDetails(item, item_id=kwargs['capture'])
                     item['market'] = kwargs['market']
+                    item['prices'] = {}
+                    item['notes'] = {}
                     ItemData(
                         item_id=kwargs['capture'],
                         name=item['name'],
@@ -43,5 +45,7 @@ def response(request):
         market.findItems(**kwargs)
 
     session.data['active'] = session.data['active'] if 'active' not in kwargs else kwargs['active']
+    session.data['kwargs'] = kwargs
+    session.save()
 
     return render(request, 'search/response.html', context={'session': session.data})

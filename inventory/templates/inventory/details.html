@@ -1,40 +1,89 @@
 {% extends "search/query.html" %}
 {% block page_content %}
-  <-- DIAGNOSTICS:
+  <!-- DIAGNOSTICS:
     session.item.keys(): {{ session.item.keys }}-->
-
 
 <div class=container>
   <h3><a href="{{ session.item.product_url }}" target='_blank'>{{ session.item.name }}</a></h3>
 
-  {% include 'search/images_carousel.html' with item=session.item %}
-
-  <p>item_id: {{ session.item.item_id }}</p>
-  <p>market: <b>{{ session.item.market }}</b></p>
-  <p>sale_price: ${{ session.item.sale_price }}</p>
+  <div class="vh:25">
+    {% include 'search/images_carousel.html' with item=session.item %}
+  </div>
+  <ul class="list-inline">
+    <li class="list-inline-item">item_id: {{ session.item.item_id }}</li>
+    <li class="list-inline-item">market: <b>{{ session.item.market }}</b></li>
+    <li class="list-inline-item">sale_price: ${{ session.item.sale_price }}</li>
+  </ul>
   <p data-toggle="tooltip" data-placement="bottom" title="{{ session.item.description }}">
     {{ session.item.description|truncatechars:400 }}</p>
 
+    <!-- Collapseable -->
   <form action="{% url 'inventory:itemDetails' %}" method="get">
-    <button type="submit" class="btn btn-success">save</button> <button class="btn btn-outline-primary">list</button>
-    <input type="hidden" name="get_prices" value="{{ session.item.item_id }}">
-
-    <p>query string for ebay historical data: </p><input type="text" name="query" value="{{ session.item.prices.ebay_hist.query }}">
-    <p>{{ session.item.prices.ebay_hist.count}} prices found: </p>
-    <u1>
-      {% for item_id, record in session.item.prices.ebay_hist.records.items %}
-      <li>
-        <img src={{ record.small_image }} height=40px width=auto align='left'><p align='left'><a href="{{ record.product_url }}" target='_blank'>({{ record.market }}){{ record.name|truncatechars:35 }}</a> sold for ${{ record.sale_price }} + ${{ record.shipping_cost }} ship. on {{ record.sold_date|truncatechars:13 }}</p>
-      </li>
-      {% endfor %}
-    </ul>
-    <ol>
-      {% for note in session.item.notes %}
-      <li><p>  {{ note }} </p></li>
-      {% endfor %}
-    </ol>
-    <p>add new note: </p><input type="text" name="note"></p>
+    <div class="accordion" id="accordionExample">
+      <div class="card">
+        <div class="card-header" id="headingOne">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseTwo">
+              Listings:
+            </button>
+          </h5>
+        </div>
+        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+          <div class="card-body">
+            Stats/info on listings of item on various markets here
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="headingTwo">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseThree">
+              <ul class="list-inline">
+                <li class="list-inline-item">Query string:</li>
+                <li class="list-inline-item"><input type="text" name="query" value="{{ session.item.prices.ebay_hist.query }}"></li>
+                <li class="list-inline-item"><b>{{ session.item.prices.ebay_hist.count}} prices found.</b></li>
+                <li class="list-inline-item">high: {{session.item.prices.high }}</li>
+                <li class="list-inline-item">low {{session.item.prices.low }}</li>
+                <li class="list-inline-item">mean: {{session.item.prices.mean }}</li>
+                <li class="list-inline-item">stvDev: {{session.item.prices.stvDev }}</li>
+              </ul>
+            </button>
+          </h5>
+        </div>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+          <div class="card-body">
+            <u1>
+              {% for item_id, record in session.item.prices.ebay_hist.records.items %}
+              <li>
+                <img src={{ record.small_image }} height=40px width=auto align='left'><p align='left'><a href="{{ record.product_url }}" target='_blank'>({{ record.market }}){{ record.name|truncatechars:35 }}</a> sold for ${{ record.sale_price }} + ${{ record.shipping_cost }} ship. on {{ record.sold_date|truncatechars:13 }}</p>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="headingThree">
+          <h5 class="mb-0">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+              Notes: {{ session.item.notes|slice:"-3:"}}
+          </button>
+        </h5>
+      </div>
+      <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+        <div class="card-body">
+          <ol>
+            {% for note in session.item.notes %}
+            <li>{{ note }}</li>
+            {% endfor %}
+          </ol>
+          <p>add new note: </p><input type="text" name="note"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-success">save</button> <button class="btn btn-outline-primary">list</button>
+  <input type="hidden" name="get_prices" value="{{ session.item.item_id }}">
   </form>
-  <p>Notes:</p>
 </div>
 {% endblock %}

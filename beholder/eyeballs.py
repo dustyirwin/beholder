@@ -240,14 +240,14 @@ class Ebay(Eye):
                 'customer_rating': isodate.parse_duration(item['sellingStatus']['timeLeft']).__str__(),
                 'sale_price': item['listingInfo']['buyItNowPrice']['value'] if item.get('buyItNowPrice') else item['sellingStatus']['currentPrice']['value'],
                 'product_url': item['viewItemURL'],
-                'medium_image': item['galleryURL'],
-                'images': [item['pictureURLLarge']],
+                'medium_image': item['galleryURL'] if 'galleryURL' in item else None,
+                'images': [item['pictureURLLarge'] if 'pictureURLLarge' in item else None],
                 'stock': item['sellingStatus']['sellingState'],
                 'category_node': item['primaryCategory']['categoryId'],
                 'category_path': item['primaryCategory']['categoryName'], } for item in objects]
 
         except Exception:
-            print('Error getting items on eBay: ', traceback.format_exc)
+            print('Error getting items on eBay: ', traceback.format_exc())
             objects = []
 
         response = {
@@ -267,14 +267,13 @@ class Ebay(Eye):
                                 }).dict()['Item'], **_item}
 
     def getItemPriceHistories(self, **kwargs):
-        item = self.Items.objects.get(item_id=kwargs['get_prices'])
-        item.data['prices'] = {}
+        item = ItemData.objects.get(item_id=kwargs['get_prices'])
         item.data['prices']['ebay_hist'] = {
             'query': kwargs['query'],
             'market': 'ebay_historical',
             'records': {}}
 
-        for page in range(1, 4):  # process top (25/page) * 4pages most relevant items
+        for page in range(1, 4):  # process top (25/page) * 4pages == 100 most relevant items
 
             priceHistories_params = {
                 'keywords': kwargs['keywords'] if kwargs.get('keywords') else None,
