@@ -1,7 +1,7 @@
 {% extends "login/header.html" %}
 
 {% block content %}
-  <-- DIAGNOSTICS:
+  <!-- DIAGNOSTICS:
     session.market_data.walmart.name: {{ session.market_data.walmart.name }} -->
 
   <form action="{% url 'search:response' %}" method="get">

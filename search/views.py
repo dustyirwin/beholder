@@ -33,8 +33,8 @@ def response(request):
                     ItemData(
                         item_id=kwargs['capture'],
                         name=item['name'],
-                        data=item).save()
-                    session.data['capture'] = {'item_id': kwargs['capture'], 'market': kwargs['market']}
+                        data=item, ).save()
+                    session.data['item'] = item
                     session.save()
                     return redirect('inventory:itemDetails')
 

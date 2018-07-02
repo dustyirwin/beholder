@@ -30,6 +30,4 @@ def itemDetails(request, item_id=''):
         kwargs['keywords'] = kwargs['query']
         Eyes['ebay'].getItemPriceHistories(**kwargs)
 
-    session.data['item'] = ItemData.objects.get(item_id=item_id if 'get_prices' not in kwargs else kwargs['get_prices']).data
-    session.save()
     return render(request, 'inventory/details.html', context={'session': session.data})

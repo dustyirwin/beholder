@@ -30,6 +30,7 @@ pp.pprint(items)
 # load session for user
 if SessionData.objects.filter(user='dusty').exists():
     session = SessionData.objects.get(user='dusty')
+
 else:
     session = SessionData(
         user='dusty',
@@ -289,21 +290,20 @@ class Ebay(Eye):
             response = self.FindingAPI.execute('findCompletedItems', priceHistories_params).dict()
 
             if response['ack'] == 'Success' and response['searchResult']['_count'] == '0':
-                print('No prices found on eBay historical for query: '+ kwargs['query'])
+                print('No prices found on eBay historical for query: '+kwargs['query'])
                 break
 
             else:
                 objects = response['searchResult']['item']
-                pp = pprint.PrettyPrinter(indent=2)
-                pp.pprint(objects)
+
                 for _item in objects:
 
                     price_data = {
+                        'market': 'ebay',
                         'name': _item['title'],
                         'item_id': _item['itemId'],
                         'small_image': _item['galleryURL'] if 'galleryURL' in _item else None,
                         'product_url': _item['viewItemURL'],
-                        'market': 'ebay',
                         'sale_price': _item['sellingStatus']['currentPrice']['value'],
                         'shipping_cost': _item['shippingInfo']['shippingServiceCost']['value'] if 'shippingServiceCost' in _item['shippingInfo'] else None,
                         'sold_date': _item['listingInfo']['endTime'], }

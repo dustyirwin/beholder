@@ -11,7 +11,7 @@
 
   <p>item_id: {{ session.item.item_id }}</p>
   <p>market: <b>{{ session.item.market }}</b></p>
-  <p>sale_price: {{ session.item.sale_price }}</p>
+  <p>sale_price: ${{ session.item.sale_price }}</p>
   <p data-toggle="tooltip" data-placement="bottom" title="{{ session.item.description }}">
     {{ session.item.description|truncatechars:400 }}</p>
 
@@ -20,19 +20,19 @@
     <input type="hidden" name="get_prices" value="{{ session.item.item_id }}">
 
     <p>query string for ebay historical data: </p><input type="text" name="query" value="{{ session.item.prices.ebay_hist.query }}">
-    <ol>
-  {% for note in session.item.notes %}
-    <li><p>  {{ note }} </p></li>
-  {% endfor %}
-    </ol>
     <p>{{ session.item.prices.ebay_hist.count}} prices found: </p>
-      <u1>
+    <u1>
       {% for item_id, record in session.item.prices.ebay_hist.records.items %}
       <li>
         <img src={{ record.small_image }} height=40px width=auto align='left'><p align='left'><a href="{{ record.product_url }}" target='_blank'>({{ record.market }}){{ record.name|truncatechars:35 }}</a> sold for ${{ record.sale_price }} + ${{ record.shipping_cost }} ship. on {{ record.sold_date|truncatechars:13 }}</p>
       </li>
       {% endfor %}
     </ul>
+    <ol>
+      {% for note in session.item.notes %}
+      <li><p>  {{ note }} </p></li>
+      {% endfor %}
+    </ol>
     <p>add new note: </p><input type="text" name="note"></p>
   </form>
   <p>Notes:</p>
