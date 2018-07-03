@@ -5,8 +5,7 @@
 
 <div class=container>
   <h3><a href="{{ session.item.product_url }}" target='_blank'>{{ session.item.name }}</a></h3>
-
-  <div class="vh:25">
+  <div class>
     {% include 'search/images_carousel.html' with item=session.item %}
   </div>
   <ul class="list-inline">
@@ -16,10 +15,9 @@
   </ul>
   <p data-toggle="tooltip" data-placement="bottom" title="{{ session.item.description }}">
     {{ session.item.description|truncatechars:400 }}</p>
-
-  <!-- Collapseable -->
   <form action="{% url 'inventory:itemDetails' %}" method="get">
-    <div class="accordion" id="accordionExample">
+    <div class="accordion" id="accordionExample"> <!-- Collapseable -->
+      <input type="submit" style="visibility: hidden;" />
       <div class="card">
         <div class="card-header" id="headingOne">
           <h5 class="mb-0">
@@ -39,17 +37,12 @@
           <h5 class="mb-0">
             <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseThree">
               <ul class="list-inline">
-                <li class="list-inline-item">Query string:</li>
+                <li class="list-inline-item"><b>{{ session.item.prices.ebay_hist.count}} prices found for</b></li>
                 <li class="list-inline-item"><input type="text" name="query" value="{{ session.item.prices.ebay_hist.query }}"></li>
-                <li class="list-inline-item"><b>{{ session.item.prices.ebay_hist.count}} prices found.</b></li>
                 <li class="list-inline-item">high: ${{session.item.prices.high }}</li>
                 <li class="list-inline-item">low: ${{session.item.prices.low }}</li>
                 <li class="list-inline-item">mean: ${{session.item.prices.mean }}</li>
-                <li class="list-inline-item">stv_dev: ${{session.item.prices.std_dev }}</li>
-              </ul>
-            </button>
-          </h5>
-        </div>
+                <li class="list-inline-item">std: ${{session.item.prices.std_dev }}</li></ul></button></h5></div>
         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
           <div class="card-body">
             <u1>
@@ -66,15 +59,15 @@
         <div class="card-header" id="headingThree">
           <h5 class="mb-0">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-              Notes: {{ session.item.notes }}
+              Notes:
             </button>
           </h5>
         </div>
         <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
           <div class="card-body">
           <ol>
-            {% for note in session.item.notes %}
-            <li>{{ note }}</li>
+            {% for time_stamp, record in session.item.notes.items %}
+            <li>{{ record.note }}</li>
             {% endfor %}
           </ol>
           <p>add new note: </p><input type="text" name="note"></p>

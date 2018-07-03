@@ -3,6 +3,7 @@ import requests
 import re
 from ebaysdk.finding import Connection as Finding
 from ebaysdk.shopping import Connection as Shopping
+from ebaysdk.trading import Connection as Trading
 import datetime
 from bs4 import BeautifulSoup
 from wapy.api import Wapy
@@ -10,90 +11,51 @@ kz = keys.keys
 
 
 # ebay section
-kwargs = {
-    'keywords': 'baby stroller',
-    'page': '1', }
-FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
-ShoppingAPI = Shopping(appid=keys.keys['ebay']['production']['appid'], config_file=None)
-hist_search_params = {
-    'keywords': kwargs['keywords'],
-    'descriptionSearch': True,
-    'sortOrder': 'BestMatch',
-    'outputSelector': ['AspectHistogram', 'CategoryHistogram'],
-    'itemFilter': [
-        {'name': 'SoldItemsOnly', 'value': True},
-        {'name': 'ListingType', 'value': 'AuctionWithBIN'},
-        {'name': 'Condition', 'value': ['New']},
-        {'name': 'LocatedIn', 'value': 'US'}, ],
-    'paginationInput': {
-        'entriesPerPage': 25,
-        'pageNumber': 2, }}
-findItemsAdvanced_params = {
-    'keywords': kwargs['keywords'],
-    'descriptionSearch': True,
-    'sortOrder': 'BestMatch',
-    'outputSelector': ['AspectHistogram', 'CategoryHistogram'],
-    'itemFilter': [
-        {'name': 'ListingType', 'value': 'AuctionWithBIN'},
-        {'name': 'Condition', 'value': ['New']},
-        {'name': 'LocatedIn', 'value': 'US'}, ],
-    'paginationInput': {
-        'entriesPerPage': 25,
-        'pageNumber': 2, }}
-response = ShoppingAPI.execute('FindPopularItems', {'keywords': 'super mario bros'})
-response = FindingAPI.execute('findCompletedItems', hist_search_params).dict()
-response = FindingAPI.execute('findItemsAdvanced', findItemsAdvanced_params).dict()
-response
-len(response['searchResult']['item'])
-response['searchResult']['item'][0]
+try:
+    myitem = {
+        "Item": {
+            "Title": "Harry Potter and the Philosopher's Stone",
+            "Description": "This is the first book in the Harry Potter series. In excellent condition!",
+            "PrimaryCategory": {"CategoryID": "377"},
+            "StartPrice": "1.0",
+            "CategoryMappingAllowed": "true",
+            "Country": "US",
+            "ConditionID": "3000",
+            "Currency": "USD",
+            "DispatchTimeMax": "3",
+            "ListingDuration": "Days_7",
+            "ListingType": "Chinese",
+            "PaymentMethods": "PayPal",
+            "PayPalEmailAddress": "tkeefdddder@gmail.com",
+            "PictureDetails": {"PictureURL": "http://i1.sandbox.ebayimg.com/03/i/00/30/07/20_1.JPG?set_id=8800005007"},
+            "PostalCode": "95125",
+            "Quantity": "1",
+            "ReturnPolicy": {
+                "ReturnsAcceptedOption": "ReturnsAccepted",
+                "RefundOption": "MoneyBack",
+                "ReturnsWithinOption": "Days_30",
+                "Description": "If you are not satisfied, return the book for refund.",
+                "ShippingCostPaidByOption": "Buyer"
+            },
+            "ShippingDetails": {
+                "ShippingType": "Flat",
+                "ShippingServiceOptions": {
+                    "ShippingServicePriority": "1",
+                    "ShippingService": "USPSMedia",
+                    "ShippingServiceCost": "2.50"
+                }
+            },
+            "Site": "US"
+        }
+    }
 
+Trading.execute('VerifyAddItem', myitem)
+dump(api)
 
-for page in pages:
-
-    search_params = {
-        'keywords': kwargs['keywords'],
-        'descriptionSearch': True,
-        'sortOrder': 'BestMatch',
-        'outputSelector': ['GalleryURL', 'ConditionHistogram'],
-        'itemFilter': [
-            {'name': 'SoldItemsOnly', 'value': True},
-            {'name': 'ListingType', 'value': 'AuctionWithBIN'},
-            {'name': 'Condition', 'value': ['New']},
-            {'name': 'LocatedIn', 'value': 'US'}, ],
-        'paginationInput': {
-            'entriesPerPage': 25,
-            'pageNumber': page, }}
-
-    response = FindingAPI.execute('findCompletedItems', search_params).dict()
-    if 'errorMessage' in response:
-        print(response['errorMessage'])
-    print(response['searchResult'].keys())
-    print("Found "+response['searchResult']['_count']+" prices.")
-
-    items = response['searchResult']['item']
-
-    for item in items:
-
-        _prices = {
-            'name': item['title'],
-            'item_id': item['itemId'],
-            'market': 'ebay',
-            'thumbnail_image': item['galleryURL'] if item.get('galleryURL') else None,
-            'product_url': item['viewItemURL'],
-            'sold_for': item['sellingStatus']['currentPrice']['value'],
-            'shipping_cost': item['shippingInfo']['shippingServiceCost']['value'] if item.get('shippingServiceCost') else None,
-            'sold_date': item['listingInfo']['endTime'] if 'listingInfo' in item else None,
-            'sold_zip': item['postalCode'] if item.get('postalCode') else None,
-            'time_stamp': datetime.datetime.now().__str__(), }
-
-        prices.append(_prices)
-
-    if int(response['searchResult']['_count']) < 25:
-        break
-
-for price in prices:
-    print(price['item_id'], ": $", price['sold_for'], " : ", price['time_stamp'])
-
+except ConnectionError as e:
+print(e)
+print(e.response.dict())
+pass
 
 # walmart section
 wally = Wapy(keys.keys['walmart']['apiKey'])
@@ -151,11 +113,3 @@ for i, elem in enumerate(search_results):
 
 
 B06XNYLY5R
-
-
-a = 34.501234324
-
-import numpy as np
-
-
-c = [9,4,6,3,7,4,2,5,5,6,3,2,7,2,8,6,6]

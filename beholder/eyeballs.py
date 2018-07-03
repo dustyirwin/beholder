@@ -3,6 +3,7 @@ from beholder.keys import keys  # api keys
 from wapy.api import Wapy  # walmart api
 from ebaysdk.finding import Connection as Finding  # ebay apis
 from ebaysdk.shopping import Connection as Shopping
+from ebaysdk.trading import Connection as Trading
 # from ebaysdk.trading import Connection as Trading
 from inventory.models import ItemData  # item database
 from inventory.models import SessionData  # session data
@@ -204,8 +205,8 @@ class Ebay(Eye):
     def __init__(self):
         self.FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
         self.ShoppingAPI = Shopping(appid=keys.keys['ebay']['production']['appid'], config_file=None)
+        self.TradingAPI = Trading(appid=keys.keys['ebay']['production']['appid'], config_file=None)
         super().__init__()
-        self.Items = ItemData
 
     def findItems(self, **kwargs):
         findItems_params = {
@@ -318,7 +319,6 @@ class Ebay(Eye):
         item.data['prices']['low'] = min([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()])
         item.data['prices']['mean'] = (sum([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()]) / float(item.data['prices']['ebay_hist']['count'])).__round__(2)
         item.data['prices']['std_dev'] = np.std([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()]).round(2)
-        print(item.data['prices']['std_dev'])
         item.save()
         print('found '+str(item.data['prices']['ebay_hist']['count'])+' prices for query: '+kwargs['query']+' on ebay.')
 
@@ -483,6 +483,12 @@ class Ebay(Eye):
                 ebayItem.save()
 
             return {'ebayItem': ebayItem, 'amazonItems': amazonItems}
+
+    def listItem(self, **kwargs):
+        pass
+
+    def cancelListing(self, **kwargs):
+        pass
 
 
 class Amazon(Eye):

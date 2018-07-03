@@ -26,7 +26,9 @@ def itemDetails(request, item_id=''):
 
         if bool(kwargs['note']):
             item = ItemData.objects.get(item_id=kwargs['item_id']) if 'item_id' in kwargs else ItemData.objects.get(item_id=kwargs['get_prices'])
-            item.data['notes'][datetime.now().__str__()] = kwargs['note']
+            item.data['notes'][datetime.now().__str__()[:19]] = {
+                'note': kwargs['note'],
+                'user': 'dusty', }
             item.save()
 
     if 'get_prices' in kwargs and 'query' in kwargs:
