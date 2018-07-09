@@ -61,10 +61,6 @@ else:
                         {'name': 'Video Games', 'id': '2636'}, {'name': 'Walmart for Business', 'id': '6735581'},
                         {'name': 'Trending', 'id': 'specialQuery'}, ],
                     'search_filters': [
-                        {'name': 'Best Sellers', 'value': False},
-                        {'name': 'Clearance', 'value': False},
-                        {'name': 'Special Buy', 'value': False},
-                        {'name': 'Trending', 'value': False},
                         {'name': 'FreeShip', 'value': True}, ], },
                 'ebay': {
                     'name': 'ebay',
@@ -89,7 +85,6 @@ else:
                         {'name': 'New', 'value': True},
                         {'name': 'BIN', 'value': True},
                         {'name': 'FreeShip', 'value': True},
-                        {'name': 'InUS', 'value': True},
                         {'name': 'Hist', 'value': False}, ], },
                 'amazon': {
                     'name': 'amazon',
@@ -127,7 +122,7 @@ else:
                         {'name': 'WirelessAccessories', 'id': 'WirelessAccessories'}, ],
                     'search_filters': [
                         {'name': 'Prime', 'value': False},
-                        {'name': 'Used', 'value': False}, ], }, }}
+                        {'name': 'New', 'value': True}, ], }, }}
     ).save()
 
 
@@ -154,20 +149,20 @@ class Walmart(Eye):
         try:  # try to get response items from walmart api
             objects = self.walmart.search(kwargs['keywords'], **findItems_params)
             objects = [{
-                    'item_id': item.item_id,
-                    'name': item.name,
-                    'sale_price': item.sale_price,
-                    'upc': item.upc,
-                    'description': item.short_description,
-                    'stock': item.stock,
-                    'medium_image': item.medium_image,
-                    'images': item.images,
-                    'customer_rating': item.customer_rating,
-                    'model_number': item.model_number,
-                    'category_node': item.category_node,
-                    'category_path': item.category_path,
-                    'brand_name': item.brand_name,
-                    'product_url': item.product_url} for item in objects]
+                'item_id': item.item_id,
+                'name': item.name,
+                'sale_price': item.sale_price,
+                'upc': item.upc,
+                'description': item.short_description,
+                'stock': item.stock,
+                'medium_image': item.medium_image,
+                'images': item.images,
+                'customer_rating': item.customer_rating,
+                'model_number': item.model_number,
+                'category_node': item.category_node,
+                'category_path': item.category_path,
+                'brand_name': item.brand_name,
+                'product_url': item.product_url} for item in objects]
 
         except Exception as e:
             print('Error retrieving items on walmart: ', e)
@@ -280,7 +275,7 @@ class Ebay(Eye):
             priceHistories_params = {
                 'keywords': kwargs['keywords'] if kwargs.get('keywords') else None,
                 'descriptionSearch': True,
-                'sortOrder': 'BestMatch',
+                'sortOrder': 'PricePlusShippingHighest', #EndTimeSoonest
                 'outputSelector': ['CategoryHistogram', 'AspectHistogram', 'SellerInfo', 'GalleryInfo'],
                 'itemFilter': [
                     {'name': 'Condition', 'value': ['New']},

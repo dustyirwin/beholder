@@ -1,17 +1,22 @@
 {% extends "search/query.html" %}
 {% block page_content %}
-  <!-- DIAGNOSTICS:
+  <-- DIAGNOSTICS:
     session.item.keys(): {{ session.item.keys }}-->
 
-<div class=container>
+<div class=container-fluid>
   <h3><a href="{{ session.item.product_url }}" target='_blank'>{{ session.item.name }}</a></h3>
   <div class>
     {% include 'search/images_carousel.html' with item=session.item %}
   </div>
+  <!--Item Details-->
   <ul class="list-inline">
     <li class="list-inline-item">item_id: {{ session.item.item_id }}</li>
+    <li class="list-inline-item">brand: {{ session.item.brandName }}</li>
     <li class="list-inline-item">market: <b>{{ session.item.market }}</b></li>
     <li class="list-inline-item">sale_price: ${{ session.item.sale_price }}</li>
+    <li class="list-inline-item">categoryNode: {{ session.item.categoryNode }}</li>
+    <li class="list-inline-item">categoryPath: {{ session.item.categoryPath }}</li>
+    <li class="list-inline-item">freeShippingOver35Dollars: {{ session.item.freeShippingOver35Dollars }}
   </ul>
   <p data-toggle="tooltip" data-placement="bottom" title="{{ session.item.description }}">
     {{ session.item.description|truncatechars:400 }}</p>
@@ -44,17 +49,20 @@
                 <li class="list-inline-item">mean: ${{session.item.prices.mean }}</li>
                 <li class="list-inline-item">std: ${{session.item.prices.std_dev }}</li></ul></button></h5></div>
         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
-          <div class="card-body">
-            <u1>
-              {% for item_id, record in session.item.prices.ebay_hist.records.items %}
-              <li>
-                <img src={{ record.small_image }} height=40px width=auto align='left'><p align='left'><a href="{{ record.product_url }}" target='_blank'>({{ record.market }}){{ record.name|truncatechars:35 }}</a> sold for ${{ record.sale_price }} + ${{ record.shipping_cost }} ship. on {{ record.sold_date|truncatechars:13 }}</p>
-              </li>
-              {% endfor %}
-            </ul>
+          <div class="card-body mb-0">
+            <div class="card-columns no-gutters mb-0">
+            {% for item_id, record in session.item.prices.ebay_hist.records.items %}
+              <div class="card" style="width: 12rem;">
+                <img class="card-img-top" src="{{ record.small_image }}" alt="Card image cap">
+                <div class="card-body">
+                  <a href="{{ record.product_url }}" target='_blank'>({{ record.market }}) {{ record.name|truncatechars:35 }}</a>
+                  sold for $<b>{{ record.sale_price }}</b> + $<b>{{ record.shipping_cost }}</b> shipping on {{ record.sold_date|truncatechars:13 }}
+                </div>
+              </div>
+            {% endfor %}
+            </div>
           </div>
         </div>
-      </div>
       <div class="card">
         <div class="card-header" id="headingThree">
           <h5 class="mb-0">

@@ -27,7 +27,7 @@ try:
             "ListingType": "Chinese",
             "PaymentMethods": "PayPal",
             "PayPalEmailAddress": "tkeefdddder@gmail.com",
-            "PictureDetails": {"PictureURL": "http://i1.sandbox.ebayimg.com/03/i/00/30/07/20_1.JPG?set_id=8800005007"},
+               "PictureDetails": {"PictureURL": "http://i1.sandbox.ebayimg.com/03/i/00/30/07/20_1.JPG?set_id=8800005007"},
             "PostalCode": "95125",
             "Quantity": "1",
             "ReturnPolicy": {
@@ -50,7 +50,7 @@ try:
     }
 
 Trading.execute('VerifyAddItem', myitem)
-dump(api)
+
 
 except ConnectionError as e:
 print(e)
