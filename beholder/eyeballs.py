@@ -143,6 +143,7 @@ class Walmart(Eye):
         self.walmart = Wapy(keys.keys['walmart']['apiKey'])
 
     def findItems(self, **kwargs):
+        i = 0
         findItems_params = {
             'ResponseGroup': 'full',
             'categoryId': kwargs['walmartCatId'] if bool(kwargs['walmartCatId']) else None,
@@ -169,7 +170,6 @@ class Walmart(Eye):
                 'brand_name': item.brand_name,
                 'product_url': item.product_url} for item in objects]
 
-            i = 0
             for obj in objects:
                 if ItemData.objects.filter(item_id=obj['item_id']).exists():
                     pass
@@ -194,7 +194,7 @@ class Walmart(Eye):
         session.data['market_data']['walmart'] = {**session.data['market_data']['walmart'], **response}
         session.save()
 
-        print(str(i)+' items added to db. '+str(len(session.data['market_data']['walmart']['item_ids'])) + ' walmart items added to session.')
+        print(str(i)+' walmart objects added to db. '+str(len(session.data['market_data']['walmart']['item_ids'])) + ' walmart objects added to session.')
 
     def getItemDetails(self, _item={}, **kwargs):
         return {**self.walmart.product_lookup(kwargs['item_id']).response_handler.payload, **_item}
@@ -235,6 +235,7 @@ class Ebay(Eye):
         super().__init__()
 
     def findItems(self, **kwargs):
+        i = 0
         findItems_params = {
             'descriptionSearch': True,
             'sortOrder': 'BestMatch',
@@ -286,19 +287,22 @@ class Ebay(Eye):
                         name=obj['name'],
                         data=obj
                     ).save()
+                i += 1
 
         except Exception:
             print('Error getting items on eBay: ', traceback.format_exc())
             objects = []
 
         response = {
-            'objects': objects,
+            'item_ids': [obj['item_id'] for obj in objects],
             'page': findItems_params['paginationInput']['pageNumber'],
-            'category': findItems_params['categoryId'] if 'categoryId' in findItems_params else None}
+            'category': findItems_params['categoryId'] if 'categoryId' in findItems_params else None,
+            'keywords': kwargs['keywords'], }
         session.data['market_data']['ebay'] = {**session.data['market_data']['ebay'], **response}
         session.save()
+        session
 
-        print(str(len(session.data['market_data']['ebay']['objects'])) + ' ebay objects added to session.')
+        print(str(i)+' ebay objects added to db. '+str(len(session.data['market_data']['ebay']['item_ids'])) + ' ebay objects added to session.')
 
     def getItemDetails(self, _item={}, **kwargs):
         return {**self.ShoppingAPI.execute(
@@ -575,6 +579,7 @@ class Amazon(Eye):
                 {'name': 'Used', 'value': False}, ], }
 
     def findItems(self, _item={}, **kwargs):
+        i = 0
         kwargs_url_string = ''
         kwargs['page'] = kwargs['amazonPage'] if 'amazonPage' in kwargs else '1'
 
@@ -628,15 +633,16 @@ class Amazon(Eye):
                     name=obj['name'],
                     data=obj
                 ).save()
+            i += 1
 
         response = {
-            'objects': objects,
+            'item_ids': [obj['item_id'] for obj in objects],
             'page': kwargs['page'],
             'category': kwargs['amazonCatId'] if bool(kwargs['amazonCatId']) else None}
         session.data['market_data']['amazon'] = {**session.data['market_data']['amazon'], **response}
         session.save()
 
-        print(str(len(session.data['market_data']['amazon']['objects'])) + ' amazon items added to session.')
+        print(str(i)+' amazon objects added to db. '+str(len(session.data['market_data']['amazon']['item_ids'])) + ' amazon objects added to session.')
 
     def getItemDetails(self, _item={}, **kwargs):
         amazon_search_url = 'https://www.amazon.com/dp/' + kwargs['item_id']
