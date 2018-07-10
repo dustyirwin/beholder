@@ -1,7 +1,7 @@
 {% extends "login/header.html" %}
 
 {% block content %}
-  <!-- DIAGNOSTICS:
+  <-- DIAGNOSTICS:
     session.market_data.walmart.name: {{ session.market_data.walmart.name }} -->
 
   <form action="{% url 'search:response' %}" method="get">
@@ -26,7 +26,21 @@
 
       <div class="input-group mb-0">
         <div class="input-group-prepend">
-          <label class="input-group-text" for="{{ market.name }}Categories">{{ market.name }}</label>
+
+          {% if market.search_enabled %}
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" checked=checked name="{{ market.name}}SE" class="custom-control-input" id="{{ market.name}}SE">
+            <label class="custom-control-label" for="{{ market.name}}SE">{{ market.name }}</label>
+          </div>
+
+          {% else %}
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" name="{{ market.name}}SE" class="custom-control-input" id="{{ market.name}}SE">
+            <label class="custom-control-label" for="{{ market.name}}SE">{{ market.name }}</label>
+          </div>
+
+          {% endif %}
+
         </div>
         <select name="{{ market.name }}CatId" class="custom-select" id="{{ market.name }}Categories">
           <option selected value=""></option>
@@ -42,12 +56,17 @@
     {% for option in market.search_filters %}
 
       {% if option.value == True %}
-        <button type="input" name="{{ option.name }}" value="{{ option.value }}" class="btn btn-outline-success btn-sm active" data-toggle="button" aria-pressed="{{ option.value }}" autocomplete="off">
-          {{ option.name }}</button>
+        <button type="input" name="{{ option.name }}" value="{{ option.value }}"
+          class="btn btn-outline-secondary btn-sm active" data-toggle="button"
+          aria-pressed="{{ option.value }}" autocomplete="off">
+            {{ option.name }}
+        </button>
 
       {% else %}
-        <button type="input" name="{{ option.name }}" value="{{ option.value }}" class="btn btn-outline-success btn-sm" data-toggle="button" aria-pressed="{{ option.value }}" autocomplete="off">
-          {{ option.name }}
+        <button type="input" name="{{ option.name }}" value="{{ option.value }}"
+          class="btn btn-outline-secondary btn-sm" data-toggle="button" autocomplete="off"
+          aria-pressed="{{ option.value }}">
+            {{ option.name }}
         </button>
       {% endif %}
 

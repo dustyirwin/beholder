@@ -59,9 +59,17 @@ pass
 
 # walmart section
 wally = Wapy(keys.keys['walmart']['apiKey'])
+
+
+
 wally_item = wally.product_lookup('16932759')
 wally_item.response_handler.payload
 
+cat_items = wally.search("", **{"categoryId": "7796869_1097870_1680603"})
+clearance_cat_items = wally.clearance_products([1680603])
+cat_items = [item.response_handler.payload for item in cat_items]
+len(cat_items)
+cat_items[0]
 
 # amazon section
 kwargs = {

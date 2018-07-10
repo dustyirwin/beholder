@@ -4,8 +4,6 @@ from beholder.eyeballs import session
 from beholder.eyeballs import Eyes
 # import traceback
 
-session = session
-
 
 def query(request):
     return render(request, 'search/query.html', context={'session': session.data})
@@ -29,9 +27,6 @@ def response(request):
 
                 else:
                     item = Eyes[kwargs['market']].getItemDetails(item, item_id=kwargs['capture'])
-                    item['market'] = kwargs['market']
-                    item['prices'] = {}
-                    item['notes'] = {}
                     ItemData(
                         item_id=kwargs['capture'],
                         name=item['name'],
@@ -40,12 +35,25 @@ def response(request):
                     session.save()
                     return redirect('inventory:itemDetails')
 
-    #  query marketplace for context data
-    for _, market in Eyes.items():
-        market.findItems(**kwargs)
+    # query marketplace for context data
+    for market_name, market in Eyes.items():
+        if market_name+'SE' in kwargs:
+            session.data['market_data'][market_name]['search_enabled'] = kwargs[market_name+"SE"]
+            session.save()
+        if market_name+'SE' in kwargs and bool(kwargs[market_name+'SE']):
+            market.findItems(**kwargs)
 
     session.data['active'] = session.data['active'] if 'active' not in kwargs else kwargs['active']
     session.data['kwargs'] = kwargs
     session.save()
+
+    # construct context from item_ids
+    for market_name, market in Eyes.items():
+        if 'item_ids' in session.data['market_data'][market_name]:
+            item_ids = session.data['market_data'][market_name]['item_ids']
+            objects = [ItemData.objects.get(item_id=item_id).data for item_id in item_ids]
+            session.data['market_data'][market_name]['objects'] = objects
+        else:
+            session.data['market_data'][market_name]['objects'] = None
 
     return render(request, 'search/response.html', context={'session': session.data})

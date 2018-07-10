@@ -1,7 +1,7 @@
 {% extends "search/query.html" %}
 
 {% block page_content %}
-  <!-- Diagnostics:
+  <-- Diagnostics:
         market name: {{ session.market_data.walmart.name }} keys: {{ session.market_data.walmart.keys }}
         market.objects.0.name: {{ session.market_data.walmart.objects.0.name }}
         session.kwargs: {{ session.kwargs }}-->
@@ -10,27 +10,27 @@
   <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
 
-      {% for name, market in session.market_data.items %}
+      {% for market_name, market in session.market_data.items %}
 
-        {% if session.active == market.name %}
+        {% if session.active == market_name %}
 
           {% include "search/prev.html" %}
 
-            <a class="nav-item nav-link active" id="nav-{{ market.name }}-tab" data-toggle="tab"
-              href="#nav-{{ market.name }}" role="tab" aria-controls="nav-{{ market.name }}"
+            <a class="nav-item nav-link active" id="nav-{{ market_name }}-tab" data-toggle="tab"
+              href="#nav-{{ market_name }}" role="tab" aria-controls="nav-{{ market_name }}"
               aria-selected="true">
-              {{ market.name }}.{{ market.category }}.{{ market.page }}</a>
+              {{ market_name }}.{{ market.category }}.{{ market.page }}</a>
 
           {% include "search/next.html" %}
 
-        {% elif market.name in session.market_names %}
+        {% elif market_name in session.market_names %}
 
           {% include "search/prev.html" %}
 
-            <a class="nav-item nav-link" id="nav-{{ market.name }}-tab" data-toggle="tab"
-              href="#nav-{{ market.name }}" role="tab" aria-controls="nav-{{ market.name }}"
+            <a class="nav-item nav-link" id="nav-{{ market_name }}-tab" data-toggle="tab"
+              href="#nav-{{ market_name }}" role="tab" aria-controls="nav-{{ market_name }}"
               aria-selected="true">
-              {{ market.name }}.{{ market.category }}.{{ market.page }}</a>
+              {{ market_name }}.{{ market.category }}.{{ market.page }}</a>
 
           {% include "search/next.html" %}
 
@@ -44,11 +44,11 @@
   <!-- Tab Panels -->
   <div class="tab-content" id="nav-tabContent">
 
-    {% for name, market in session.market_data.items %}
+    {% for market_name, market in session.market_data.items %}
 
-    <div id="nav-{{ market.name }}" role="tabpanel" aria-labelledby="nav-{{ market.name }}-tab"
-{% if session.active == market.name %} class="tab-pane fade show active">
-{% elif market.name in session.market_names %} class="tab-pane fade show">{% endif %}
+    <div id="nav-{{ market_name }}" role="tabpanel" aria-labelledby="nav-{{ market_name }}-tab"
+{% if session.active == market_name %} class="tab-pane fade show active">
+{% elif market_name in session.market_names %} class="tab-pane fade show">{% endif %}
 
       <div class="card-columns">
 

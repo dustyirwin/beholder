@@ -8,7 +8,7 @@ class ItemData(models.Model):
     data = JSONField(null=True, blank=True)
 
     def __str__(self):
-        return self.item_id+' '+self.data['market']+' '+self.name
+        return self.item_id+' '+self.data['market']+' '+self.name[:75]
 
 
 class SessionData(models.Model):

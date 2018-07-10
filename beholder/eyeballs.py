@@ -39,6 +39,7 @@ else:
         session_id='testing...',
         data={
             'active': 'walmart',
+            'keywords': '',
             'market_names': ['walmart', 'ebay', 'amazon'],
             'market_data': {
                 'walmart': {
@@ -60,6 +61,7 @@ else:
                         {'name': 'Sports & Outdoors', 'id': '4125'}, {'name': 'Toys', 'id': '4171'},
                         {'name': 'Video Games', 'id': '2636'}, {'name': 'Walmart for Business', 'id': '6735581'},
                         {'name': 'Trending', 'id': 'specialQuery'}, ],
+                    'search_enabled': True,
                     'search_filters': [
                         {'name': 'FreeShip', 'value': True}, ], },
                 'ebay': {
@@ -81,6 +83,7 @@ else:
                         {'name': 'Sports Mem,  Cards & Fan Shop', 'id': '64482'},{'name': 'Stamps', 'id': '260'},
                         {'name': 'Tickets & Experiences', 'id': '1305'},{'name': 'Toys & Hobbies', 'id': '220'},
                         {'name': 'Travel', 'id': '3252'},{'name': 'Video Games & Consoles', 'id': '1249'}, ],
+                    'search_enabled': False,
                     'search_filters': [
                         {'name': 'New', 'value': True},
                         {'name': 'BIN', 'value': True},
@@ -120,6 +123,7 @@ else:
                         {'name': 'VideoGames', 'id': 'VideoGames'},{'name': 'Watches', 'id': 'Watches'},
                         {'name': 'Wine', 'id': 'Wine'},{'name': 'Wireless', 'id': 'Wireless'},
                         {'name': 'WirelessAccessories', 'id': 'WirelessAccessories'}, ],
+                    'search_enabled': False,
                     'search_filters': [
                         {'name': 'Prime', 'value': False},
                         {'name': 'New', 'value': True}, ], }, }}
@@ -151,6 +155,7 @@ class Walmart(Eye):
             objects = [{
                 'item_id': item.item_id,
                 'name': item.name,
+                'market': 'walmart',
                 'sale_price': item.sale_price,
                 'upc': item.upc,
                 'description': item.short_description,
@@ -164,12 +169,24 @@ class Walmart(Eye):
                 'brand_name': item.brand_name,
                 'product_url': item.product_url} for item in objects]
 
+            i = 0
+            for obj in objects:
+                if ItemData.objects.filter(item_id=obj['item_id']).exists():
+                    pass
+                else:
+                    ItemData(
+                        item_id=obj['item_id'],
+                        name=obj['name'],
+                        data=obj
+                    ).save()
+                    i += 1
+
         except Exception as e:
             print('Error retrieving items on walmart: ', e)
             objects = []
 
         response = {
-            'objects': objects,
+            'item_ids': [obj['item_id'] for obj in objects],
             'page': str(findItems_params['page']),
             'category': str(findItems_params['categoryId']),
             'keywords': kwargs['keywords'], }
@@ -177,10 +194,24 @@ class Walmart(Eye):
         session.data['market_data']['walmart'] = {**session.data['market_data']['walmart'], **response}
         session.save()
 
-        print(str(len(session.data['market_data']['walmart']['objects'])) + ' walmart items added to session.')
+        print(str(i)+' items added to db. '+str(len(session.data['market_data']['walmart']['item_ids'])) + ' walmart items added to session.')
 
     def getItemDetails(self, _item={}, **kwargs):
         return {**self.walmart.product_lookup(kwargs['item_id']).response_handler.payload, **_item}
+
+    def getItemPrices(self, **kwargs):
+        item = ItemData.objects.get(item_id=kwargs['item_id'])
+        kwargs['keywords'] = item.name.split(",")[0]
+        items = self.walmart.findItems(self, kwargs)
+        items = [item.response_handler.payload for item in items]
+        prices = [{
+            'item_id': item['item_id'],
+            'name': item['name'],
+            'sale_price': item['sale_price'],
+
+            'time_stamp': datetime.datetime.now().__str__()} for item in items]
+
+        item.data['prices']['walmart']
 
     def getBestSellers(self, **kwargs):
         return self.WalmartAPI.bestseller_products(int(kwargs['walmartCatId']))
@@ -228,6 +259,9 @@ class Ebay(Eye):
             objects = objects['searchResult']['item']
             objects = [{
                 'name': item['title'],
+                'market': 'ebay',
+                'prices': {},
+                'notes': {},
                 'listing_type': item['listingInfo']['listingType'] if 'listingType' in item['listingInfo'] else None,
                 'bids': item['sellingStatus']['bidCount'] if 'bidCount' in item['sellingStatus'] else None,
                 'watch_count': item['listingInfo']['watchCount'] if 'watchCount' in item['listingInfo'] else None,
@@ -242,6 +276,16 @@ class Ebay(Eye):
                 'stock': item['sellingStatus']['sellingState'],
                 'category_node': item['primaryCategory']['categoryId'],
                 'category_path': item['primaryCategory']['categoryName'], } for item in objects]
+
+            for obj in objects:
+                if ItemData.objects.filter(item_id=obj['item_id']).exists():
+                    pass
+                else:
+                    ItemData(
+                        item_id=obj['item_id'],
+                        name=obj['name'],
+                        data=obj
+                    ).save()
 
         except Exception:
             print('Error getting items on eBay: ', traceback.format_exc())
@@ -263,7 +307,7 @@ class Ebay(Eye):
                 'outputSelector': ['Description']
                                 }).dict()['Item'], **_item}
 
-    def getItemPriceHistories(self, **kwargs):
+    def getItemPrices(self, **kwargs):
         item = ItemData.objects.get(item_id=kwargs['get_prices'])
         item.data['prices']['ebay_hist'] = {
             'query': kwargs['query'],
@@ -310,10 +354,10 @@ class Ebay(Eye):
                     break
 
         item.data['prices']['ebay_hist']['count'] = len(item.data['prices']['ebay_hist']['records'].keys())
-        item.data['prices']['high'] = max([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()])
-        item.data['prices']['low'] = min([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()])
-        item.data['prices']['mean'] = (sum([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()]) / float(item.data['prices']['ebay_hist']['count'])).__round__(2)
-        item.data['prices']['std_dev'] = np.std([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()]).round(2)
+        item.data['prices']['ebay_hist']['high'] = max([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()])
+        item.data['prices']['ebay_hist']['low'] = min([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()])
+        item.data['prices']['ebay_hist']['mean'] = (sum([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()]) / float(item.data['prices']['ebay_hist']['count'])).__round__(2)
+        item.data['prices']['ebay_hist']['std_dev'] = np.std([record['sale_price'] for item_id, record in item.data['prices']['ebay_hist']['records'].items()]).round(2)
         item.save()
         print('found '+str(item.data['prices']['ebay_hist']['count'])+' prices for query: '+kwargs['query']+' on ebay.')
 
@@ -552,6 +596,9 @@ class Amazon(Eye):
 
                 obj = {
                     'item_id': elem['data-asin'],
+                    'market': 'amazon',
+                    'prices': {},
+                    'notes': {},
                     'product_url': elem.find('a')['href'],
                     'medium_image': elem.find('img')['src'],
                     'images': [elem.find('img')['src']],
@@ -572,6 +619,16 @@ class Amazon(Eye):
 
                 objects.append(obj)
 
+        for obj in objects:
+            if ItemData.objects.filter(item_id=obj['item_id']).exists():
+                pass
+            else:
+                ItemData(
+                    item_id=obj['item_id'],
+                    name=obj['name'],
+                    data=obj
+                ).save()
+
         response = {
             'objects': objects,
             'page': kwargs['page'],
@@ -590,7 +647,7 @@ class Amazon(Eye):
 
         return {**item, **_item}
 
-    def getPrimePrices(self, **kwargs):
+    def getItemPrices(self, **kwargs):
         priceList = []
 
         primeURL = 'https://www.amazon.com/gp/offer-listing/'
@@ -631,7 +688,7 @@ class Amazon(Eye):
 
         return item
 
-    def calcFBAFees(self, **kwargs):
+    def calculateFees(self, **kwargs):
             valueNames = ['qty', 'TTP', 'Weight', 'Length', 'Width', 'Height']
             values = {}
             item = kwargs['ItemData']['amazon'].objects.get(

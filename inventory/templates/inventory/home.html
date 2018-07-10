@@ -12,7 +12,7 @@ Categorical search: <input type=text> walmart ebay walmart amazon
   {% for item_id, item in session.Inventory.items %}
 
     <li>
-      <p>id: {{ item_id }}<a href="{% url 'inventory:itemDetails' item_id=item_id %}"> {{ item.name }}</a></p>
+      <p>{{ item.market}} <a type="tooltip" data-target="{{ item.name }}" href="{% url 'inventory:itemDetails' item_id=item_id %}">{{ item.name|truncatechars:60 }}</a></p>
     </li>
 
   {% endfor %}
