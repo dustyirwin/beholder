@@ -23,7 +23,7 @@
 
           {% include "search/next.html" %}
 
-        {% elif market_name in session.market_names %}
+        {% elif market.search_enabled %}
 
           {% include "search/prev.html" %}
 
@@ -44,7 +44,9 @@
   <!-- Tab Panels -->
   <div class="tab-content" id="nav-tabContent">
 
-    {% for market_name, market in session.market_data.items %}
+  {% for market_name, market in session.market_data.items %}
+
+    {% if market.search_enabled %}
 
     <div id="nav-{{ market_name }}" role="tabpanel" aria-labelledby="nav-{{ market_name }}-tab"
 {% if session.active == market_name %} class="tab-pane fade show active">
@@ -82,7 +84,7 @@
               {% include 'search/next.html' %}</li>
           </ul>
         </div>
-
+      {% endif %}
     {% endfor %}
 
   </div>

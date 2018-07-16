@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from datetime import datetime
 from .models import ItemData
-from beholder.eyeballs import session
 from beholder.eyeballs import Eyes
 
 
@@ -33,7 +32,7 @@ def itemDetails(request, item_id=''):
 
     if 'get_prices' in kwargs and 'query' in kwargs:
         kwargs['keywords'] = kwargs['query']
-        Eyes['ebay'].getItemPriceHistories(**kwargs)
+        Eyes['ebay'].getItemPrices(**kwargs)
         session.data['item'] = ItemData.objects.get(item_id=kwargs['get_prices']).data
         session.save()
 

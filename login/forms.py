@@ -1,6 +1,11 @@
 from django import forms
+from django.contrib.auth.models import User
 
 
-# class login_form
+class LoginForm(forms.ModelForm):
 
-# class search_form
+    class Meta:
+        model = User
+        fields = ['username', 'password']
+        widgets = {
+        'password': forms.PasswordInput(),}

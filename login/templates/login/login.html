@@ -1,31 +1,45 @@
 {% extends 'login/header.html' %}
 
 {% block content %}
+<!-- DIAGNOSTICS
+    request: {{ request }}
+    kwargs: {{ kwargs }}-->
+
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <div class="jumbotron">
-      <img align="middle" src=https://elmordyn.files.wordpress.com/2012/07/20110223084209-beholder.gif>
-      <h1 class="display-4">Welcome to BEHOLDER</h1>
-      <p class="lead">BEHOLDER is copyright IrwinBros 2018, all rights reserved. Unauthorized use is strictly forbidden.</p>
-      <hr class="my-4">
-      <div class="input-group">
-        <div class="input-group-prepend">
-          <span class="input-group-text" id="inputGroup-sizing">username</span>
-        </div>
-        <input type="text" class="form-control" aria-label="username" aria-describedby="inputGroup-sizing-sm">
-      </div>
-      <div class="input-group">
-        <div class="input-group-prepend">
-          <span class="input-group-text" id="inputGroup-sizing">password</span>
-        </div>
-        <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
-      </div>
-      <div class="container" style="width:350px; align-items: center; margin-top:5px">
-        <div class='col-lg-3'>
-          <button class="btn btn-success btn-block" type="submit">LOGIN</button>
+
+    <div class="jumbotron center-block" align="middle">
+      <img src=https://elmordyn.files.wordpress.com/2012/07/20110223084209-beholder.gif>
+      <h1 class="display-3">beholder</h1>
+      <hr class="my-3">
+      <p class="lead">COPYRIGHT 2018 IRWINBROS LLC</p>
+      <p>No unauthorized access. Please login below.</p>
+      <div class="col">
+        <div class="input-group justify-content-center mb-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text">username</span>
+              {{ login_form.username }}
+          </div>
         </div>
       </div>
+      <div class="col">
+        <div class="input-group justify-content-center mb-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text">password</span>
+              {{ login_form.password }}
+          </div>
+        </div>
+      <button class="btn btn-success mb-2" type="submit">LOGIN</button>
     </div>
+
+    {% if login_error %}
+
+      <div class="container">
+        Error! {{ login_error }}
+      </div>
+
+    {% endif %}
+
   </form>
+
 {% endblock %}

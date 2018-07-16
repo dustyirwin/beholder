@@ -4,13 +4,33 @@ import re
 from ebaysdk.finding import Connection as Finding
 from ebaysdk.shopping import Connection as Shopping
 from ebaysdk.trading import Connection as Trading
-import datetime
+from datetime import datetime as dt
 from bs4 import BeautifulSoup
 from wapy.api import Wapy
 kz = keys.keys
 
 
+#dict merging with new data
+d1 = {'k1': 12.0, 'k2': ((58.5, 'datetime'), (56.5, 'datetime')), 'k3': 24.5}
+d2 = {'k1': 11.0, 'k2': 55.0, 'k3': 26.5}
+ds = [d1, d2]
+d = {}
+
+for k in d1:
+    if type(d1[k]) == tuple:
+        if d1[k][-1][0] != d2[k]:
+            d[k] = d1[k] + ((d2[k], dt.now().__str__()), )
+    else:
+        if d1[k] != d2[k]:  # records
+            d[k] = ((d1[k], dt.now().__str__()),(d2[k], dt.now().__str__()), )
+
+nu_dict = {**d1, **d}
+nu_dict
+
+tup2 = 54.5 + ()
+
 # ebay section
+
 try:
     myitem = {
         "Item": {
