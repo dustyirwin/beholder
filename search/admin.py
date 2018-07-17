@@ -4,7 +4,7 @@ from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
 from django.utils.safestring import mark_safe
-from inventory.models import SessionData
+from login.models import SessionData
 
 
 class SessionDataAdmin(admin.ModelAdmin):

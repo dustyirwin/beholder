@@ -5,7 +5,7 @@ from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
 from django.utils.safestring import mark_safe
 from .models import ItemData
-from .models import SessionData
+from login.models import SessionData
 
 
 class ItemDataAdmin(admin.ModelAdmin):

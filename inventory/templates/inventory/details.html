@@ -20,7 +20,7 @@
   </ul>
   <p data-toggle="tooltip" data-placement="bottom" title="{{ session.item.description }}">
     {{ session.item.description|truncatechars:400 }}</p>
-  <form action="{% url 'inventory:itemDetails' %}" method="get">
+  <form action="{% url 'inventory:details' %}" method="get">
     <div class="accordion" id="accordionExample"> <!-- Collapseable -->
       <input type="submit" style="visibility: hidden;" />
       <div class="card">

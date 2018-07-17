@@ -1,22 +1,16 @@
 {% extends "search/query.html" %}
+
 {% block page_content %}
- <-- DIAGNOSTICS:
-  session.market_names: {{ session.market_names }}
-  session.Inventory.Items: {{ session.Inventory.items.0 }}
+  ORDERS:
+  SOLD:
+  <ol>
+    {% for item in recent_items %}
 
-<form><br>
-Categorical search: <input type=text> walmart ebay walmart amazon
-</form>
-<ol>
+      <li>
+        <p>{{ item.market }} <a type="tooltip" data-target="{{ item.name }}" href="{% url 'inventory:details' item_id=item.item_id %}">{{ item.name|truncatechars:100 }}</a></p>
+      </li>
 
-  {% for item_id, item in session.Inventory.items %}
-
-    <li>
-      <p>{{ item.market}} <a type="tooltip" data-target="{{ item.name }}" href="{% url 'inventory:itemDetails' item_id=item_id %}">{{ item.name|truncatechars:60 }}</a></p>
-    </li>
-
-  {% endfor %}
-
-</ol>
+      {% endfor %}
+  </ol>
 
 {% endblock %}

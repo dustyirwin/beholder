@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from django.contrib.auth import authenticate, login
-from inventory.models import SessionData
+from beholder.eyeballs import Eye
 from .forms import LoginForm
 
 
@@ -15,18 +15,11 @@ class IndexView(TemplateView):
     def post(self, request):
         kwargs = request.POST.dict()
         login_form = LoginForm()
+        eye = Eye()
         user = authenticate(request, username=kwargs['username'], password=kwargs['password'])
 
         if user is not None:
-
-            if not SessionData.objects.filter(user=kwargs['username']).exists():
-                SessionData(
-                    user=kwargs['username'],
-                    session_id='testing...',
-                    data={'market_data': {}}
-                ).save()
-
-            return redirect('search:query')
+            return redirect('inventory:home')
 
         else:
             return render(request, self.template_name, {'login_form': login_form, 'kwargs': kwargs,})

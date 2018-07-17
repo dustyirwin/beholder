@@ -32,13 +32,16 @@ pp.pprint(items)
 
 class Eye:
 
-    def open(self, **kwargs):  # create session for user
+    def __init__(self):
+        pass
 
-        if not SessionData.objects.filter(user=kwargs['user']).exists():
-            self.session = SessionData(
-                user=kwargs['user'],
+    def open(self, user):  # create session for user
+
+        if not SessionData.objects.filter(user=user).exists():
+            session = SessionData(
+                user=user,
                 session_id='testing...',
-                data={'market_data': {
+                data={'query_params': {
                         'walmart': {
                             'name': 'walmart',
                             'categories': [
@@ -124,7 +127,11 @@ class Eye:
                             'search_filters': [
                                 {'name': 'Prime', 'value': False},
                                 {'name': 'New', 'value': True}, ], }, }})
-        self.session = SessionData.objects.get(user=kwargs['user'])
+            session.save()
+        else:
+            session = SessionData.objects.get(user=user)
+
+        return session
 
     async def search(self, **kwargs):
 
@@ -186,6 +193,12 @@ class Eye:
 
 class Center(Eye):
 
+    def __init__(self):
+        super().__init__()
+
+    def open(self, user):
+        super().open(user)
+
     def search(self, **kwargs):
         super().search(**kwargs)
 
@@ -198,28 +211,6 @@ class Walmart(Eye):
     def __init__(self, **kwargs):
         super().__init__()
         self.api = Wapy(keys.keys['walmart']['apiKey'])
-        self.walmart = {
-            'name': 'walmart',
-            'categories': [
-                {'name': 'Arts, Crafts & Sewing', 'id': '1334134'}, {'name': 'Auto & Tires', 'id': '91083'},
-                {'name': 'Baby', 'id': '5427'}, {'name': 'Beauty', 'id': '1085666'}, {'name': 'Books', 'id': '3920'},
-                {'name': 'Cell Phones', 'id': '1105910'}, {'name': 'Clothing', 'id': '5438'},
-                {'name': 'Electronics', 'id': '3944'}, {'name': 'Food', 'id': '976759'},
-                {'name': 'Gifts & Registry', 'id': '1094765'}, {'name': 'Health', 'id': '976760'},
-                {'name': 'Home', 'id': '4044'}, {'name': 'Home Improvement', 'id': '1072864'},
-                {'name': 'Household Essentials', 'id': '1115193'}, {'name': 'Industrial & Scientific', 'id': '6197502'},
-                {'name': 'Jewelry', 'id': '3891'}, {'name': 'Movies & TV Shows', 'id': '4096'},
-                {'name': 'Music on CD or Vinyl', 'id': '4104'}, {'name': 'Musical Instruments', 'id': '7796869'},
-                {'name': 'Office', 'id': '1229749'}, {'name': 'Party & Occasions', 'id': '2637'},
-                {'name': 'Patio & Garden', 'id': '5428'}, {'name': 'Personal Care', 'id': '1005862'},
-                {'name': 'Pets', 'id': '5440'}, {'name': 'Photo Center', 'id': '5426'},
-                {'name': 'Premium Beauty', 'id': '7924299'}, {'name': 'Seasonal', 'id': '1085632'},
-                {'name': 'Sports & Outdoors', 'id': '4125'}, {'name': 'Toys', 'id': '4171'},
-                {'name': 'Video Games', 'id': '2636'}, {'name': 'Walmart for Business', 'id': '6735581'},
-                {'name': 'Trending', 'id': 'specialQuery'}, ],
-            'search_enabled': True,
-            'search_filters': [
-                {'name': 'FreeShip', 'value': True}, ], }
 
     def findItems(self, **kwargs):
         self.findItems_params = {
@@ -578,43 +569,6 @@ class Amazon(Eye):
         super().__init__()
         self.headers = {
             'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'}
-        self.market_data = {
-            'name': 'amazon',
-            'categories': [
-                {'name': 'Apparel', 'id': 'Apparel'},{'name': 'Appliances', 'id': 'Appliances'},
-                {'name': 'ArtsAndCrafts', 'id': 'ArtsAndCrafts'},{'name': 'Automotive', 'id': 'Automotive'},
-                {'name': 'Baby', 'id': 'Baby'},{'name': 'Beauty', 'id': 'Beauty'},
-                {'name': 'Blended', 'id': 'Blended'},{'name': 'Books', 'id': 'Books'},
-                {'name': 'Classical', 'id': 'Classical'},{'name': 'Collectibles', 'id': 'Collectibles'},
-                {'name': 'DVD', 'id': 'DVD'},{'name': 'DigitalMusic', 'id': 'DigitalMusic'},
-                {'name': 'Electronics', 'id': 'Electronics'},{'name': 'Fashion', 'id': 'Fashion'},
-                {'name': 'FashionBaby', 'id': 'FashionBaby'},{'name': 'FashionBoys', 'id': 'FashionBoys'},
-                {'name': 'FashionGirls', 'id': 'FashionGirls'},{'name': 'FashionMen', 'id': 'FashionMen'},
-                {'name': 'FashionWomen', 'id': 'FashionWomen'},{'name': 'GiftCards', 'id': 'GiftCards'},
-                {'name': 'GourmetFood', 'id': 'GourmetFood'},{'name': 'Grocery', 'id': 'Grocery'},
-                {'name': 'Handmade', 'id': 'Handmade'},{'name': 'HealthPersonalCare', 'id': 'HealthPersonalCare'},
-                {'name': 'HomeAndBusinessServices', 'id': 'HomeAndBusinessServices'},{'name': 'HomeGarden', 'id': 'HomeGarden'},
-                {'name': 'Industrial', 'id': 'Industrial'},{'name': 'Jewelry', 'id': 'Jewelry'},
-                {'name': 'KindleStore', 'id': 'KindleStore'},{'name': 'Kitchen', 'id': 'Kitchen'},
-                {'name': 'LawnAndGarden', 'id': 'LawnAndGarden'},{'name': 'Luggage', 'id': 'Luggage'},
-                {'name': 'MP3Downloads', 'id': 'MP3Downloads'},{'name': 'Magazines', 'id': 'Magazines'},
-                {'name': 'Marketplace', 'id': 'Marketplace'},{'name': 'Miscellaneous', 'id': 'Miscellaneous'},
-                {'name': 'MobileApps', 'id': 'MobileApps'},{'name': 'Movies', 'id': 'Movies'},
-                {'name': 'Music', 'id': 'Music'},{'name': 'MusicTracks', 'id': 'MusicTracks'},
-                {'name': 'MusicalInstruments', 'id': 'MusicalInstruments'},{'name': 'OfficeProducts', 'id': 'OfficeProducts'},
-                {'name': 'OutdoorLiving', 'id': 'OutdoorLiving'},{'name': 'PCHardware', 'id': 'PCHardware'},
-                {'name': 'Pantry', 'id': 'Pantry'},{'name': 'PetSupplies', 'id': 'PetSupplies'},
-                {'name': 'Photo', 'id': 'Photo'},{'name': 'Shoes', 'id': 'Shoes'},
-                {'name': 'Software', 'id': 'Software'},{'name': 'SportingGoods', 'id': 'SportingGoods'},
-                {'name': 'Tools', 'id': 'Tools'},{'name': 'Toys', 'id': 'Toys'},
-                {'name': 'UnboxVideo', 'id': 'UnboxVideo'},{'name': 'VHS', 'id': 'VHS'},
-                {'name': 'Vehicles', 'id': 'Vehicles'},{'name': 'Video', 'id': 'Video'},
-                {'name': 'VideoGames', 'id': 'VideoGames'},{'name': 'Watches', 'id': 'Watches'},
-                {'name': 'Wine', 'id': 'Wine'},{'name': 'Wireless', 'id': 'Wireless'},
-                {'name': 'WirelessAccessories', 'id': 'WirelessAccessories'}, ],
-            'search_filters': [
-                {'name': 'Prime', 'value': False},
-                {'name': 'Used', 'value': False}, ], }
 
     def findItems(self, _item={}, **kwargs):
         i = 0

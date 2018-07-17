@@ -1,29 +1,36 @@
 from django.shortcuts import render, redirect
+from django.views.generic import TemplateView
 from inventory.models import ItemData
 from login.models import SessionData
-from beholder.eyeballs import Eyes
+from beholder.eyeballs import Eye
 import asyncio
 # import traceback
 
 
-def query(request):
-    session = SessionData.objects.get(user=request.user)
-    return render(request, 'search/query.html', context={'session': session.data})
+class IndexView(TemplateView):
+    template_name = 'search/query.html'
+    eye = Eye()
+
+    def get(self, request):
+        session = self.eye.open(request.user)
+        return render(request, 'search/query.html', {'session': session.data})
+
+    def post(self, request):
+        session = eye.open(request.user)
+
+        recent_items = ItemData.objects.all()[:20]
+        return redirect('inventory:home')
+
 
 def response(request):
-    session = SessionData.objects.get(user=request.user)
-    kwargs = {
-        **{key[:-5]+'Page': '1' for key, value in request.GET.dict().items() if 'CatId' in key},
-        **request.GET.dict()}
-    kwargs['user'] = session.user
+    session = Center.open(request.user)
 
     # gather additional details, capture item to db, and redirect to inventory:ItemDetails
     if 'capture' in kwargs and 'market' in kwargs:
         item = ItemData.objects.get(item_id=kwargs['capture']).data
         item = Eyes[kwargs['market']].getItemDetails(item, item_id=kwargs['capture'])
-        session.data['item'] = item
-        session.save()
-        return redirect('inventory:itemDetails')
+        item.save()
+        return redirect('inventory:details', item_id=kwargs['capture'])
 
     # activate user-requested marketplaces and query
     kwargs['market_names'] = [k[:-2] for k in kwargs if 'SE' in k and bool(k)]

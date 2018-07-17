@@ -4,6 +4,6 @@ from . import views
 app_name = 'search'
 
 urlpatterns = [
-    url(r'^$', views.query, name='query'),
-    url(r'^r/$', views.response, name='response'),
+    url(r'^$', views.IndexView.as_view(), name='query'),
+    url(r'^response/$', views.response, name='response'),
 ]

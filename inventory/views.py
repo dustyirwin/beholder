@@ -1,26 +1,29 @@
 from django.shortcuts import render, redirect
+from django.views.generic import TemplateView
 from datetime import datetime
 from .models import ItemData
+from search.forms import SearchForm
+from login.models import SessionData
 from beholder.eyeballs import Eyes
 
 
-def itemsList(request):
-    kwargs = request.GET.dict()
+class IndexView(TemplateView):
+    template_name = 'inventory/home.html'
 
-    if 'item_id' in kwargs:
-        session.data['item'] = ItemData.objects.get(item_id=kwargs['item_id'])
-        session.save()
-        return redirect('inventory:itemDetails')
+    def get(self, request):
+        kwargs = request.GET.dict()
 
-    else:
-        session.data['Inventory'] = {obj.item_id: obj.data for obj in ItemData.objects.all()[:19]}
-        session.save()
-        return render(request, 'inventory/home.html', context={'session': session.data})
+        if 'item_id' in kwargs:
+            return redirect('inventory:details', item_id=kwargs['item_id'])
+
+        else:
+            recent_items = ItemData.objects.all()[:20]
+            return render(request, 'inventory/home.html', {'recent_items': recent_items})
 
 
 def itemDetails(request, item_id=''):
     kwargs = request.GET.dict()
-
+    session = SessionData.objects.get(user=request.user)
     if 'note' in kwargs:
 
         if bool(kwargs['note']):

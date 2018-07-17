@@ -1,9 +1,8 @@
 from django import forms
-from django.contrib.auth.models import User
-
+from .models import SearchParams
 
 class SearchForm(forms.ModelForm):
 
     class Meta:
-        model = User
-        fields = ['username', 'password', 'session_data']
+        model = SearchParams
+        fields = ['market_name', 'search_filters', 'categories']
