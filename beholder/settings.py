@@ -35,8 +35,6 @@ INSTALLED_APPS = [
     'login',
     'search',
     'inventory',
-    'django_tables2',
-    'widget_tweaks',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

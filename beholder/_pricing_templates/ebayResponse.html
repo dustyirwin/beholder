@@ -45,8 +45,8 @@
             <form action="{% url 'pricing:priceEbayItem' %}" method="get">
               <button class="btn btn-primary" type="submit" >Price Lot!</button>
               <input type="hidden" name="itemId" value="{{ item.data.ItemID }}">
-              <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
-              <input type="hidden" name="amazonCatId" value="VideoGames">
+              <input type="hidden" name="ebay_category" value="{{ request.GET.ebay_category }}">
+              <input type="hidden" name="amazon_category" value="VideoGames">
               <input type="hidden" name="keywords" value="{{ request.GET.keywords }}">
             </form>
           </div>

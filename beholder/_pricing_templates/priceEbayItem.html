@@ -49,8 +49,8 @@
                     <li><p style="padding-top:10px;padding-bottom:0px">Current Price: <strong>$</strong><input type="text" style="width:60px" name="currentPrice" value="{{ ebayItem.data.ConvertedCurrentPrice.value }}" class="form-control"></p></li>
                     <li><p>Shipping: <strong>$</strong><input type="text" style="width:60px" name="ebayShipping" value="{{ ebayItem.data.ShippingCostSummary.ShippingServiceCost.value }}" class="form-control"></p></li>
                     <li>
-                      <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
-                      <input type="hidden" name="amazonCatId" value="{{ request.GET.amazonCatId }}">
+                      <input type="hidden" name="ebay_category" value="{{ request.GET.ebay_category }}">
+                      <input type="hidden" name="amazon_category" value="{{ request.GET.amazon_category }}">
                       <input type="hidden" name="itemId" value="{{ request.GET.itemId }}">
                     </li>
                   </ul>
@@ -66,10 +66,10 @@
         <form action="{% url 'pricing:findASIN' %}" method="get">
           <ul class="list-inline" style="padding-left:5px">
             <li><input type="text" name="keywords" value="{{ request.GET.keywords }}" style="width:200px" class="form-control" placeholder="Search amazon in..."></li>
-            <li><input type="text" name="amazonCatId" value="{{ request.GET.amazonCatId }}" style="width:110px" class="form-control" placeholder="in category..."></li>
+            <li><input type="text" name="amazon_category" value="{{ request.GET.amazon_category }}" style="width:110px" class="form-control" placeholder="in category..."></li>
             <li><button type="submit" class="btn btn-default">Go</button></li>
           </ul>
-          <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+          <input type="hidden" name="ebay_category" value="{{ request.GET.ebay_category }}">
           <input type="hidden" name="itemId" value="{{ request.GET.itemId }}">
         </form>
       </div>
@@ -79,7 +79,7 @@
             <form action="" method="get">
               <center><label>ItemId:</label>
               <input type="text" name="itemId" value="{{ request.GET.itemId }}" style="width:120px" class="form-control" placeholder="eBay ItemId..."></center>
-              <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+              <input type="hidden" name="ebay_category" value="{{ request.GET.ebay_category }}">
             </form>
           </li>
           <li>
@@ -89,7 +89,7 @@
             <form action="{% url 'pricing:ebay' %}" method="get">
               <button type="submit" class="btn btn-primary">Exit</button>
               <input type="hidden" name="itemId" value="{{ request.GET.itemId }}">
-              <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+              <input type="hidden" name="ebay_category" value="{{ request.GET.ebay_category }}">
               <input type="hidden" name="finished" value="finished">
             </form>
           </li>
@@ -179,8 +179,8 @@
           </li>
         </ul>
         <input type="hidden" name="ASIN" value="{{ amazonItem.ASIN }}">
-        <input type="hidden" name="amazonCatId" value="{{ request.GET.amazonCatId }}">
-        <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+        <input type="hidden" name="amazon_category" value="{{ request.GET.amazon_category }}">
+        <input type="hidden" name="ebay_category" value="{{ request.GET.ebay_category }}">
         <input type="hidden" name="itemId" value="{{ request.GET.itemId }}">
       </form>
     </div>

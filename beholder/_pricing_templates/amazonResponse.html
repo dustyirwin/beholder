@@ -45,8 +45,8 @@
             <button type="submit" class="btn btn-success">Select</button>
             <input type="hidden" name="ASIN" value="{{ item.ASIN }}" class="form-control">
             <input type="hidden" name="itemId" value="{{ request.GET.itemId }}" class="form-control">
-            <input type="hidden" name="amazonCatId" value="{{ request.GET.amazonCatId }}" class="form-control">
-            <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+            <input type="hidden" name="amazon_category" value="{{ request.GET.amazon_category }}" class="form-control">
+            <input type="hidden" name="ebay_category" value="{{ request.GET.ebay_category }}">
             <input type="hidden" name="keywords" value="{{ request.GET.keywords }}">
           </form>
         </div>
@@ -57,7 +57,7 @@
           <form method="get" action="">
             <button type="submit" class="btn btn-primary">Scrape</button>
             <input type="hidden" name="ASIN" value="{{ item.ASIN }}">
-            <input type="hidden" name="amazonCatId" value="{{ request.GET.amazonCatId }}" class="form-control">
+            <input type="hidden" name="amazon_category" value="{{ request.GET.amazon_category }}" class="form-control">
             <input type="hidden" name="keywords" value=" {{ request.GET.keywords }}">
           </form>
         </div>
@@ -67,8 +67,8 @@
           <form method="get" action="sourceItem">
             <button type="submit" class="btn btn-primary">Source</button>
             <input type="hidden" name="ASIN" value="{{ item.ASIN }}">
-            <input type="hidden" name="amazonCatId" value="{{ request.GET.amazonCatId }}" class="form-control">
-            <input type="hidden" name="ebayCatId" value="139971">
+            <input type="hidden" name="amazon_category" value="{{ request.GET.amazon_category }}" class="form-control">
+            <input type="hidden" name="ebay_category" value="139971">
             <input type="hidden" name="UPC" value="{{ item.ItemAttributes.UPC }}">
             <input type="hidden" name="keywords" value="{{ request.GET.keywords }}">
             <input type="hidden" name="page" value="1">

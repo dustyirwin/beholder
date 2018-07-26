@@ -22,12 +22,12 @@
           {% if request.GET.itemId %}
             <form action="find" method="get" class="navbar-form navbar-left">
               <input type="hidden" name="itemId" value="{{ request.GET.itemId }}">
-              <input type="hidden" name="ebayCatId" value="{{ request.GET.ebayCatId }}">
+              <input type="hidden" name="ebay_category" value="{{ request.GET.ebay_category }}">
           {% else %}
             <form action="{% url 'pricing:searchAmazon' %}" method="get" class="navbar-form navbar-left">
           {% endif %}
             <input style="width:160px" type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control" placeholder="Search for items...">
-            <input style="width:110px" type="text" name="amazonCatId" value="{{ request.GET.amazonCatId }}" class="form-control" placeholder="in category...">
+            <input style="width:110px" type="text" name="amazon_category" value="{{ request.GET.amazon_category }}" class="form-control" placeholder="in category...">
             <button type="submit" class="btn btn-default">Go</button>
           </form>
         </div>

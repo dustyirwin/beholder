@@ -14,7 +14,6 @@ import re
 import isodate
 import numpy as np
 import pprint
-import traceback
 
 
 '''
@@ -41,7 +40,9 @@ class Eye:
             session = SessionData(
                 user=user,
                 session_id='testing...',
-                data={'query_params': {
+                data={
+                    'market_data': {},
+                    'query_params': {
                         'walmart': {
                             'name': 'walmart',
                             'categories': [
@@ -126,35 +127,38 @@ class Eye:
                             'search_enabled': False,
                             'search_filters': [
                                 {'name': 'Prime', 'value': False},
-                                {'name': 'New', 'value': True}, ], }, }})
+                                {'name': 'New', 'value': True}, ], }, }, })
             session.save()
         else:
             session = SessionData.objects.get(user=user)
 
         return session
 
-    async def search(self, **kwargs):
+    def search(self, **kwargs):  # queries marketplace apis for objects. # queries marketplaces for objects
 
-        try:  # try to get response objects from apis
+        #try:  # try to get response objects from apis
 
             for market_name in kwargs['market_names']:
 
-                objects = await Eyes[market_name].findItems(**kwargs)  # get resp_objects from marketplace api call
-                await Eye.update_db(kwargs={'objects': objects})  # check db_objects against ItemData db, update as needed
+                objects = Eyes[market_name].findItems(**kwargs)  # get resp_objects from marketplace api call
+                Eye.update_db(self, objects)  # check db_objects against ItemData db, update as needed
 
                 response = {  # record response data to session for django template context creation
-                    'item_ids': [obj['item_id'] for obj in kwargs['objects']],
-                    'page': str(kwargs['findItems_params']['page']),
-                    'category': str(kwargs['findItems_params']['categoryId']),
+                    'item_ids': [obj['item_id'] for obj in objects],
+                    'page': str(kwargs[market_name +'_page']),
+                    'category': str(kwargs[market_name +'_category']),
                     'keywords': kwargs['keywords'], }
 
-                session.data['market_data'][market_name] = {**session.data['market_data'][market_name], **response}
-                await session.save()
+                session = Eye.open(self, kwargs['user'])
+                session.data['market_data'][market_name] = response
+                session.save()
 
-                print(f"{str(len(response['item_ids']))} {market_name} objects added to session.")
+                print(f"{str(len(response['item_ids']))} {market_name} objects added to session '{kwargs['user']}'.")
 
-        except Exception as e:
-            print(f"error retrieving items on {market_name}!: {e}") # queries marketplace apis for objects. # queries marketplaces for objects
+        #except Exception as e:
+        #    import traceback
+        #    traceback.format_exc()
+        #    print(f"error retrieving items on {market_name}!: {e}")
 
     def stare(self, **kwargs):
         pass # gathers item details
@@ -162,9 +166,9 @@ class Eye:
     def mirror_object(self, **kwargs):
         'cool stuff here?' # lists object in db on a marketplace
 
-    def update_db(self, **kwargs):  # checks objects against db and updates as needed. expects iter
+    def update_db(self, objects):  # checks objects against db and updates as needed. expects iter
 
-        for obj in kwargs['objects']:
+        for obj in objects:
             diff = {}
 
             if ItemData.objects.filter(item_id=obj['item_id']).exists():
@@ -180,7 +184,7 @@ class Eye:
                             print(f" item updated in db: {item.data['item_id']} | {item.name[:50]}")
 
                 item.data = {**item.data, **diff}  # update item with diff dict
-                print(f"item updated: {item.item_id} | {item.name[:50]} | price: {item.data['sales_price']}")
+                print(f"item updated: {item.item_id} | {item.name[:50]} | price: {item.data['sale_price']}")
                 item.save()
 
             else:
@@ -210,16 +214,19 @@ class Walmart(Eye):
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.name = 'walmart'
         self.api = Wapy(keys.keys['walmart']['apiKey'])
 
     def findItems(self, **kwargs):
         self.findItems_params = {
             'ResponseGroup': 'full',
-            'categoryId': kwargs['walmartCatId'] if bool(kwargs['walmartCatId']) else None,
+            'categoryId': kwargs['walmart_category'] if bool(kwargs['walmart_category']) else None,
             'page': int(kwargs['walmartPage']) if 'walmartPage' in kwargs else 1,
             'sort': 'bestseller',
             'numItems': 25}
-        self.itemPaths = {
+
+        objects = self.api.search(kwargs['keywords'], **self.findItems_params)
+        objects = [{
             'item_id': item.item_id,
             'name': item.name,
             'market': 'walmart',
@@ -234,21 +241,21 @@ class Walmart(Eye):
             'category_node': item.category_node,
             'category_path': item.category_path,
             'brand_name': item.brand_name,
-            'product_url': item.product_url,}
-        objects = self.api.search(kwargs['keywords'], **self.findItems_params)
-        return [self.itemPaths for item in objects]
+            'product_url': item.product_url,} for item in objects]
+
+        return objects
 
     def getItemDetails(self, _item={}, **kwargs):
         return {**self.api.product_lookup(kwargs['item_id']).response_handler.payload, **_item}
 
     def getBestSellers(self, **kwargs):
-        return self.WalmartAPI.bestseller_products(int(kwargs['walmartCatId']))
+        return self.WalmartAPI.bestseller_products(int(kwargs['walmart_category']))
 
     def getClearance(self, **kwargs):
-        return self.WalmartAPI.clearance_products(int(kwargs['walmartCatId']))
+        return self.WalmartAPI.clearance_products(int(kwargs['walmart_category']))
 
     def getSpecialBuy(self, **kwargs):
-        return self.WalmartAPI.special_buy_products(int(kwargs['walmartCatId']))
+        return self.WalmartAPI.special_buy_products(int(kwargs['walmart_category']))
 
     def getTrending(self):
         return self.WalmartAPI.trending_products()
@@ -260,6 +267,7 @@ class Ebay(Eye):
         self.FindingAPI = Finding(appid=keys.keys['ebay']['production']['appid'], config_file=None)
         self.ShoppingAPI = Shopping(appid=keys.keys['ebay']['production']['appid'], config_file=None)
         self.TradingAPI = Trading(appid=keys.keys['ebay']['production']['appid'], config_file=None)
+        self.name = 'ebay'
         super().__init__()
 
     def findItems(self, **kwargs):
@@ -280,8 +288,8 @@ class Ebay(Eye):
         if bool(kwargs['keywords']):
             findItems_params['keywords'] = kwargs['keywords']
 
-        if bool(kwargs['ebayCatId']):
-            findItems_params['categoryId'] = kwargs['ebayCatId']
+        if bool(kwargs['ebay_category']):
+            findItems_params['categoryId'] = kwargs['ebay_category']
 
         try:
             objects = self.FindingAPI.execute('findItemsAdvanced', findItems_params).dict()
@@ -459,7 +467,7 @@ class Ebay(Eye):
                 ebayShipping = 0.0
 
             if 'ASIN' in kwargs:
-                if 'amazonCatId' in kwargs:
+                if 'amazon_category' in kwargs:
                     amazon = self.amazonAPI()
                     amazon.scrape(kwargs)
                     amazon.fees(kwargs)
@@ -474,7 +482,7 @@ class Ebay(Eye):
                     amazonItem.data['selected'] += 1
                     ebayItem.data['ASINInfo'][kwargs['ASIN']] = {
                                'qty': 1,
-                               'amazonCatId': kwargs['amazonCatId'],
+                               'amazon_category': kwargs['amazon_category'],
                                'title': amazonItem.name
                                }
                 if 'listPrice' in kwargs:
@@ -566,9 +574,10 @@ class Ebay(Eye):
 class Amazon(Eye):
 
     def __init__(self, **kwargs):
-        super().__init__()
         self.headers = {
             'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'}
+        self.name = 'amazon'
+        super().__init__()
 
     def findItems(self, _item={}, **kwargs):
         i = 0
@@ -632,7 +641,7 @@ class Amazon(Eye):
         response = {
             'item_ids': [obj['item_id'] for obj in objects],
             'page': kwargs['page'],
-            'category': kwargs['amazonCatId'] if bool(kwargs['amazonCatId']) else None}
+            'category': kwargs['amazon_category'] if bool(kwargs['amazon_category']) else None}
         session.data['market_data']['amazon'] = {**session.data['market_data']['amazon'], **response}
         session.save()
 
@@ -770,14 +779,13 @@ class Amazon(Eye):
             return item
 
 
-class BestBuy(Eye):
+class Chewy(Eye):
 
         def __init__(self, **kwargs):
-            self.market = {
-                'name': 'bestbuy',
-                'BestBuyAPI': 'api_here',
-                'categories': ['stuff'],
-            }
+            self.headers = {
+                'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'}
+            self.name = 'chewy'
+            super().__init__()
 
         def customFunc():
             pass

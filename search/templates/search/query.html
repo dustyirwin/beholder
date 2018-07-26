@@ -2,18 +2,23 @@
 
 {% block content %}
 
-  <form action="{% url 'search:query' %}" method="get">
+  <form action="{% url 'search:query' %}" method="post">
+    {% csrf_token %}
     <nav class="navbar navbar-expand-sm navbar-light bg-dark">
-      <img src=http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif align="left" width="auto" height="40px" style="padding-right:10px">
+      <img src="http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif"
+        align="left" width="auto" height="40px" style="padding-right:10px">
       <a class="navbar-brand" style="color:#2ECC40" href="{% url 'search:query' %}">search</a>
-      <button type="button" class="navbar-toggler " data-toggle="collapse" data-target="#topNavBar" aria-expanded="false">
+      <button type="button" class="navbar-toggler " data-toggle="collapse"
+        data-target="#topNavBar" aria-expanded="false">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="topNavBar">
         <div class="input-group">
-          <input type="text" name="keywords" value="{{ request.GET.keywords }}" class="form-control mr-auto" placeholder="enter search terms...">
+          <input type="text" name="keywords" value="{{ kwargs.keywords }}"
+            class="form-control mr-auto" placeholder="enter search terms...">
           <button type="submit" class="btn btn-default">go</button> .
-          <button class="btn btn-outline-success" type="button" data-toggle="collapse" data-target="#options" aria-expanded="false" aria-controls="options">options</button>
+          <button class="btn btn-outline-success" type="button" data-toggle="collapse"
+            data-target="#options" aria-expanded="false" aria-controls="options">options</button>
         </div>
       </div>
     </nav>
@@ -26,21 +31,24 @@
         <div class="input-group-prepend">
 
           {% if market.search_enabled %}
-          <div class="custom-control custom-checkbox">
-            <input type="checkbox" checked=checked name="{{ market.name}}SE" class="custom-control-input" id="{{ market.name}}SE">
-            <label class="custom-control-label" for="{{ market.name}}SE">{{ market.name }}</label>
-          </div>
+            <input type="hidden" name="{{ name }}_page" value="1">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" checked=checked name="{{ market.name}}SE"
+                class="custom-control-input" id="{{ market.name}}SE">
+              <label class="custom-control-label" for="{{ market.name}}SE">{{ market.name }}</label>
+            </div>
 
           {% else %}
-          <div class="custom-control custom-checkbox">
-            <input type="checkbox" name="{{ market.name}}SE" class="custom-control-input" id="{{ market.name}}SE">
-            <label class="custom-control-label" for="{{ market.name}}SE">{{ market.name }}</label>
-          </div>
+            <input type="hidden" name="{{ name }}_page" value="1">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" name="{{ market.name}}SE" class="custom-control-input" id="{{ market.name}}SE">
+              <label class="custom-control-label" for="{{ market.name}}SE">{{ market.name }}</label>
+            </div>
 
           {% endif %}
 
         </div>
-        <select name="{{ market.name }}CatId" class="custom-select" id="{{ market.name }}Categories">
+        <select name="{{ market.name }}_category" class="custom-select" id="{{ market.name }}Categories">
           <option selected value=""></option>
 
         {% for category in market.categories %}

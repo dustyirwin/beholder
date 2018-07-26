@@ -9,7 +9,7 @@
             </span>
         {% else %}
             <li>
-              <a href="?page={{ i }}&ebayCatId={{ request.GET.ebayCatId }}&keywords={{ request.GET.keywords }}">{{ i }}</a>
+              <a href="?page={{ i }}&ebay_category={{ request.GET.ebay_category }}&keywords={{ request.GET.keywords }}">{{ i }}</a>
             </li>
           {% endif %}
         {% endfor %}
