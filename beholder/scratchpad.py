@@ -27,6 +27,8 @@ for k in d1:
 nu_dict = {**d1, **d}
 nu_dict
 
+k = []
+type(k)
 
 # ebay section
 

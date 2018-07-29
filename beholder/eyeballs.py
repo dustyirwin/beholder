@@ -41,6 +41,7 @@ class Eye:
                 user=user,
                 session_id='testing...',
                 data={
+                    'active_market': 'walmart',
                     'market_data': {},
                     'query_params': {
                         'walmart': {

@@ -12,11 +12,9 @@
 
             <a id="nav-{{ market_name }}-tab" data-toggle="tab" aria-selected="true"
               href="#nav-{{ market_name }}" role="tab" aria-controls="nav-{{ market_name }}"
-
-          {% if session.active == market_name %}class="nav-item nav-link active">
-          {% else %}class="nav-item nav-link">{% endif %}
-
-              {{ market_name }}.{{ market.category }}.{{ market.page }}</a>
+{% if market_name == session.active_market %} class="nav-item nav-link active">
+{% else %} class="nav-item nav-link">{% endif %}
+{{ market_name }}.{{ market.category }}.{{ market.page }}</a>
 
           {% include "search/next.html" %}
 
@@ -31,8 +29,8 @@
   {% for market_name, market in session.market_data.items %}
 
     <div id="nav-{{ market_name }}" role="tabpanel" aria-labelledby="nav-{{ market_name }}-tab"
-{% if session.active == market_name %}class="tab-pane fade show active">
-{% elif market_name in session.markets %}class="tab-pane fade show">{% endif %}
+{% if market_name == session.active_market %} class="tab-pane fade show active">
+{% elif market_name in session.market_data.keys %} class="tab-pane fade show">{% endif %}
 
       <div class="card-columns">
 
@@ -52,8 +50,9 @@
 
               </div>
             </div>
-            <!-- Modal -->
+
             {% include 'search/modal.html' %}
+
           {% endfor %}
 
           </div>

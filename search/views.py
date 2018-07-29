@@ -26,7 +26,8 @@ class IndexView(TemplateView):
 
             if 'object_ids' in session.data['market_data'][market_name]:
                 object_ids = session.data['market_data'][market_name]['object_ids']
-                objects = [ItemData.objects.get(item_id=item_id).data for item_id in object_ids]
+                objects = [ItemData.objects.get(item_id=obj_id).data for obj_id in object_ids]
+                objects = [{k: v[-1][0] if type(v) == list else v for k, v in obj.items()} for obj in objects]
                 session.data['market_data'][market_name]['objects'] = objects
 
             else:
