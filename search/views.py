@@ -9,40 +9,31 @@ import asyncio
 
 
 class IndexView(TemplateView):
-    template_name = 'search/query.html'
+    template_name = 'search/response.html'
     eye = Eye()
 
-
     def get(self, request):
-        session = self.eye.open(request.user)
-        search_params = SearchForm()
-        return render(request, 'search/query.html', {'session': session.data})
-
-    def post(self, request):
-        session = self.eye.open(request.user)
-        kwargs = request.POST.dict()
-        kwargs['user'] = str(request.user)
-
-        # gather additional details, capture item to db, and redirect to inventory:ItemDetails
-        if 'capture' in kwargs:
-            return redirect('inventory:details', item_id=kwargs['capture'])
-
+        kwargs = request.GET.dict()
+        kwargs['user'] = request.user
         # activate user-requested marketplaces and query
-        kwargs['market_names'] = [k[:-2] for k in kwargs if 'SE' in k and bool(k)]
+        kwargs['markets'] = [k[:-5] for k in kwargs if '_page' in k and bool(k)]
         self.eye.search(**kwargs)
-
+        session = self.eye.open(request.user)
         session.data['kwargs'] = kwargs
-        session.save()
 
-        # construct context from item_ids
+        # construct context from object_ids
         for market_name, market in session.data['market_data'].items():
 
-            if 'item_ids' in session.data['market_data'][market_name]:
-                item_ids = session.data['market_data'][market_name]['item_ids']
-                objects = [ItemData.objects.get(item_id=item_id).data for item_id in item_ids]
+            if 'object_ids' in session.data['market_data'][market_name]:
+                object_ids = session.data['market_data'][market_name]['object_ids']
+                objects = [ItemData.objects.get(item_id=item_id).data for item_id in object_ids]
                 session.data['market_data'][market_name]['objects'] = objects
 
             else:
                 session.data['market_data'][market_name]['objects'] = None
 
-        return render(request, 'search/response.html', context={'session': session.data})
+        return render(request, self.template_name, context={'session': session.data})
+
+    def post(self, request):
+        kwargs = request.POST.dict()
+        return redirect('inventory:details', item_id=kwargs['capture'])

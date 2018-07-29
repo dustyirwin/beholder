@@ -2,7 +2,7 @@
 
 {% block content %}
 
-  <form action="{% url 'search:query' %}" method="post">
+  <form action="{% url 'search:query' %}" method="get">
     {% csrf_token %}
     <nav class="navbar navbar-expand-sm navbar-light bg-dark">
       <img src="http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif"
@@ -31,18 +31,18 @@
         <div class="input-group-prepend">
 
           {% if market.search_enabled %}
-            <input type="hidden" name="{{ name }}_page" value="1">
+
             <div class="custom-control custom-checkbox">
-              <input type="checkbox" checked=checked name="{{ market.name}}SE"
-                class="custom-control-input" id="{{ market.name}}SE">
-              <label class="custom-control-label" for="{{ market.name}}SE">{{ market.name }}</label>
+              <input type="checkbox" checked=checked name="{{ name }}_page" value="1"
+                class="custom-control-input" id="{{ name }}_page">
+              <label class="custom-control-label" for="{{ name }}_page">{{ market.name }}</label>
             </div>
 
           {% else %}
-            <input type="hidden" name="{{ name }}_page" value="1">
+            <input type="hidden" >
             <div class="custom-control custom-checkbox">
-              <input type="checkbox" name="{{ market.name}}SE" class="custom-control-input" id="{{ market.name}}SE">
-              <label class="custom-control-label" for="{{ market.name}}SE">{{ market.name }}</label>
+              <input type="checkbox" name="{{ name }}_page" value="" class="custom-control-input" id="{{ name }}_page">
+              <label class="custom-control-label" for="{{ name }}_page">{{ market.name }}</label>
             </div>
 
           {% endif %}

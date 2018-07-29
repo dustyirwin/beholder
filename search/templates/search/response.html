@@ -1,10 +1,6 @@
 {% extends "search/query.html" %}
 
 {% block page_content %}
-  <-- Diagnostics:
-        market name: {{ session.market_data.walmart.name }} keys: {{ session.market_data.walmart.keys }}
-        market.objects.0.name: {{ session.market_data.walmart.objects.0.name }}
-        session.kwargs: {{ session.kwargs }}-->
 
   <!-- Tabs -->
   <nav>
@@ -12,31 +8,19 @@
 
       {% for market_name, market in session.market_data.items %}
 
-        {% if session.active == market_name %}
-
           {% include "search/prev.html" %}
 
-            <a class="nav-item nav-link active" id="nav-{{ market_name }}-tab" data-toggle="tab"
+            <a id="nav-{{ market_name }}-tab" data-toggle="tab" aria-selected="true"
               href="#nav-{{ market_name }}" role="tab" aria-controls="nav-{{ market_name }}"
-              aria-selected="true">
+
+          {% if session.active == market_name %}class="nav-item nav-link active">
+          {% else %}class="nav-item nav-link">{% endif %}
+
               {{ market_name }}.{{ market.category }}.{{ market.page }}</a>
 
           {% include "search/next.html" %}
 
-        {% elif market.search_enabled %}
-
-          {% include "search/prev.html" %}
-
-            <a class="nav-item nav-link" id="nav-{{ market_name }}-tab" data-toggle="tab"
-              href="#nav-{{ market_name }}" role="tab" aria-controls="nav-{{ market_name }}"
-              aria-selected="true">
-              {{ market_name }}.{{ market.category }}.{{ market.page }}</a>
-
-          {% include "search/next.html" %}
-
-        {% endif %}
-
-      {% endfor%}
+      {% endfor %}
 
     </div>
   </nav>
@@ -46,11 +30,9 @@
 
   {% for market_name, market in session.market_data.items %}
 
-    {% if market.search_enabled %}
-
     <div id="nav-{{ market_name }}" role="tabpanel" aria-labelledby="nav-{{ market_name }}-tab"
-{% if session.active == market_name %} class="tab-pane fade show active">
-{% elif market_name in session.market_names %} class="tab-pane fade show">{% endif %}
+{% if session.active == market_name %}class="tab-pane fade show active">
+{% elif market_name in session.markets %}class="tab-pane fade show">{% endif %}
 
       <div class="card-columns">
 
@@ -84,7 +66,7 @@
               {% include 'search/next.html' %}</li>
           </ul>
         </div>
-      {% endif %}
+
     {% endfor %}
 
   </div>

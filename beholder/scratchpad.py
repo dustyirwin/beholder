@@ -27,7 +27,6 @@ for k in d1:
 nu_dict = {**d1, **d}
 nu_dict
 
-tup2 = 54.5 + ()
 
 # ebay section
 
@@ -77,10 +76,31 @@ print(e)
 print(e.response.dict())
 pass
 
-# walmart section
+############################# walmart section ########################################
 wally = Wapy(keys.keys['walmart']['apiKey'])
 
+async def search(self, **kwargs):
 
+    try:  # try to get response objects from apis
+
+        for market_name in kwargs['markets']:
+
+            objects = await Eyes.findItems(**kwargs)  # get resp_objects from marketplace api call
+            await Eye.update_objects(kwargs={'objects': objects})  # check db_objects against ItemData db, update as needed
+
+            response = {  # record response data to session for django template context creation
+                'object_ids': [obj['item_id'] for obj in kwargs['objects']],
+                'page': str(kwargs['findItems_params']['page']),
+                'category': str(kwargs['findItems_params']['categoryId']),
+                'keywords': kwargs['keywords'], }
+
+            session.data['market_data'][market_name] = {**session.data['market_data'][market_name], **response}
+            await session.save()
+
+            print(f"{str(len(response['object_ids']))} {market_name} objects added to session.")
+
+    except Exception as e:
+        print(f"error retrieving items on {market_name}!: {e}") # queries marketplace apis for objects. # queries marketplaces for objects
 
 wally_item = wally.product_lookup('16932759')
 wally_item.response_handler.payload
