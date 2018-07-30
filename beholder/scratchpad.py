@@ -163,3 +163,46 @@ for i, elem in enumerate(search_results):
 
 
 B06XNYLY5R
+
+############################# chewy section ########################################
+kwargs = {}
+headers = {
+    'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'}
+kwargs['keywords'] = "dog toys"
+kwargs_url_string = ''
+kwargs['page'] = kwargs['chewy_page'] if 'chewy_page' in kwargs else '1'
+
+for key, value in kwargs.items():
+
+    if key == 'keywords' or key == '_page':
+        key = key.replace('keywords','query')
+        value = value.replace(' ', '+')
+        kwargs_url_string += str(key + '=' + value + '&')
+
+search_url = 'https://www.chewy.com/s/?' + kwargs_url_string
+search_url
+response = requests.get(search_url, headers=headers)
+soup = BeautifulSoup(response.content, 'lxml')
+search_results = soup.find_all('article', 'cw-card')
+objects = []
+
+for elem in search_results:
+
+    obj = {
+        'item_id': elem.find('div', class_='ga-eec__id').string,
+        'market': 'chewy',
+        'prices': {},
+        'notes': {},
+        'product_url': chewy_url + elem.find('a')['href'],
+        'medium_image': 'https:'+ elem.find('img')['src'],
+        'images': ['https:'+ elem.find('img')['src']],
+        'name': elem.find('div', class_='ga-eec__name').string.replace('"', '\"'),
+        'stock': 'Available? Check availablility by id?',
+        'sale_price': elem.find('div', class_='ga-eec__price').string,
+        'customer_rating': elem.find('p', class_='rating').find('img')['src'][-7:-4].replace('_','.')+' / 5.0',
+        'customer_rating_count': elem.find('p', class_='rating').find('span').string,
+        }
+
+    objects.append(obj)
+
+objects[0]

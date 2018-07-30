@@ -7,7 +7,7 @@
   <a class='page-link' href='{% url "search:response" %}?
 active={{ market.name }}&
 {% for key, value in session.kwargs.items %}
-{% if key == market.name|add:"Page" %}
+{% if key == market.name|add:"_page" %}
 {{ key }}={{ value|add:-1 }}&
 {% elif key != "active" %}
 {{ key }}={{ value }}&

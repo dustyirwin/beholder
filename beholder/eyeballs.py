@@ -128,7 +128,13 @@ class Eye:
                             'search_enabled': False,
                             'search_filters': [
                                 {'name': 'Prime', 'value': False},
-                                {'name': 'New', 'value': True}, ], }, }, })
+                                {'name': 'New', 'value': True}, ], },
+                        'chewy': {
+                            'name': 'chewy',
+                            'categories': [],
+                            'search_enabled': False,
+                            'search_filters': [], }, }, })
+
             self.session.save()
 
         else:
@@ -138,7 +144,7 @@ class Eye:
 
     def search(self, **kwargs):  # queries marketplace apis for objects. # queries marketplaces for objects
 
-        #try:  # try to get response objects from apis
+        try:  # try to get response objects from apis
 
             for market_name in kwargs['markets']:
 
@@ -157,10 +163,10 @@ class Eye:
 
                 print(f"{str(len(market_data['object_ids']))} {market_name} objects added to session '{kwargs['user']}'.")
 
-        #except Exception as e:
+        except Exception as e:
         #    import traceback
         #    print(traceback.format_exc())
-        #    print(f"error retrieving items on {market_name}!: {e}")
+            print(f"error retrieving items on {market_name}!: {e}")
 
     def stare(self, **kwargs):
         pass # gathers item details
@@ -199,21 +205,6 @@ class Eye:
                     item_id=obj['item_id'],
                     name=obj['name'],
                     data=obj, ).save()
-
-
-class Center(Eye):
-
-    def __init__(self):
-        super().__init__()
-
-    def open(self, user):
-        super().open(user)
-
-    def search(self, **kwargs):
-        super().search(**kwargs)
-
-    def stare(self, **kwargs):
-        super().stare(**kwargs)
 
 
 class Walmart(Eye):
@@ -565,7 +556,7 @@ class Amazon(Eye):
 
     def findItems(self, _item={}, **kwargs):
         kwargs_url_string = ''
-        kwargs['page'] = kwargs['amazonPage'] if 'amazonPage' in kwargs else '1'
+        kwargs['page'] = kwargs['amazon_page'] if 'amazon_page' in kwargs else '1'
 
         for key, value in kwargs.items():
 
@@ -750,9 +741,43 @@ class Chewy(Eye):
             self.name = 'chewy'
             super().__init__()
 
-        def customFunc():
-            pass
+        def findItems(self, _item={}, **kwargs):
+            kwargs_url_string = ''
+            kwargs['page'] = kwargs['chewy_page'] if 'chewy_page' in kwargs else '1'
 
+            for key, value in kwargs.items():
+
+                if key == 'keywords' or key == '_page':
+                    key = key.replace('keywords','query')
+                    value = value.replace(' ', '+')
+                    kwargs_url_string += str(key + '=' + value + '&')
+
+            search_url = 'https://www.chewy.com/s/?' + kwargs_url_string
+            response = requests.get(search_url, headers=self.headers)
+            soup = BeautifulSoup(response.content, 'lxml')
+            search_results = soup.find_all('article', 'cw-card')
+            objects = []
+
+            for elem in search_results:
+
+                obj = {
+                    'item_id': elem.find('div', class_='ga-eec__id').string,
+                    'market': 'chewy',
+                    'prices': {},
+                    'notes': {},
+                    'product_url': 'https://www.chewy.com' + elem.find('a')['href'],
+                    'medium_image': 'https:'+ elem.find('img')['src'],
+                    'images': ['https:'+ elem.find('img')['src']],
+                    'name': elem.find('div', class_='ga-eec__name').string.replace('"', '\"'),
+                    'stock': 'Available? Check availablility by id?',
+                    'sale_price': elem.find('div', class_='ga-eec__price').string,
+                    'customer_rating': elem.find('p', class_='rating').find('img')['src'][-7:-4].replace('_','.')+' / 5.0',
+                    'customer_rating_count': elem.find('p', class_='rating').find('span').string,
+                    }
+
+                objects.append(obj)
+
+            return objects
 
 class Target(Eye):
 
@@ -768,7 +793,7 @@ class Target(Eye):
 
 # instantiate eyes into a dict using session data
 Eyes = {
-    'center': Center(),
     'walmart': Walmart(),
     'ebay': Ebay(),
-    'amazon': Amazon(), }
+    'amazon': Amazon(),
+    'chewy': Chewy(), }

@@ -21,7 +21,7 @@ class IndexView(TemplateView):
         session = self.eye.open(request.user)
         session.data['kwargs'] = kwargs
 
-        # construct context from object_ids
+        # construct page context from object_ids
         for market_name, market in session.data['market_data'].items():
 
             if 'object_ids' in session.data['market_data'][market_name]:
