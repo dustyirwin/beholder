@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from datetime import datetime
 from .models import ItemData
-from search.forms import SearchForm
+from search.forms import QueryMarket
 from login.models import SessionData
 from beholder.eyeballs import Eyes
 

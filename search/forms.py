@@ -1,8 +1,9 @@
-from django import forms
+from django.forms import ModelForm
+from search.models import Query
 from django.contrib.postgres.fields import JSONField
 
 
-class SearchForm(forms.Form):
-    market_name=forms.CharField(max_length=32)
-    categories=JSONField(default={})
-    search_filters=JSONField(default={})
+class QueryMarket(ModelForm):
+    class Meta:
+        model = Query
+        fields = ['active', 'market_name', 'category', 'filters']

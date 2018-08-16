@@ -6,7 +6,7 @@
   <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
 
-      {% for market_name, market in session.market_data.items %}
+      {% for market_name, market_data in session.market_datas.items %}
 
           {% include "search/prev.html" %}
 
@@ -14,7 +14,7 @@
               href="#nav-{{ market_name }}" role="tab" aria-controls="nav-{{ market_name }}"
 {% if market_name == session.active_market %} class="nav-item nav-link active">
 {% else %} class="nav-item nav-link">{% endif %}
-{{ market_name }}.{{ market.category }}.{{ market.page }}</a>
+{{ market_name }}.{{ market_data.category }}.{{ market.page }}</a>
 
           {% include "search/next.html" %}
 
@@ -26,16 +26,16 @@
   <!-- Tab Panels -->
   <div class="tab-content" id="nav-tabContent">
 
-  {% for market_name, market in session.market_data.items %}
+  {% for market_name, market_data in session.market_datas.items %}
 
     <div id="nav-{{ market_name }}" role="tabpanel" aria-labelledby="nav-{{ market_name }}-tab"
 {% if market_name == session.active_market %} class="tab-pane fade show active">
-{% elif market_name in session.market_data.keys %} class="tab-pane fade show">{% endif %}
+{% elif market_name in session.market_datas.keys %} class="tab-pane fade show">{% endif %}
 
       <div class="card-columns">
 
           <!-- Cards -->
-          {% for item in market.objects %}
+          {% for item in market_data.objects %}
 
             <div class="card">
               <img class="card-img-top" src="{{ item.medium_image }}" alt="Card image cap"

@@ -30,7 +30,33 @@ nu_dict
 k = []
 type(k)
 
-# ebay section
+#################### ebay section  ###############################
+
+kwargs={}
+findItems_params = {
+    'descriptionSearch': True,
+    'sortOrder': 'BestMatch',
+    'outputSelector': ['GalleryURL', 'ConditionHistogram', 'PictureURLLarge'],
+    'itemFilter': [
+        {'name': 'Condition', 'value': kwargs['Condition'] if 'Condition' in kwargs else ['New']},
+        {'name': 'ListingType', 'value': kwargs['ListingType'] if 'ListingType' in kwargs else 'AuctionWithBIN' },
+        {'name': 'FreeShippingOnly', 'value': kwargs['FreeShippingOnly'] if 'FreeShippingOnly' in kwargs else True},
+        {'name': 'LocatedIn', 'value': kwargs['LocatedIn'] if 'LocatedIn' in kwargs else 'US'}, ],
+    'paginationInput': {
+        'entriesPerPage': 24,
+        'pageNumber': 1 if 'ebayPage' not in kwargs else int(kwargs['ebayPage']), }}
+findItems_params['keywords'] = 'dog leash'
+findItems_params
+
+
+response = Finding.execute('findItemsAdvanced', {'keywords': 'dog leash'})
+
+response.connection
+response.content
+
+
+objects = response['searchResult']['item']
+
 
 try:
     myitem = {
@@ -164,11 +190,11 @@ for i, elem in enumerate(search_results):
 
 B06XNYLY5R
 
-############################# chewy section ########################################
+############################# scraper section ########################################
 kwargs = {}
 headers = {
     'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'}
-kwargs['keywords'] = "dog toys"
+kwargs['keywords'] = "party favor"
 kwargs_url_string = ''
 kwargs['page'] = kwargs['chewy_page'] if 'chewy_page' in kwargs else '1'
 
@@ -185,7 +211,7 @@ response = requests.get(search_url, headers=headers)
 soup = BeautifulSoup(response.content, 'lxml')
 search_results = soup.find_all('article', 'cw-card')
 objects = []
-
+chewy_url
 for elem in search_results:
 
     obj = {

@@ -3,7 +3,9 @@
 {% block content %}
 
   <form action="{% url 'search:query' %}" method="get">
+
     {% csrf_token %}
+
     <nav class="navbar navbar-expand-sm navbar-light bg-dark">
       <img src="http://www.powerhoof.com/wp-content/uploads/2013/07/beholder.gif"
         align="left" width="auto" height="40px" style="padding-right:10px">
@@ -16,7 +18,7 @@
         <div class="input-group">
           <input type="text" name="keywords" value="{{ kwargs.keywords }}"
             class="form-control mr-auto" placeholder="enter search terms...">
-          <button type="submit" class="btn btn-default">go</button> .
+          <button type="submit" class="btn btn-default">Go</button> .
           <button class="btn btn-outline-success" type="button" data-toggle="collapse"
             data-target="#options" aria-expanded="false" aria-controls="options">options</button>
         </div>
@@ -39,7 +41,8 @@
             </div>
 
           {% else %}
-            <input type="hidden" >
+
+            <input type="hidden">
             <div class="custom-control custom-checkbox">
               <input type="checkbox" name="{{ name }}_page" value="" class="custom-control-input" id="{{ name }}_page">
               <label class="custom-control-label" for="{{ name }}_page">{{ market.name }}</label>
@@ -62,6 +65,7 @@
     {% for option in market.search_filters %}
 
       {% if option.value == True %}
+
         <button type="input" name="{{ option.name }}" value="{{ option.value }}"
           class="btn btn-outline-secondary btn-sm active" data-toggle="button"
           aria-pressed="{{ option.value }}" autocomplete="off">
@@ -69,20 +73,28 @@
         </button>
 
       {% else %}
+
         <button type="input" name="{{ option.name }}" value="{{ option.value }}"
           class="btn btn-outline-secondary btn-sm" data-toggle="button" autocomplete="off"
           aria-pressed="{{ option.value }}">
             {{ option.name }}
         </button>
+
       {% endif %}
 
     {% endfor %}
 
       </div>
+
     {% endfor %}
 
     </div>
   </form>
+
+
+
+
+
 
   {% block page_content %}
   {% endblock %}

@@ -6,6 +6,7 @@ from ebaysdk.shopping import Connection as Shopping
 from ebaysdk.trading import Connection as Trading
 # from ebaysdk.trading import Connection as Trading
 from inventory.models import ItemData  # item database
+from django.contrib.sessions.models import Session # session data --testing
 from login.models import SessionData  # session data
 from bs4 import BeautifulSoup
 from datetime import datetime as dt
@@ -42,7 +43,7 @@ class Eye:
                 session_id='testing...',
                 data={
                     'active_market': 'walmart',
-                    'market_data': {},
+                    'market_datas': {},
                     'query_params': {
                         'walmart': {
                             'name': 'walmart',
@@ -146,7 +147,10 @@ class Eye:
 
         try:  # try to get response objects from apis
 
-            for market_name in kwargs['markets']:
+            self.session = Eye.open(self, kwargs['user'])
+            self.session.data['market_datas'] = {}  # reset session from previous search
+
+            for market_name in kwargs['market_names']:
 
                 objects = Eyes[market_name].findItems(**kwargs)  # get resp_objects from marketplace api call
                 Eye.update_objects(self, objects)  # check db_objects against ItemData db, update as needed
@@ -156,9 +160,8 @@ class Eye:
                     'page': str(kwargs[market_name +'_page']),
                     'category': str(kwargs[market_name +'_category']),
                     'keywords': kwargs['keywords'], }
-
-                self.session = Eye.open(self, kwargs['user'])
-                self.session.data['market_data'][market_name] = market_data
+                
+                self.session.data['market_datas'][market_name] = market_data
                 self.session.save()
 
                 print(f"{str(len(market_data['object_ids']))} {market_name} objects added to session '{kwargs['user']}'.")
@@ -226,7 +229,7 @@ class Walmart(Eye):
         objects = [{
             'item_id': item.item_id,
             'name': item.name,
-            'market': 'walmart',
+            'market_name': 'walmart',
             'prices': {},
             'notes': {},
             'sale_price': item.sale_price,
@@ -296,7 +299,7 @@ class Ebay(Eye):
         objects = response['searchResult']['item']
         objects = [{
                 'name': item['title'],
-                'market': 'ebay',
+                'market_name': 'ebay',
                 'prices': {},
                 'notes': {},
                 'listing_type': item['listingInfo']['listingType'] if 'listingType' in item['listingInfo'] else None,
@@ -309,7 +312,7 @@ class Ebay(Eye):
                 'sale_price': item['listingInfo']['buyItNowPrice']['value'] if item.get('buyItNowPrice') else item['sellingStatus']['currentPrice']['value'],
                 'product_url': item['viewItemURL'],
                 'medium_image': item['galleryURL'] if 'galleryURL' in item else None,
-                'images': [item['pictureURLLarge'] if 'pictureURLLarge' in item else None],
+                'images': [item['galleryURL']],
                 'stock': item['sellingStatus']['sellingState'],
                 'category_node': item['primaryCategory']['categoryId'],
                 'category_path': item['primaryCategory']['categoryName'], } for item in objects]
@@ -576,7 +579,7 @@ class Amazon(Eye):
 
                 obj = {
                     'item_id': elem['data-asin'],
-                    'market': 'amazon',
+                    'market_name': 'amazon',
                     'prices': {},
                     'notes': {},
                     'product_url': elem.find('a')['href'],
@@ -762,7 +765,7 @@ class Chewy(Eye):
 
                 obj = {
                     'item_id': elem.find('div', class_='ga-eec__id').string,
-                    'market': 'chewy',
+                    'market_name': 'chewy',
                     'prices': {},
                     'notes': {},
                     'product_url': 'https://www.chewy.com' + elem.find('a')['href'],
@@ -772,12 +775,12 @@ class Chewy(Eye):
                     'stock': 'Available? Check availablility by id?',
                     'sale_price': elem.find('div', class_='ga-eec__price').string,
                     'customer_rating': elem.find('p', class_='rating').find('img')['src'][-7:-4].replace('_','.')+' / 5.0',
-                    'customer_rating_count': elem.find('p', class_='rating').find('span').string,
-                    }
+                    'customer_rating_count': elem.find('p', class_='rating').find('span').string, }
 
                 objects.append(obj)
 
             return objects
+
 
 class Target(Eye):
 

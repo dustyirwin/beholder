@@ -1,9 +1,9 @@
 beholder/__pycache__
+beholder/scratchpad
 login/__pycache__
 search/__pycache__
 inventory/__pycache__
 db.sqlite3
 keys
-scratchpad
 migrations
 *.json
