@@ -3,7 +3,7 @@
 
 class keys:
     keys = {
-        "beholder": {'SECRET_KEY': 'd0nTb3haXxOrZ_&W@hs#r!pt$zBr4H!9!0'
+        'beholder': {'SECRET_KEY': 'd0nTb3haXxOrZ_&W@hs#r!pt$zBr4H!9!0'
         },
         'beholderdb': {
                 'NAME': 'beholder',

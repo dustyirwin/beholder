@@ -1,7 +1,7 @@
 from beholder.keys import keys
 import requests
 import re
-from ebaysdk.finding import Connection as Finding
+
 from ebaysdk.shopping import Connection as Shopping
 from ebaysdk.trading import Connection as Trading
 from datetime import datetime as dt
@@ -31,25 +31,32 @@ k = []
 type(k)
 
 #################### ebay section  ###############################
-
+from ebaysdk.finding import Connection as FindingConnection
+Finding = FindingConnection(appid=kz['ebay']['production']['appid'], config_file=None)
 kwargs={}
 findItems_params = {
+    'categoryId': 139973,
     'descriptionSearch': True,
-    'sortOrder': 'BestMatch',
-    'outputSelector': ['GalleryURL', 'ConditionHistogram', 'PictureURLLarge'],
+    'sortOrder': 'PricePlusShippingLowest',
+    #'outputSelector': ['GalleryURL', 'ConditionHistogram', 'PictureURLLarge'],
     'itemFilter': [
-        {'name': 'Condition', 'value': kwargs['Condition'] if 'Condition' in kwargs else ['New']},
-        {'name': 'ListingType', 'value': kwargs['ListingType'] if 'ListingType' in kwargs else 'AuctionWithBIN' },
-        {'name': 'FreeShippingOnly', 'value': kwargs['FreeShippingOnly'] if 'FreeShippingOnly' in kwargs else True},
-        {'name': 'LocatedIn', 'value': kwargs['LocatedIn'] if 'LocatedIn' in kwargs else 'US'}, ],
+        {'name': 'Condition', 'value': ['New', 'Used']},
+        {'name': 'SellingState', 'value': 'EndedWithSales'}
+        #{'name': 'FreeShippingOnly', 'value': kwargs['FreeShippingOnly'] if 'FreeShippingOnly' in kwargs else True},
+        #{'name': 'LocatedIn', 'value': kwargs['LocatedIn'] if 'LocatedIn' in kwargs else 'US'},
+        ],
     'paginationInput': {
         'entriesPerPage': 24,
         'pageNumber': 1 if 'ebayPage' not in kwargs else int(kwargs['ebayPage']), }}
-findItems_params['keywords'] = 'dog leash'
+findItems_params['keywords'] = 'Gex PS1 -3 -2 -long' #-3-2-deep+cover+gex-enter+the+gecko-long+box-long+case-longbox'
 findItems_params
 
+response = Finding.execute('findCompletedItems', findItems_params)
+r = response.dict()
+r['searchResult']['_count']
+r['searchResult']['item'][0]
+r['searchResult']['item'][0]['sellingStatus']['currentPrice']['value']
 
-response = Finding.execute('findItemsAdvanced', {'keywords': 'dog leash'})
 
 response.connection
 response.content

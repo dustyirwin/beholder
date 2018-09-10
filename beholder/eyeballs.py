@@ -20,7 +20,7 @@ import pprint
 '''
 BEHOLDER v0.3 written by Dustin Irwin 2018
 Rules:
-    1. Plurally named objects (e.g. a variable name that ends with a 's') should be an iterable
+    1. Plurally named objects should be an iterable
     2. Use the simplest representation of a function/data object possible
     3. Database object attributes: object.name(str), object.item_id(str), object.data(dict)
 
@@ -145,7 +145,7 @@ class Eye:
 
     def search(self, **kwargs):  # queries marketplace apis for objects. # queries marketplaces for objects
 
-        try:  # try to get response objects from apis
+        try:  # get response objects from apis
 
             self.session = Eye.open(self, kwargs['user'])
             self.session.data['market_datas'] = {}  # reset session from previous search
@@ -160,22 +160,22 @@ class Eye:
                     'page': str(kwargs[market_name +'_page']),
                     'category': str(kwargs[market_name +'_category']),
                     'keywords': kwargs['keywords'], }
-                
+
                 self.session.data['market_datas'][market_name] = market_data
                 self.session.save()
 
                 print(f"{str(len(market_data['object_ids']))} {market_name} objects added to session '{kwargs['user']}'.")
 
         except Exception as e:
-        #    import traceback
-        #    print(traceback.format_exc())
+            import traceback
+            print(traceback.format_exc())
             print(f"error retrieving items on {market_name}!: {e}")
 
-    def stare(self, **kwargs):
-        pass # gathers item details
+    def stare(self, **kwargs):  # todo: gather item details
+        pass
 
-    def mirror_object(self, **kwargs):
-        'cool stuff here?' # lists object in db on a marketplace
+    def mirror_object(self, **kwargs):   # todo: list object in db on a marketplace
+        pass
 
     def update_objects(self, objects):  # checks objects against db and updates as needed, expects iterable
         tracked_values = ['sale_price', 'stock', 'customer_rating']
@@ -296,6 +296,7 @@ class Ebay(Eye):
             'findItemsAdvanced',
             self.findItems_params).dict()
 
+        print(response)
         objects = response['searchResult']['item']
         objects = [{
                 'name': item['title'],
@@ -319,6 +320,7 @@ class Ebay(Eye):
 
         return objects
 
+
     def getItemDetails(self, _item={}, **kwargs):
         return {**self.ShoppingAPI.execute(
             'GetSingleItem', {
@@ -341,7 +343,7 @@ class Ebay(Eye):
                 'sortOrder': 'PricePlusShippingHighest', #EndTimeSoonest
                 'outputSelector': ['CategoryHistogram', 'AspectHistogram', 'SellerInfo', 'GalleryInfo'],
                 'itemFilter': [
-                    {'name': 'Condition', 'value': ['New']},
+                    {'name': 'Condition', 'value': ['New', 'Used']},
                     {'name': 'LocatedIn', 'value': 'US'}, ],
                 'paginationInput': {
                     'entriesPerPage': 25,
@@ -542,10 +544,10 @@ class Ebay(Eye):
 
             return {'ebayItem': ebayItem, 'amazonItems': amazonItems}
 
-    def listItem(self, **kwargs):
+    def listItem(self, **kwargs):  # todo
         pass
 
-    def cancelListing(self, **kwargs):
+    def cancelListing(self, **kwargs):  # todo
         pass
 
 
