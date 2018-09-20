@@ -15,6 +15,7 @@ import re
 import isodate
 import numpy as np
 import pprint
+import traceback
 
 
 '''
@@ -143,19 +144,18 @@ class Eye:
 
         return self.session
 
-    def search(self, **kwargs):  # queries marketplace apis for objects. # queries marketplaces for objects
+    def search(self, **kwargs):  # queries marketplace apis for objects.
+        self.session = Eye.open(self, kwargs['user'])
+        #self.session.data['market_datas'] = {} # reset session from previous search?
 
-        try:  # get response objects from apis
+        for market_name in kwargs['market_names']:
 
-            self.session = Eye.open(self, kwargs['user'])
-            self.session.data['market_datas'] = {}  # reset session from previous search
-
-            for market_name in kwargs['market_names']:
+            try:  # get response objects from apis
 
                 objects = Eyes[market_name].findItems(**kwargs)  # get resp_objects from marketplace api call
                 Eye.update_objects(self, objects)  # check db_objects against ItemData db, update as needed
 
-                market_data = {  # record response data to session for django template context creation
+                market_data = {
                     'object_ids': [obj['item_id'] for obj in objects],
                     'page': str(kwargs[market_name +'_page']),
                     'category': str(kwargs[market_name +'_category']),
@@ -163,13 +163,13 @@ class Eye:
 
                 self.session.data['market_datas'][market_name] = market_data
                 self.session.save()
-
                 print(f"{str(len(market_data['object_ids']))} {market_name} objects added to session '{kwargs['user']}'.")
 
-        except Exception as e:
-            import traceback
-            print(traceback.format_exc())
-            print(f"error retrieving items on {market_name}!: {e}")
+            except Exception as e:
+                self.session.data['market_datas'][market_name] = {}
+                self.session.save()
+                print(traceback.format_exc())
+                print(f"error retrieving items on {market_name}!: {e}")
 
     def stare(self, **kwargs):  # todo: gather item details
         pass
@@ -179,6 +179,7 @@ class Eye:
 
     def update_objects(self, objects):  # checks objects against db and updates as needed, expects iterable
         tracked_values = ['sale_price', 'stock', 'customer_rating']
+        i, j = 0, 0
 
         for obj in objects:
             diff = {}
@@ -193,21 +194,25 @@ class Eye:
                         if type(item.data[k]) == tuple:  # checks if v is already a tuple
                             if item.data[k][-1][0] != obj[k]:  # extends v with new (v, dt)
                                 diff[k] = ((item.data[k], obj[k], dt.now().__str__()), )
-                                print(f" Updated value for {k} in {item.name[:50]} | {item.data['item_id']}: {item.data[k]}")
+                                #print(f" Updated value for {k} in {item.name[:50]} | {item.data['item_id']}: {item.data[k]}")
                         else:
                             if item.data[k] != obj[k]:  # records new v with old v as a tuple: ((v,dt),(v,dt))
                                 diff[k] = ((item.data[k], dt.now().__str__()),(obj[k], dt.now().__str__()), )
-                                print(f" New value for {k} in {item.name[:50]} | {item.data['item_id']}: {item.data[k]}")
+                                #print(f" New value for {k} in {item.name[:50]} | {item.data['item_id']}: {item.data[k]}")
 
                         item.data = {**item.data, **diff}  # update item with diff dict
-                        print(f"item updated: {item.item_id} | {item.name[:50]} | price: {item.data['sale_price']}")
+                        #print(f"item updated: {item.item_id} | {item.name[:50]} | price: {item.data['sale_price']}")
                         item.save()
+                        i += 1
 
             else:
                 ItemData(
                     item_id=obj['item_id'],
                     name=obj['name'],
                     data=obj, ).save()
+                j += 1
+
+        print(f'Added {j} new items and updated {i} items in db.')
 
 
 class Walmart(Eye):
@@ -221,7 +226,7 @@ class Walmart(Eye):
         self.findItems_params = {
             'ResponseGroup': 'full',
             'categoryId': kwargs['walmart_category'] if bool(kwargs['walmart_category']) else None,
-            'page': int(kwargs['walmartPage']) if 'walmartPage' in kwargs else 1,
+            'page': int(kwargs['walmart_page']) if 'walmart_page' in kwargs else 1,
             'sort': 'bestseller',
             'numItems': 25}
 
@@ -278,13 +283,14 @@ class Ebay(Eye):
             'sortOrder': 'BestMatch',
             'outputSelector': ['GalleryURL', 'ConditionHistogram', 'PictureURLLarge'],
             'itemFilter': [
-                {'name': 'Condition', 'value': kwargs['Condition'] if 'Condition' in kwargs else ['New']},
-                {'name': 'ListingType', 'value': kwargs['ListingType'] if 'ListingType' in kwargs else 'AuctionWithBIN' },
-                {'name': 'FreeShippingOnly', 'value': kwargs['FreeShippingOnly'] if 'FreeShippingOnly' in kwargs else True},
+                {'name': 'Condition', 'value': kwargs['Condition'] if 'Condition' in kwargs else 'Unspecified'},
+                {'name': 'ListingType', 'value': kwargs['ListingType'] if 'ListingType' in kwargs else 'All'},
+                {'name': 'FreeShippingOnly', 'value': kwargs['FreeShippingOnly'] if 'FreeShippingOnly' in kwargs else False},
                 {'name': 'LocatedIn', 'value': kwargs['LocatedIn'] if 'LocatedIn' in kwargs else 'US'}, ],
             'paginationInput': {
                 'entriesPerPage': 24,
-                'pageNumber': 1 if 'ebayPage' not in kwargs else int(kwargs['ebayPage']), }}
+                'pageNumber': 1 #int(kwargs['ebay_page']) if 'ebay_page' in kwargs else 1,
+                }}
 
         if bool(kwargs['keywords']):
             self.findItems_params['keywords'] = kwargs['keywords']
@@ -293,10 +299,10 @@ class Ebay(Eye):
             self.findItems_params['categoryId'] = kwargs['ebay_category']
 
         response = self.FindingAPI.execute(
-            'findItemsAdvanced',
+            'findItemsAdvanced',  # todo: add 'findCompletedItems' option
             self.findItems_params).dict()
 
-        print(response)
+        #print(f'response: {response}')
         objects = response['searchResult']['item']
         objects = [{
                 'name': item['title'],
@@ -319,7 +325,6 @@ class Ebay(Eye):
                 'category_path': item['primaryCategory']['categoryName'], } for item in objects]
 
         return objects
-
 
     def getItemDetails(self, _item={}, **kwargs):
         return {**self.ShoppingAPI.execute(

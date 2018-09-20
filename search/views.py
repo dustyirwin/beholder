@@ -16,9 +16,13 @@ class IndexView(TemplateView):
         kwargs = request.GET.dict()
         kwargs['user'] = request.user
         # activate user-requested marketplaces and query
-        kwargs['market_names'] = [k[:-5] for k in kwargs if '_page' in k and bool(k)]
+        kwargs['market_names'] = [k[:-5] for k in kwargs if '_page' in k]
+
         if 'keywords' in request.GET:
             self.eye.search(**kwargs)
+
+        else:
+            pass  # todo: user requests page change
         session = self.eye.open(request.user)
         session.data['kwargs'] = kwargs
 

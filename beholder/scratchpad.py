@@ -32,29 +32,42 @@ type(k)
 
 #################### ebay section  ###############################
 from ebaysdk.finding import Connection as FindingConnection
+from beholder.keys import keys
+kz = keys.keys
 Finding = FindingConnection(appid=kz['ebay']['production']['appid'], config_file=None)
 kwargs={}
 findItems_params = {
-    'categoryId': 139973,
+    #'categoryId': 139973,
     'descriptionSearch': True,
     'sortOrder': 'PricePlusShippingLowest',
     #'outputSelector': ['GalleryURL', 'ConditionHistogram', 'PictureURLLarge'],
     'itemFilter': [
         {'name': 'Condition', 'value': ['New', 'Used']},
-        {'name': 'SellingState', 'value': 'EndedWithSales'}
+        #{'name': 'SellingState', 'value': 'EndedWithSales'}
         #{'name': 'FreeShippingOnly', 'value': kwargs['FreeShippingOnly'] if 'FreeShippingOnly' in kwargs else True},
         #{'name': 'LocatedIn', 'value': kwargs['LocatedIn'] if 'LocatedIn' in kwargs else 'US'},
         ],
     'paginationInput': {
-        'entriesPerPage': 24,
+        'entriesPerPage': 99,
         'pageNumber': 1 if 'ebayPage' not in kwargs else int(kwargs['ebayPage']), }}
-findItems_params['keywords'] = 'Gex PS1 -3 -2 -long' #-3-2-deep+cover+gex-enter+the+gecko-long+box-long+case-longbox'
+findItems_params['keywords'] = 'eco friendly dog food' #-3-2-deep+cover+gex-enter+the+gecko-long+box-long+case-longbox'
 findItems_params
 
-response = Finding.execute('findCompletedItems', findItems_params)
-r = response.dict()
-r['searchResult']['_count']
-r['searchResult']['item'][0]
+resp_FIA = Finding.execute('findItemsAdvanced', findItems_params)
+resp_FCI = Finding.execute('findCompletedItems', findItems_params)
+
+
+resp = resp_FCI.dict()['searchResult']['item']
+
+
+sold_items = [item for item in resp if item['sellingStatus']['sellingState'] == 'EndedWithSales']
+unsold_items = [item for item in resp if item['sellingStatus']['sellingState'] != 'EndedWithSales']
+
+len(sold_items)
+len(unsold_items)
+
+sold_items
+
 r['searchResult']['item'][0]['sellingStatus']['currentPrice']['value']
 
 
