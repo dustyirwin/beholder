@@ -6,4 +6,4 @@ from django.contrib.postgres.fields import JSONField
 class QueryMarket(ModelForm):
     class Meta:
         model = Query
-        fields = ['active', 'market_name', 'category', 'filters']
+        fields = ['active', 'market_name', 'category', 'filters', 'keywords']  #[T/F,Str,]

@@ -19,7 +19,7 @@ class IndexView(TemplateView):
         user = authenticate(request, username=kwargs['username'], password=kwargs['password'])
 
         if user is not None:
-            return redirect('inventory:home')
+            return redirect('login:dashboard')
 
         else:
             return render(request, self.template_name, {'login_form': login_form, 'kwargs': kwargs,})

@@ -32,10 +32,9 @@ type(k)
 
 #################### ebay section  ###############################
 from ebaysdk.finding import Connection as FindingConnection
-from beholder.keys import keys
-kz = keys.keys
-Finding = FindingConnection(appid=kz['ebay']['production']['appid'], config_file=None)
-kwargs={}
+
+Finding = FindingConnection(appid='DustinIr-beholder-PRD-8fb0c962d-d008560e', config_file=None)
+
 findItems_params = {
     #'categoryId': 139973,
     'descriptionSearch': True,
@@ -43,86 +42,49 @@ findItems_params = {
     #'outputSelector': ['GalleryURL', 'ConditionHistogram', 'PictureURLLarge'],
     'itemFilter': [
         {'name': 'Condition', 'value': ['New', 'Used']},
-        #{'name': 'SellingState', 'value': 'EndedWithSales'}
-        #{'name': 'FreeShippingOnly', 'value': kwargs['FreeShippingOnly'] if 'FreeShippingOnly' in kwargs else True},
-        #{'name': 'LocatedIn', 'value': kwargs['LocatedIn'] if 'LocatedIn' in kwargs else 'US'},
+        #{'name': 'FreeShippingOnly', 'value': True},
+        #{'name': 'LocatedIn', 'value': 'US'},
         ],
     'paginationInput': {
         'entriesPerPage': 99,
-        'pageNumber': 1 if 'ebayPage' not in kwargs else int(kwargs['ebayPage']), }}
-findItems_params['keywords'] = 'eco friendly dog food' #-3-2-deep+cover+gex-enter+the+gecko-long+box-long+case-longbox'
-findItems_params
+        'pageNumber': 1, }}
 
-resp_FIA = Finding.execute('findItemsAdvanced', findItems_params)
+findItems_params['keywords'] = 'Final Fantasy 3 SNES'
+#findItems_params
+
+#resp_FIA = Finding.execute('findItemsAdvanced', findItems_params)
 resp_FCI = Finding.execute('findCompletedItems', findItems_params)
-
 
 resp = resp_FCI.dict()['searchResult']['item']
 
+#sample_item = resp_FCI.dict()['searchResult']['item'][1]
+#sample_item
 
-sold_items = [item for item in resp if item['sellingStatus']['sellingState'] == 'EndedWithSales']
-unsold_items = [item for item in resp if item['sellingStatus']['sellingState'] != 'EndedWithSales']
+sold_items = {item['itemId']: item for item in resp if item['sellingStatus']['sellingState'] == 'EndedWithSales'}
+unsold_items = {item['itemId']: item for item in resp if item['sellingStatus']['sellingState'] != 'EndedWithSales'}
 
-len(sold_items)
-len(unsold_items)
+sold_count = len(sold_items.items())
+sold_count
+unsold_count = len(unsold_items.items())
+unsold_count
 
-sold_items
+sold_item_0 = list(sold_items.values())[0]
+#sold_item
+percent_sales = sold_count/(unsold_count+sold_count)
 
-r['searchResult']['item'][0]['sellingStatus']['currentPrice']['value']
+sales_dollars_with_shipping = 0
+for key, item in sold_items.items():
+    sales_dollars_with_shipping += float(item['sellingStatus']['currentPrice']['value'])
+    sales_dollars_with_shipping += float(item['shippingInfo']['shippingServiceCost']['value'] if 'shippingInfo' in item and 'shippingServiceCost' in item['shippingInfo'] else 0.0)
 
-
-response.connection
-response.content
-
-
-objects = response['searchResult']['item']
-
-
-try:
-    myitem = {
-        "Item": {
-            "Title": "Harry Potter and the Philosopher's Stone",
-            "Description": "This is the first book in the Harry Potter series. In excellent condition!",
-            "PrimaryCategory": {"CategoryID": "377"},
-            "StartPrice": "1.0",
-            "CategoryMappingAllowed": "true",
-            "Country": "US",
-            "ConditionID": "3000",
-            "Currency": "USD",
-            "DispatchTimeMax": "3",
-            "ListingDuration": "Days_7",
-            "ListingType": "Chinese",
-            "PaymentMethods": "PayPal",
-            "PayPalEmailAddress": "tkeefdddder@gmail.com",
-               "PictureDetails": {"PictureURL": "http://i1.sandbox.ebayimg.com/03/i/00/30/07/20_1.JPG?set_id=8800005007"},
-            "PostalCode": "95125",
-            "Quantity": "1",
-            "ReturnPolicy": {
-                "ReturnsAcceptedOption": "ReturnsAccepted",
-                "RefundOption": "MoneyBack",
-                "ReturnsWithinOption": "Days_30",
-                "Description": "If you are not satisfied, return the book for refund.",
-                "ShippingCostPaidByOption": "Buyer"
-            },
-            "ShippingDetails": {
-                "ShippingType": "Flat",
-                "ShippingServiceOptions": {
-                    "ShippingServicePriority": "1",
-                    "ShippingService": "USPSMedia",
-                    "ShippingServiceCost": "2.50"
-                }
-            },
-            "Site": "US"
-        }
-    }
-
-Trading.execute('VerifyAddItem', myitem)
+print(f"""
+    Query: {findItems_params['keywords']}
+    Items Sold: {sold_count}
+    Total Sales w/Shipping: ${round(sales_dollars_with_shipping, 2)}
+    Sales Conversion Rate: %{round(percent_sales*100, 2)}""")
 
 
-except ConnectionError as e:
-print(e)
-print(e.response.dict())
-pass
+
 
 ############################# walmart section ########################################
 wally = Wapy(keys.keys['walmart']['apiKey'])
